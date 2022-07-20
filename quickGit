@@ -1,0 +1,296 @@
+#!/bin/bash
+
+GF="Fetch"
+GS="Stash"
+GR="Rebase"
+GSP="Stash Pop"
+GA="Add"
+GC="Commit"
+GP="Push"
+GAA="Add All"
+GK="Checkout"
+
+echo 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 | xclip
+
+checkFilesChanged(){
+        git diff --name-only > ~/bin/gitDialog/filesChanged
+        git ls-files --other --exclude-standard >> ~/bin/gitDialog/filesChanged
+        git diff --name-only --cached > ~/bin/gitDialog/filesStaged
+        HASH_COMMIT=`git rev-parse HEAD`
+        git diff-tree --no-commit-id --name-only -r $HASH_COMMIT > ~/bin/gitDialog/filesCommitted
+        TEXT_COMMIT=`git log --format=%B -n 1`
+}
+
+if([ -d .git ] )
+        then
+        	git for-each-ref --format='%(refname:short)' refs/heads/ > ~/bin/gitDialog/branchesList
+        	cat .git/HEAD | cut -c 17- > ~/bin/gitDialog/actualBranch
+        	actualBranch=`cat .git/HEAD | cut -c 17-`
+		checkFilesChanged
+        else
+                echo "Ceci n'est pas un dépot Git."
+                exit 0
+fi
+
+notification(){
+zenity --notification\
+    --window-icon="info" \
+    --text="$1"
+}
+
+_quitter(){
+    exit 0
+}
+
+git_fetch(){
+        git fetch
+}
+
+git_stash(){
+        git stash
+}
+
+git_stash_pop(){
+        git stash pop
+}
+
+git_checkout(){
+       ( if ret=`zenity --list --title=Checkout --text="Git checkout ..."  --column="Nom de branche"  $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/gitDialog/branchesList)`
+      	then
+           	titre=$ret
+              	if [ "$titre" = "" ]
+              	then
+                	echo "Il faut une branche"
+              	fi
+        else
+              	echo "Annulation"
+   	fi
+	if ([ -n "$titre" ])
+                then
+			git checkout $titre 
+			actualBranch=`cat .git/HEAD | cut -c 17-`
+                        unset titre
+			notification "Basculement sur la branche :
+<b>$actualBranch</b>"
+                else 
+                        echo "Pas de branche choisie"
+        fi
+	2>/dev/null) 
+
+}
+
+git_add_all(){
+	git add -A
+	checkFilesChanged
+	notification "Fichiers ajoutés au commit :
+$(sed ':z;N;$! bz;s/\n/ /g' ~/bin/gitDialog/filesStaged)"
+}
+
+git_add(){
+	checkFilesChanged
+
+	if file=`zenity --list --title=Add --text="Git add ..."  --column="Fichiers modifiés"  $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/gitDialog/filesChanged)`
+#	if file=`zenity --entry --text=git add < ... >'`
+	then
+		titre=$file
+		if [ "$titre" = "" ]
+                then
+                        echo "Pas de fichier ajouté"
+		fi
+       	else
+       		echo "Annulation"
+   	fi
+	if ([ -n "$titre" ])
+		then 
+			git add $titre && echo "fichier" $titre "ajouté"
+			checkFilesChanged
+			notification "Fichier ajouté au commit :
+$titre"
+			unset titre
+		else 
+			echo "Pas de fichier ajouté"
+
+	fi
+	2>/dev/null
+}
+
+git_reset_all(){
+	git reset
+	checkFilesChanged
+	notification "Fichiers non suivis :
+$(sed ':z;N;$! bz;s/\n/ /g' ~/bin/gitDialog/filesChanged)"
+}
+
+git_commit(){
+ 	if ret=`zenity --entry --text='Texte du commit'`
+	then
+	   	titre=$ret
+	      	if [ "$titre" = "" ]
+	      	then
+			echo "Il faut un texte de commit"
+	      	fi
+	else
+	      	echo "Annulation"
+   	fi
+	if ([ -n "$titre" ])
+                then 
+			git commit -m "$titre" && echo "Commit effectué :" $titre
+	                TEXT_COMMIT=$titre
+			notification "Commit défini :
+$titre"
+			unset titre
+			echo "en cours" > ~/bin/gitDialog/isCommitPending 
+                else 
+                        echo "Pas de commit effectué"
+        fi
+}
+
+git_commit_reset(){
+	git reset HEAD^
+	echo "précédent" > ~/bin/gitDialog/isCommitPending
+}
+
+git_push(){
+        if ret=`zenity --list --title=Push --text="Git push origin ..."  --column="Branche actuelle"  $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/gitDialog/actualBranch)`
+        then
+                titre=$ret
+                if [ "$titre" = "" ]
+                then
+                        echo "Il faut une destination"
+                fi
+        else
+                echo "Annulation"
+        fi
+        if ([ -n "$titre" ])
+                then 
+                        git push origin $titre && echo "Push sur la branche" $titre "effectué"
+                        notification "Push sur la branche :
+$titre"
+                        unset titre
+                        TEXT_COMMIT=""
+			echo "précédent" > ~/bin/gitDialog/isCommitPending
+                        if [ "$?" = -1 ] ; then
+                                zenity --error \
+                                --text="Mise à jour annulée."
+                        fi
+                else 
+                        echo "Pas de Push effectué"
+        fi
+        2>/dev/null
+}
+git_merge(){
+	if ret=`zenity --list --title=Merge --text="Git pull --merge origin ..."  --column="Nom de branche"  $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/gitDialog/branchesList)`
+        then
+           titre=$ret
+              if [ "$titre" = "" ]
+              then
+                	echo "Il faut un dépot distant"
+              fi
+        else
+              	echo "Annulation"
+   	fi
+	if ([ -n "$titre" ])
+                then 
+			git pull --merge origin $titre
+                	unset titre 
+                else 
+                        echo "Pas de Pull Merge effectué"
+        fi
+	2>/dev/null
+}
+
+git_rebase(){
+	if ret=`zenity --list --title=Rebase --text="Git pull --rebase origin ..."  --column="Nom de branche"  $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/gitDialog/branchesList)`
+        then
+           	titre=$ret
+              	if [ "$titre" = "" ]
+              	then
+                	echo "Il faut un dépot distant"
+              	fi
+        else
+              	echo "Annulation"
+   	fi
+	if ([ -n "$titre" ])
+                then
+			git pull --rebase origin $titre
+                        unset titre
+                else
+                        echo "Pas de Pull Rebase effectué"
+        fi
+	2>/dev/null
+}
+
+frm_git(){
+actualBranch=`cat .git/HEAD | cut -c 17-`
+checkFilesChanged
+EN_TETE="
+\t\t\t\t\t     <span color=\"red\">╔═══╗░░░╔╗░</span>
+\t\t\t\t\t     <span color=\"red\">║╔═╗║░░╔╝╚╗</span>
+\t\t\t\t\t     <span color=\"red\">║║░╚╝╔╗╚╗╔╝</span>
+\t\t\t\t\t     <span color=\"red\">║║╔═╗╠╣░║║░</span>
+\t\t\t\t\t     <span color=\"red\">║╚╩═║║║░║╚╗</span>
+\t\t\t\t\t     <span color=\"red\">╚═══╝╚╝░╚═╝</span>
+
+\t\t\t                     <span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>
+
+\t\t\t                     <span color=\"gray\">En attente d'ajout</span>
+	<span color=\"green\">$(sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/gitDialog/filesChanged)</span> 
+
+\t\t\t                    <span color=\"gray\">Ajoutés au commit</span>
+	<span color=\"orange\">$(sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/gitDialog/filesStaged)</span>
+____________________________________________________________
+
+\t\t\t	             <span color=\"grey\">Commit </span><span color=\"red\"><i>$(sed ':z;N;$! bz;s/\n/ /g' ~/bin/gitDialog/isCommitPending)</i></span>
+
+\t\t\t                           <span color=\"gray\">Commités</span>
+	<b>$(sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/gitDialog/filesCommitted)</b>
+
+\t\t\t                      <span color=\"gray\">Texte du commit</span>
+	<b>$TEXT_COMMIT</b>
+"
+
+zenity --list --width=30 --height=780 --text='<span font-family=\"Arial\">'"$EN_TETE"'</span>' \
+    --title="Git" \
+    --ok-label="Sélectionner" \
+    --cancel-label="Quitter" \
+    --hide-column 1 --column "" --column "" --column "" --column "" \
+    1 "  1" "						        $GF" ""\
+    2 "  2" "					     	        $GS" ""\
+    3 "  3" "					   	       $GR" ""\
+    4 "  4" "					            $GSP" ""\
+    5 "  5" "					   	          $GA" ""\
+    6 "  6" "					   	      $GC" ""\
+    7 "  7" "					   	         $GP" ""\
+    0 "" "" "" \
+    8 "  8" "					   	      $GAA" ""\
+    9 "  9" "					             $GK" "" 2>/dev/null;
+}
+
+frm_git_parser(){
+    case $1 in
+        1) git_fetch ;;
+        2) git_stash ;;
+	3) git_rebase ;;
+	4) git_stash_pop ;;
+	5) git_add ;;
+	6) git_commit ;;
+	7) git_push ;;
+	8) git_add_all ;;
+	9) git_checkout ;;
+        *)
+            quitter="1"
+            _quitter ;;
+    esac
+}
+
+fonction_git(){
+	menuchoice=$(frm_git)
+	frm_git_parser ${menuchoice%|*}
+	if [ $quitter!="1" ] ; then
+         	fonction_git
+    	fi
+}
+
+fonction_git
+
+exit 0

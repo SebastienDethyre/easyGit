@@ -1,0 +1,692 @@
+#!/bin/bash
+
+
+nbFilesByLine=6
+nbWordsByCommit=7
+
+GA="Add"
+GC="Commit"
+GP="Push"
+GRT="Reset"
+GCR="Commit Reset"
+
+GF="Fetch"
+GS="Stash"
+GR="Rebase"
+GSP="Stash Pop"
+GM="Merge"
+GCL="Clone"
+
+GST="Status"
+GL="Log"
+GLL="Reflog"
+GK="Checkout"
+GB="Branch"
+GAA="Add All"
+GRA="Reset All"
+
+MD="Dépot"
+MF="Fichiers"
+MI="Informations"
+SC="Clear"
+#echo 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 | xclip
+
+notification(){
+zenity --notification\
+    --window-icon="info" \
+    --text="$1"
+}
+
+CURRENT_DIR=`pwd`
+
+sticker(){
+"\t<span color=\"$1\">$2</span>
+<span color=\"$3\"><b>$(sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/gitDialog/$4 | xargs -n $nbFilesByLine echo -e '\t')</b></span>\n"
+}
+
+clear_screen(){
+	clear
+}
+
+checkFilesChanged(){
+        git diff --name-only > ~/bin/easyGit/filesChanged
+        git ls-files --other --exclude-standard > ~/bin/easyGit/filesUnfollowed
+	git diff --name-only > ~/bin/easyGit/filesChangedAndUnfollowed
+        git ls-files --other --exclude-standard >> ~/bin/easyGit/filesChangedAndUnfollowed
+        git diff --name-only --cached > ~/bin/easyGit/filesStaged
+	HASH_COMMIT=`git rev-parse HEAD`
+	git diff-tree --no-commit-id --name-only -r $HASH_COMMIT > ~/bin/easyGit/filesCommitted
+	TEXT_COMMIT=`git log --format=%B -n 1 | xargs -n $nbWordsByCommit echo -e '\t'`
+	REPO_ADRESS=`git config --get remote.origin.url`
+}
+
+if([ -d .git ] )
+        then
+        	git for-each-ref --format='%(refname:short)' refs/heads/ > ~/bin/easyGit/branchesList
+        	cat .git/HEAD | cut -c 17- > ~/bin/easyGit/actualBranch
+        	actualBranch=`cat .git/HEAD | cut -c 17-`
+		checkFilesChanged
+		echo $REPO_ADRESS | xclip
+        else
+                echo "Le répertoire courant n'est pas un dépot Git."
+#                exit 0
+fi
+
+
+LOGO_FULL_400="
+\t\t<span color=\"#A10101\">      ███████╗  ██╗████████╗</span>
+\t\t<span color=\"#AE0404\">     ██╔ ════╝  ██║╚  ═██╔   ═╝</span>
+\t\t<span color=\"#C60606\">     ██║  ████╗ ██║       ██║   </span>
+\t\t<span color=\"#D11E1E\">     ██║      ██ ║ ██║       ██║   </span>
+\t\t<span color=\"#F54B4B\">      ██████ ╔╝ ██║       ██║   </span>
+\t\t<span color=\"#F65151\">       ╚═════╝    ╚  ╝       ╚═╝   </span>\n
+\t<span color=\"darkblue\">$REPO_ADRESS</span>
+\t<span color=\"blue\">$CURRENT_DIR</span>\n
+\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>\n"
+
+LOGO_FULL_500="
+\t\t\t\t<span color=\"#A10101\">   ███████╗  ██╗████████╗</span>
+\t\t\t\t<span color=\"#AE0404\">  ██╔ ════╝  ██║╚  ═██╔   ═╝</span>
+\t\t\t\t<span color=\"#C60606\">  ██║  ████╗ ██║       ██║   </span>
+\t\t\t\t<span color=\"#D11E1E\">  ██║      ██ ║ ██║       ██║   </span>
+\t\t\t\t<span color=\"#F54B4B\">   ██████ ╔╝ ██║       ██║   </span>
+\t\t\t\t<span color=\"#F65151\">    ╚═════╝    ╚  ╝       ╚═╝   </span>\n
+\t<span color=\"darkblue\">$REPO_ADRESS</span>
+\t<span color=\"blue\">$CURRENT_DIR</span>\n
+\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>\n"
+
+
+
+
+
+LOGO_400="
+\t\t\t\t<span color=\"red\">╔═══╗░░░╔╗░</span>
+\t\t\t\t<span color=\"red\">║╔═╗║░░╔╝╚╗</span>
+\t\t\t\t<span color=\"red\">║║░╚╝╔╗╚╗╔╝</span>
+\t\t\t\t<span color=\"red\">║║╔═╗╠╣░║║░</span>
+\t\t\t\t<span color=\"red\">║╚╩═║║║░║╚╗</span>
+\t\t\t\t<span color=\"red\">╚═══╝╚╝░╚═╝</span>\n
+\t<span color=\"darkblue\">$REPO_ADRESS</span>
+\t<span color=\"blue\">$CURRENT_DIR</span>\n
+\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>\n"
+
+LOGO_500="
+\t\t\t\t\t     <span color=\"red\">╔═══╗░░░╔╗░</span>
+\t\t\t\t\t     <span color=\"red\">║╔═╗║░░╔╝╚╗</span>
+\t\t\t\t\t     <span color=\"red\">║║░╚╝╔╗╚╗╔╝</span>
+\t\t\t\t\t     <span color=\"red\">║║╔═╗╠╣░║║░</span>
+\t\t\t\t\t     <span color=\"red\">║╚╩═║║║░║╚╗</span>
+\t\t\t\t\t     <span color=\"red\">╚═══╝╚╝░╚═╝</span>\n
+\t<span color=\"darkblue\">$REPO_ADRESS</span>
+\t<span color=\"blue\">$CURRENT_DIR</span>\n
+\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>\n"
+
+ELEMENT_COMMIT="\t<span color=\"gray\">Dernier commit</span>
+\t<span><b><i>$TEXT_COMMIT</i></b></span>\n
+\t<i>$(sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesCommitted)</i>"
+
+ELEMENT_FILE_WAIT="\t<span color=\"gray\">En attente</span>
+\t<span color=\"green\">$(sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesChanged)</span>"
+
+SIMPLE_LINE="___________________________________________________\n"
+
+en_tete(){
+actualBranch=`cat .git/HEAD | cut -c 17-`
+checkFilesChanged
+EN_TETE="$LOGO_FULL_400"
+}
+
+notification(){
+zenity --notification\
+    --window-icon="info" \
+    --text="$1"
+}
+
+_quitter(){
+    exit 0
+}
+
+git_clone(){
+	if ret=`zenity --entry --text='Dépot à cloner'`
+                        then
+                                titre=$ret
+                                if [ "$titre" = "" ]
+                                then
+                                        echo "Il faut un dépot pour cloner"
+                                fi
+                        else
+                                echo "Annulation"
+                        fi
+			if ([ -n "$titre" ])
+                                then
+					if ret=`zenity  --file-selection --title="Répertoire de réception" --directory`
+                        			then
+                                			titre2=$ret
+                                			if [ "$titre2" = "" ]
+                               				then
+								echo "Pas de répertoire choisi"
+                                			fi
+                        			else
+                                			echo "Annulation"
+                        		fi
+                        		if ([ -n "$titre2" ])
+                                		then
+                                        		git clone $titre $titre2
+							echo "Git clone de $titre dans $titre2"
+							notification "Git clone de $titre dans $titre2"
+                                		else
+                                        		echo "Pas de clone effectué"
+                        		fi
+
+                                else
+                                        echo "Pas de clone effectué"
+                        fi
+
+
+}
+
+git_fetch(){
+	REPO_ADRESS=`git config --get remote.origin.url`
+        git fetch
+	echo "Git Fetch du dépot $REPO_ADRESS"
+        notification "Git Fetch du dépot $REPO_ADRESS"
+}
+
+git_stash(){
+        git stash
+	echo "Stockage des modifications locales"
+        notification "Stockage des modifications locales"
+}
+
+git_stash_pop(){
+        git stash pop
+	echo "Récupération des modifications locales"
+        notification "Récupération des modifications locales"
+}
+
+git_status(){
+        git status
+	echo "Git Status"
+}
+
+git_log(){
+	git log --summary
+	echo "Git Log"
+}
+
+git_reflog(){
+	git reflog
+	echo "Git Reflog"
+}
+
+git_branch(){
+        git branch
+	echo "Git Branch"
+}
+
+git_checkout(){
+       ( if ret=`zenity --list --title=Checkout --text="Git checkout ..."  --column="Branches disponibles"  $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/branchesList)`
+      	then
+           	titre=$ret
+              	if [ "$titre" = "" ]
+              	then
+                	echo "Il faut une branche"
+              	fi
+        else
+              	echo "Annulation"
+   	fi
+	if ([ -n "$titre" ])
+                then
+			git checkout $titre
+			actualBranch=`cat .git/HEAD | cut -c 17-`
+                        unset titre
+			echo "Basculement sur la branche :
+<b>$actualBranch</b>"
+			notification "Basculement sur la branche :
+<b>$actualBranch</b>"
+                else
+                        echo "Pas de branche choisie"
+        fi
+	2>/dev/null)
+}
+
+git_add_all(){
+	filesChangedAndUnfollowed=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUnfollowed`
+	if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ];then
+                echo "Commit en cours"
+                notification "Commit en cours"
+	elif [ "$filesChangedAndUnfollowed" = "" ];then 
+                echo "Aucun fichier à ajouter"
+                notification "Aucun fichier à ajouter"
+        else
+		git add -A
+		checkFilesChanged
+		notification "Fichiers ajoutés au commit :
+$(sed ':z;N;$! bz;s/\n/ /g' ~/bin/gitDialog/filesStaged)"
+	fi
+}
+
+git_add(){
+	checkFilesChanged
+filesChangedAndUnfollowed=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUnfollowed`
+	if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ];then
+                echo "Commit en cours"
+                notification "Commit en cours"
+	elif [ "$filesChangedAndUnfollowed" = "" ];then 
+		echo "Aucun fichier à ajouter"
+		notification "Aucun fichier à ajouter"
+        else
+		if file=`zenity --list --title=Add --text="Git add ..."  --column="Fichiers modifiés"  $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUnfollowed)`
+#	if file=`zenity --entry --text=git add < ... >'`
+		then
+			titre=$file
+			if [ "$titre" = "" ]
+	                then
+	                        echo "Pas de fichier ajouté"
+			fi
+	       	else
+	       		echo "Annulation"
+	   	fi
+		if ([ -n "$titre" ])
+			then
+				git add $titre && echo "fichier" $titre "ajouté"
+				checkFilesChanged
+				notification "Fichier ajouté au commit :
+$titre"
+				unset titre
+				git_add
+			else
+				echo "Pas de fichier ajouté"
+		fi
+	2>/dev/null
+	fi
+}
+
+git_reset_all(){
+	filesStaged=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesStaged`
+	if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ];then
+                echo "Commit en cours"
+                notification "Commit en cours"
+	elif [ "$filesStaged" = "" ];then 
+                echo "Aucun fichier à retirer"
+                notification "Aucun fichier à retirer"
+        else
+		git reset
+		checkFilesChanged
+		notification "Fichiers non suivis :
+$(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUnfollowed)"
+	fi
+}
+
+git_reset(){
+	filesStaged=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesStaged`
+	checkFilesChanged
+	if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ];then
+                echo "Commit en cours"
+                notification "Commit en cours"
+	elif [ "$filesStaged" = "" ];then 
+                echo "Aucun fichier à retirer"
+                notification "Aucun fichier à retirer"
+        else
+        	if file=`zenity --list --title=Suppression --text="Git reset ..."  --column="Fichiers ajoutés"  $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesStaged)`
+       		then
+	                titre=$file
+        	        if [ "$titre" = "" ]
+ 	                then
+        	                echo "Pas de fichier supprimé"
+			fi
+        	else
+      	        	echo "Annulation"
+        	fi
+        	if ([ -n "$titre" ])
+                	then
+                        	git reset $titre && echo "fichier" $titre "supprimé"
+				checkFilesChanged
+				notification "Fichier retiré :
+$titre"
+                        	unset titre
+				git_reset
+                	else
+                        	echo "Pas de fichier supprimé"
+        	fi
+        	2>/dev/null
+	fi
+}
+
+git_commit(){
+	filesStaged=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesStaged`
+ 	if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ];then
+		echo "Commit déjà en cours"
+		notification "Commit déjà en cours"
+	else
+		if [ "$filesStaged" = "" ]; then
+			echo "Pas de fichier ajouté"
+			notification "Aucun fichier ajouté pour commit"
+		else
+ 			if ret=`zenity --entry --width=1000 --text='Texte du commit'`
+			then
+	   			titre=$ret
+		      		if [ "$titre" = "" ]
+			      	then
+					echo "Il faut un texte de commit"
+		      		fi
+			else
+	      			echo "Annulation"
+   			fi
+			if ([ -n "$titre" ])
+                		then
+					git commit -m "$titre" && echo "Commit effectué :" $titre
+		                	TEXT_COMMIT=$titre
+					HASH_COMMIT=`git rev-parse HEAD`
+					mkdir ~/bin/easyGit/currentCommits/$HASH_COMMIT
+					touch ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending
+					notification "Commit défini :
+\t$titre"
+					unset titre
+                		else
+                        		echo "Pas de commit effectué"
+        		fi
+		fi
+	fi
+}
+
+git_commit_reset(){
+	if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ];
+	then
+		git reset HEAD^
+		rm ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending
+		rmdir ~/bin/easyGit/currentCommits/$HASH_COMMIT
+		echo "Commit annulé"
+		notification "Commit annulé"
+	else
+		echo "Opération impossible"
+		notification "Impossible de reset plus que le commit courant."
+	fi
+}
+
+git_push(){
+	if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ];then
+	        if ret=`zenity --list --title=Push --text="Git push origin ..."  --column="Branche actuelle"  $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/gitDialog/actualBranch)`
+	        then
+       		        titre=$ret
+ 	               if [ "$titre" = "" ]
+       		        then
+               		        echo "Il faut une destination"
+                	fi
+	        else
+       		        echo "Annulation"
+     	 	fi
+	        if ([ -n "$titre" ])
+        	then
+                       	git push origin $titre && echo "Push sur la branche" $titre "effectué"
+                     	notification "Push sur la branche :
+$titre"
+	                unset titre
+			rm ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending
+        		rmdir ~/bin/easyGit/currentCommits/$HASH_COMMIT
+
+			if [ "$?" = -1 ] ; then
+        	        	zenity --error \
+                	        --text="Mise à jour annulée."
+	               	fi
+	        else
+        		echo "Pas de Push effectué"
+		fi
+		2>/dev/null
+	else echo "Aucun commit : push impossible"
+	notification "Aucun commit : push impossible"
+	fi
+}
+
+git_merge(){
+	if ret=`zenity --list --title=Merge --text="Git pull --merge origin ..."  --column="Nom de branche"  $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/branchesList)`
+        then
+           titre=$ret
+              if [ "$titre" = "" ]
+              then
+                	echo "Il faut un dépot distant"
+              fi
+        else
+              	echo "Annulation"
+   	fi
+	if ([ -n "$titre" ])
+                then
+			git pull --merge origin $titre
+			echo "Git Pull en statégie Merge de la branche $titre"
+                        notification "Git Pull en statégie Merge de la branche $titre"
+                	unset titre
+                else
+                        echo "Pas de Pull Merge effectué"
+        fi
+	2>/dev/null
+}
+
+git_rebase(){
+	if ret=`zenity --list --title=Rebase --text="Git pull --rebase origin ..."  --column="Nom de branche"  $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/branchesList)`
+        then
+           	titre=$ret
+              	if [ "$titre" = "" ]
+              	then
+                	echo "Il faut un dépot distant"
+              	fi
+        else
+              	echo "Annulation"
+   	fi
+	if ([ -n "$titre" ])
+                then
+			git pull --rebase origin $titre
+			echo "Git Pull en statégie Rebase de la branche $titre"
+                	notification "Git Pull en statégie Rebase de la branche $titre"
+                        unset titre
+                else
+                        echo "Pas de Pull Rebase effectué"
+        fi
+	2>/dev/null
+}
+
+
+frm_fichiers(){
+actualBranch=`cat .git/HEAD | cut -c 17-`
+checkFilesChanged
+filesStaged=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesStaged`
+filesChangedAndUnfollowed=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUnfollowed`
+if [ -e ~/bin/gitDialog/currentCommits/$HASH_COMMIT/isCommitPending ];
+then
+EN_TETE="
+$LOGO_FULL_500
+\t<span color=\"gray\">En attente</span>
+<span color=\"green\">$(sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesChanged | xargs -n $nbFilesByLine echo -e '\t')</span>\n
+\t<span color=\"gray\">Non suivis</span>
+<span color=\"blue\">$(sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesUnfollowed | xargs -n $nbFilesByLine echo -e '\t')</span>\n
+\t$SIMPLE_LINE
+\t\t\t\t\t     <span color=\"grey\">Commit </span><span color=\"red\"><i>en cours</i></span>\n
+\t<span color=\"gray\">Contenu</span>
+<span><b>$TEXT_COMMIT</b></span>\n
+\t<span color=\"gray\">Commités</span>
+<b>$(sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesCommitted | xargs -n $nbFilesByLine echo -e '\t')</b>\n\n"
+
+elif [ "$filesChangedAndUnfollowed" = "" ]; then
+EN_TETE="
+$LOGO_FULL_500\n\n\n\n
+\t<span color=\"gray\">Dernier commit</span>
+<span><b><i>$TEXT_COMMIT</i></b></span>\n
+<i>$(sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesCommitted | xargs -n $nbFilesByLine echo -e '\t')</i>\n\n\n\n\n\n"
+
+elif [ "$filesStaged" = "" ]; then
+EN_TETE="
+$LOGO_FULL_500
+\t<span color=\"gray\">Dernier commit</span>
+<span><b><i>$TEXT_COMMIT</i></b></span>\n
+<i>$(sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesCommitted | xargs -n $nbFilesByLine echo -e '\t')</i>\n
+\t$SIMPLE_LINE\n
+\t<span color=\"gray\">Modifiés</span>
+<span color=\"green\">$(sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesChanged | xargs -n $nbFilesByLine echo -e '\t')</span>\n
+\t<span color=\"gray\">Non suivis</span>
+<span color=\"#155162\">$(sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesUnfollowed | xargs -n $nbFilesByLine echo -e '\t')</span>\n\n"
+
+else
+EN_TETE="
+$LOGO_FULL_500
+\t<span color=\"gray\">Dernier commit</span>
+<span><b><i>$TEXT_COMMIT</i></b></span>\n
+<i>$(sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesCommitted | xargs -n $nbFilesByLine echo -e '\t')</i>
+\t$SIMPLE_LINE
+\t<span color=\"gray\">Modifiés</span>
+<span color=\"green\">$(sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesChanged | xargs -n $nbFilesByLine echo -e '\t')</span>\n
+\t<span color=\"gray\">Non suivis</span>
+<span color=\"#155162\">$(sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesUnfollowed | xargs -n $nbFilesByLine echo -e '\t')</span>\n
+\t<span color=\"gray\">Ajoutés</span>
+<span color=\"orange\"><b>$(sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesStaged | xargs -n $nbFilesByLine echo -e '\t')</b></span>\n"
+
+fi
+2>/dev/null # bug zenity
+zenity --list --width=500 --height=830 --text='<span font-family=\"Arial\">'"$EN_TETE"'</span>' \
+    --title="Gestion des fichiers" \
+    --ok-label="Sélectionner" \
+    --cancel-label="Quitter" \
+    --hide-column 1 --column "" --column "" --column "" --column "" \
+    1 "    1" "						         $GA" ""\
+    2 "    2" "					             $GC" ""\
+    3 "    3" "						        $GP" ""\
+    0 "" "" "" \
+    4 "    4" "						       $GST" ""\
+    5 "    5" "						       $GRT" ""\
+    6 "    6" "						      $GAA" ""\
+    7 "    7" "					             $GRA" ""\
+    8 "    8" "					       $GCR" "" 2>/dev/null ;
+}
+
+frm_fichiers_parser(){
+    case $1 in
+        1) git_add ;;
+        2) git_commit ;;
+        3) git_push
+#		quitter=1"
+#               _quitter
+                ;;
+        4) git_status ;;
+        5) git_reset ;;
+        6) git_add_all ;;
+        7) git_reset_all ;;
+        8) git_commit_reset ;;
+        *) fonction_git ;;
+        esac
+}
+
+fonction_fichiers(){
+        menuchoice=$(frm_fichiers)
+        frm_fichiers_parser ${menuchoice%|*}
+        if [ $quitter!="1" ] ; then
+                fonction_fichiers
+        fi
+}
+
+
+frm_depots(){
+en_tete
+zenity --list --width=400 --height=520 --text='<span font-family=\"Arial\">'"$EN_TETE"'</span>' \
+    --title="Gestion des dépots" \
+    --ok-label="Sélectionner" \
+    --cancel-label="Quitter" \
+    --hide-column 1 --column "" --column "" --column "" --column "" \
+    1 "    1" "				         $GF" ""\
+    2 "    2" "				         $GS" ""\
+    3 "    3" "		                      $GSP" ""\
+    0 "" "" "" \
+    4 "    4" "				       $GR" ""\
+    5 "    5" "				        $GM" ""\
+    6 "    6" "				         $GCL" "" 2>/dev/null ;
+}
+
+frm_depots_parser(){
+    case $1 in
+        1) git_fetch ;;
+        2) git_stash ;;
+        3) git_stash_pop ;;
+        4) git_rebase ;;
+        5) git_merge ;;
+        6) git_clone ;;
+        *) fonction_git ;;
+	esac
+}
+
+fonction_depots(){
+        menuchoice=$(frm_depots)
+        frm_depots_parser ${menuchoice%|*}
+        if [ $quitter!="1" ] ; then
+                fonction_depots
+        fi
+}
+
+
+frm_infos(){
+en_tete
+
+zenity --list --width=400 --height=460 --text='<span font-family=\"Arial\">'"$EN_TETE"'</span>' \
+    --title="Informations" \
+    --ok-label="Sélectionner" \
+    --cancel-label="Quitter" \
+    --hide-column 1 --column "" --column "" --column "" --column ""\
+    1 "    1" "				            $GL" "" \
+    2 "    2" "			                  $GLL" ""\
+    0 "" "" "" \
+    3 "    3" "			                  $GST" ""\
+    4 "    4" "			                  $GB" "" 2>/dev/null ;
+}
+
+frm_infos_parser(){
+    case $1 in
+        1) git_log ;;
+        2) git_reflog ;;
+        3) git_status ;;
+        3) git_branch ;;
+        *) fonction_git ;;
+        esac
+}
+
+fonction_infos(){
+        menuchoice=$(frm_infos)
+        frm_infos_parser ${menuchoice%|*}
+        if [ $quitter!="1" ] ; then
+                fonction_infos
+        fi
+}
+
+frm_git(){
+	en_tete
+	zenity --list --width=400 --height=480 --text='<span font-family=\"Arial\">'"$EN_TETE"'</span>' \
+    	--title="Git" \
+    	--ok-label="Sélectionner" \
+    	--cancel-label="Quitter" \
+    	--hide-column 1 --column "" --column "" --column "" --column "" \
+    	1 "  1" "				         $MD" ""\
+    	2 "  2" "				       $MF" ""\
+    	0 "" "" "" \
+    	3 "  3" "			          $MI" ""\
+    	4 "  4" "				     $GK" ""\
+    	5 "  5" "				          $SC" "" 2>/dev/null;
+}
+
+frm_git_parser(){
+    case $1 in
+        1) fonction_depots ;;
+        2) fonction_fichiers ;;
+	3) fonction_infos ;;
+	4) git_checkout ;;
+	5) clear_screen ;;
+        *)
+            quitter="1"
+            _quitter ;;
+    esac
+}
+
+fonction_git(){
+	menuchoice=$(frm_git)
+	frm_git_parser ${menuchoice%|*}
+	if [ $quitter!="1" ] ; then
+         	fonction_git
+    	fi
+}
+
+fonction_git
+exit 0
