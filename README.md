@@ -1,2 +1,2 @@
 # easyGit
-A dialog box to simplify the usage of Git
+A dialog box to ease the usage of Git
