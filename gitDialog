@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-nbFilesByLine=6
+nbFilesByLine=4
 nbWordsByCommit=7
 
 GA="Add"
@@ -406,7 +406,7 @@ git_commit_reset(){
 
 git_push(){
 	if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ];then
-	        if ret=`zenity --list --title=Push --text="Git push origin ..."  --column="Branche actuelle"  $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/gitDialog/actualBranch)`
+	        if ret=`zenity --list --title=Push --text="Git push origin ..."  --column="Branche actuelle"  $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/actualBranch)`
 	        then
        		        titre=$ret
  	               if [ "$titre" = "" ]
@@ -488,9 +488,10 @@ git_rebase(){
 frm_fichiers(){
 actualBranch=`cat .git/HEAD | cut -c 17-`
 checkFilesChanged
+
 filesStaged=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesStaged`
 filesChangedAndUnfollowed=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUnfollowed`
-if [ -e ~/bin/gitDialog/currentCommits/$HASH_COMMIT/isCommitPending ];
+if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ];
 then
 EN_TETE="
 $LOGO_FULL_500
@@ -504,13 +505,6 @@ $LOGO_FULL_500
 <span><b>$TEXT_COMMIT</b></span>\n
 \t<span color=\"gray\">Commités</span>
 <b>$(sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesCommitted | xargs -n $nbFilesByLine echo -e '\t')</b>\n\n"
-
-elif [ "$filesChangedAndUnfollowed" = "" ]; then
-EN_TETE="
-$LOGO_FULL_500\n\n\n\n
-\t<span color=\"gray\">Dernier commit</span>
-<span><b><i>$TEXT_COMMIT</i></b></span>\n
-<i>$(sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesCommitted | xargs -n $nbFilesByLine echo -e '\t')</i>\n\n\n\n\n\n"
 
 elif [ "$filesStaged" = "" ]; then
 EN_TETE="
