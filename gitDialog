@@ -58,6 +58,7 @@ checkFilesChanged(){
 	git diff-tree --no-commit-id --name-only -r $HASH_COMMIT > ~/bin/easyGit/filesCommitted
 	TEXT_COMMIT=`git log --format=%B -n 1 | xargs -n $nbWordsByCommit echo -e '\t'`
 	REPO_ADRESS=`git config --get remote.origin.url`
+	actualBranch=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/actualBranch`
 }
 
 if([ -d .git ] )
@@ -72,7 +73,6 @@ if([ -d .git ] )
 #                exit 0
 fi
 
-
 LOGO_FULL_400="
 \t\t<span color=\"#A10101\">      ███████╗  ██╗████████╗</span>
 \t\t<span color=\"#AE0404\">     ██╔ ════╝  ██║╚  ═██╔   ═╝</span>
@@ -81,8 +81,7 @@ LOGO_FULL_400="
 \t\t<span color=\"#F54B4B\">      ██████ ╔╝ ██║       ██║   </span>
 \t\t<span color=\"#F65151\">       ╚═════╝    ╚  ╝       ╚═╝   </span>\n
 \t<span color=\"darkblue\">$REPO_ADRESS</span>
-\t<span color=\"blue\">$CURRENT_DIR</span>\n
-\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>\n"
+\t<span color=\"blue\">$CURRENT_DIR</span>\n"
 
 LOGO_FULL_500="
 \t\t\t\t<span color=\"#A10101\">   ███████╗  ██╗████████╗</span>
@@ -92,8 +91,7 @@ LOGO_FULL_500="
 \t\t\t\t<span color=\"#F54B4B\">   ██████ ╔╝ ██║       ██║   </span>
 \t\t\t\t<span color=\"#F65151\">    ╚═════╝    ╚  ╝       ╚═╝   </span>\n
 \t<span color=\"darkblue\">$REPO_ADRESS</span>
-\t<span color=\"blue\">$CURRENT_DIR</span>\n
-\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>\n"
+\t<span color=\"blue\">$CURRENT_DIR</span>\n"
 
 
 
@@ -107,8 +105,7 @@ LOGO_400="
 \t\t\t\t<span color=\"red\">║╚╩═║║║░║╚╗</span>
 \t\t\t\t<span color=\"red\">╚═══╝╚╝░╚═╝</span>\n
 \t<span color=\"darkblue\">$REPO_ADRESS</span>
-\t<span color=\"blue\">$CURRENT_DIR</span>\n
-\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>\n"
+\t<span color=\"blue\">$CURRENT_DIR</span>\n"
 
 LOGO_500="
 \t\t\t\t\t     <span color=\"red\">╔═══╗░░░╔╗░</span>
@@ -118,8 +115,7 @@ LOGO_500="
 \t\t\t\t\t     <span color=\"red\">║╚╩═║║║░║╚╗</span>
 \t\t\t\t\t     <span color=\"red\">╚═══╝╚╝░╚═╝</span>\n
 \t<span color=\"darkblue\">$REPO_ADRESS</span>
-\t<span color=\"blue\">$CURRENT_DIR</span>\n
-\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>\n"
+\t<span color=\"blue\">$CURRENT_DIR</span>\n"
 
 ELEMENT_COMMIT="\t<span color=\"gray\">Dernier commit</span>
 \t<span><b><i>$TEXT_COMMIT</i></b></span>\n
@@ -131,9 +127,10 @@ ELEMENT_FILE_WAIT="\t<span color=\"gray\">En attente</span>
 SIMPLE_LINE="___________________________________________________"
 
 en_tete(){
-actualBranch=`cat .git/HEAD | cut -c 17-`
 checkFilesChanged
-EN_TETE="$LOGO_FULL_400"
+actualBranch=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/actualBranch`
+EN_TETE="$LOGO_FULL_400
+\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>\n"
 }
 
 notification(){
@@ -225,7 +222,7 @@ git_branch(){
 }
 
 git_checkout(){
-       ( if ret=`zenity --list --title=Checkout --text="Git checkout ..."  --column="Branches disponibles"  $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/branchesList)`
+        if ret=`zenity --list --title=Checkout --text="Git checkout ..."  --column="Branches disponibles"  $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/branchesList)`
       	then
            	titre=$ret
               	if [ "$titre" = "" ]
@@ -239,15 +236,16 @@ git_checkout(){
                 then
 			git checkout $titre
 			actualBranch=`cat .git/HEAD | cut -c 17-`
+			cat .git/HEAD | cut -c 17- > ~/bin/easyGit/actualBranch
                         unset titre
 			echo "Basculement sur la branche :
-<b>$actualBranch</b>"
+$actualBranch"
 			notification "Basculement sur la branche :
 <b>$actualBranch</b>"
                 else
                         echo "Pas de branche choisie"
         fi
-	2>/dev/null)
+	2>/dev/null
 }
 
 git_add_all(){
@@ -268,7 +266,7 @@ $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/gitDialog/filesStaged)"
 
 git_add(){
 	checkFilesChanged
-filesChangedAndUnfollowed=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUnfollowed`
+	filesChangedAndUnfollowed=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUnfollowed`
 	if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ];then
                 echo "Commit en cours"
                 notification "Commit en cours"
@@ -486,7 +484,7 @@ git_rebase(){
 
 
 frm_fichiers(){
-actualBranch=`cat .git/HEAD | cut -c 17-`
+actualBranch=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/actualBranch`
 checkFilesChanged
 
 filesStaged=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesStaged`
@@ -495,6 +493,7 @@ if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ];
 then
 EN_TETE="
 $LOGO_FULL_500
+\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>\n
 \t<span color=\"gray\">En attente</span>
 <span color=\"green\">$(sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesChanged | xargs -n $nbFilesByLine echo -e '\t')</span>\n
 \t<span color=\"gray\">Non suivis</span>
@@ -509,6 +508,7 @@ $LOGO_FULL_500
 elif [ "$filesStaged" = "" ]; then
 EN_TETE="
 $LOGO_FULL_500
+\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>\n
 \t<span color=\"gray\">Dernier commit</span>
 <span><b><i>$TEXT_COMMIT</i></b></span>\n
 <i>$(sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesCommitted | xargs -n $nbFilesByLine echo -e '\t')</i>\n
@@ -521,6 +521,7 @@ $LOGO_FULL_500
 else
 EN_TETE="
 $LOGO_FULL_500
+\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>\n
 \t<span color=\"gray\">Dernier commit</span>
 <span><b><i>$TEXT_COMMIT</i></b></span>\n
 <i>$(sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesCommitted | xargs -n $nbFilesByLine echo -e '\t')</i>
@@ -675,6 +676,7 @@ frm_git_parser(){
 }
 
 fonction_git(){
+	checkFilesChanged
 	menuchoice=$(frm_git)
 	frm_git_parser ${menuchoice%|*}
 	if [ $quitter!="1" ] ; then
