@@ -1,4 +1,6 @@
 # Easy Git !
 A dialog box to ease the usage of Git
 
-Needs to be installed in the ~/bin directory, by now and works better with aliasses to access it from any local repository.
+This little script works better with aliasses to access it from any local repository.
+  - Needs to be installed in the ~/bin directory, by now
+  - Requires the Zenity library in order to make it work : https://doc.ubuntu-fr.org/zenity
