@@ -128,7 +128,7 @@ ELEMENT_COMMIT="\t<span color=\"gray\">Dernier commit</span>
 ELEMENT_FILE_WAIT="\t<span color=\"gray\">En attente</span>
 \t<span color=\"green\">$(sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesChanged)</span>"
 
-SIMPLE_LINE="___________________________________________________\n"
+SIMPLE_LINE="___________________________________________________"
 
 en_tete(){
 actualBranch=`cat .git/HEAD | cut -c 17-`
@@ -499,12 +499,12 @@ $LOGO_FULL_500
 <span color=\"green\">$(sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesChanged | xargs -n $nbFilesByLine echo -e '\t')</span>\n
 \t<span color=\"gray\">Non suivis</span>
 <span color=\"blue\">$(sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesUnfollowed | xargs -n $nbFilesByLine echo -e '\t')</span>\n
-\t$SIMPLE_LINE
-\t\t\t\t\t     <span color=\"grey\">Commit </span><span color=\"red\"><i>en cours</i></span>\n
+\t$SIMPLE_LINE\n
+\t\t\t\t\t     <span color=\"grey\">Commit </span><span color=\"red\"><i>en cours</i></span>
 \t<span color=\"gray\">Contenu</span>
 <span><b>$TEXT_COMMIT</b></span>\n
 \t<span color=\"gray\">Commités</span>
-<b>$(sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesCommitted | xargs -n $nbFilesByLine echo -e '\t')</b>\n\n"
+<b>$(sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesCommitted | xargs -n $nbFilesByLine echo -e '\t')</b>\n"
 
 elif [ "$filesStaged" = "" ]; then
 EN_TETE="
@@ -512,7 +512,7 @@ $LOGO_FULL_500
 \t<span color=\"gray\">Dernier commit</span>
 <span><b><i>$TEXT_COMMIT</i></b></span>\n
 <i>$(sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesCommitted | xargs -n $nbFilesByLine echo -e '\t')</i>\n
-\t$SIMPLE_LINE\n
+\t$SIMPLE_LINE\n\n
 \t<span color=\"gray\">Modifiés</span>
 <span color=\"green\">$(sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesChanged | xargs -n $nbFilesByLine echo -e '\t')</span>\n
 \t<span color=\"gray\">Non suivis</span>
@@ -524,7 +524,7 @@ $LOGO_FULL_500
 \t<span color=\"gray\">Dernier commit</span>
 <span><b><i>$TEXT_COMMIT</i></b></span>\n
 <i>$(sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesCommitted | xargs -n $nbFilesByLine echo -e '\t')</i>
-\t$SIMPLE_LINE
+\t$SIMPLE_LINE\n
 \t<span color=\"gray\">Modifiés</span>
 <span color=\"green\">$(sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesChanged | xargs -n $nbFilesByLine echo -e '\t')</span>\n
 \t<span color=\"gray\">Non suivis</span>
