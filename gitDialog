@@ -1,8 +1,8 @@
 #!/bin/bash
 
 
-nbFilesByLine=4
-nbWordsByCommit=7
+nbFilesByLine=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesByLinePref`
+nbWordsByCommit=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/wordsByLinePref`
 
 GA="Add"
 GC="Commit"
@@ -29,6 +29,8 @@ MD="Dépot"
 MF="Fichiers"
 MI="Informations"
 SC="Clear"
+CW="Résultats par ligne"
+
 #echo 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 | xclip
 
 notification(){
@@ -46,6 +48,69 @@ sticker(){
 
 clear_screen(){
 	clear
+}
+
+change_wrapping(){
+if ret=`zenity --list --title=Type --text="Choisir le type"  --column="Types disponibles"  $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/resultOptions)`
+        then
+                titre=$ret
+                if [ "$titre" = "" ]
+                then
+                        echo "Il faut un type"
+                fi
+        else
+                echo "Annulation"
+        fi
+        if ([ -n "$titre" ])
+                then
+			if [ "$titre" = "texte" ]
+                	then
+                        	if ret=`zenity --list --title=Nombre --text="Choisir le nombre"  --column="Nombres"  $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/resultNumbers)`
+				then
+                		titre=$ret
+                			if [ "$titre" = "" ]
+                			then
+                        			echo "Il faut un nombre"
+                			fi
+        			else
+                			echo "Annulation"
+        			fi
+        			if ([ -n "$titre" ])
+                		then
+					nbWordsByCommit=$(($titre))
+					echo $nbWordsByCommit > ~/bin/easyGit/wordsByLinePref
+					echo "$titre mots par ligne"
+					notification "$titre mots par ligne"
+                		else
+                        		echo "Pas de nombre choisi"
+        			fi
+        			2>/dev/null
+			else
+				if ret=`zenity --list --title=Nombre --text="Choisir le nombre"  --column="Nombres"  $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/resultNumbers)`
+                                then
+                                titre=$ret
+                                        if [ "$titre" = "" ]
+                                        then
+                                                echo "Il faut un nombre"
+                                        fi
+                                else
+                                        echo "Annulation"
+                                fi
+                                if ([ -n "$titre" ])
+                                then
+					nbFilesByLine=$(($titre))
+					echo $nbFilesByLine > ~/bin/easyGit/filesByLinePref
+                                        echo "$titre fichiers par ligne"
+					notification "$titre fichiers par ligne"
+                                else
+                                        echo "Pas de nombre choisi"
+                                fi
+                                2>/dev/null
+                	fi
+                else
+                        echo "Pas de type choisi"
+        fi
+        2>/dev/null
 }
 
 checkFilesChanged(){
@@ -260,7 +325,7 @@ git_add_all(){
 		git add -A
 		checkFilesChanged
 		notification "Fichiers ajoutés au commit :
-$(sed ':z;N;$! bz;s/\n/ /g' ~/bin/gitDialog/filesStaged)"
+$(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesStaged)"
 	fi
 }
 
@@ -637,7 +702,7 @@ $LOGO_FULL_500
 	fi
 fi
 2>/dev/null # bug zenity
-zenity --list --width=500 --height=830 --text='<span font-family=\"Arial\">'"$EN_TETE"'</span>' \
+zenity --list --width=500 --height=860 --text='<span font-family=\"Arial\">'"$EN_TETE"'</span>' \
     --title="Gestion des fichiers" \
     --ok-label="Sélectionner" \
     --cancel-label="Quitter" \
@@ -646,11 +711,13 @@ zenity --list --width=500 --height=830 --text='<span font-family=\"Arial\">'"$EN
     2 "    2" "					             $GC" ""\
     3 "    3" "						        $GP" ""\
     0 "" "" "" \
-    4 "    4" "						       $GST" ""\
-    5 "    5" "						       $GRT" ""\
-    6 "    6" "						      $GAA" ""\
-    7 "    7" "					             $GRA" ""\
-    8 "    8" "					       $GCR" "" 2>/dev/null ;
+    4 "    4" "						       $GRT" ""\
+    5 "    5" "						      $GAA" ""\
+    6 "    6" "					             $GRA" ""\
+    7 "    7" "					       $GCR" ""\
+    8 "    8" "						       $GST" ""\
+    9 "    9" "				            $CW" "" 2>/dev/null ;
+
 }
 
 frm_fichiers_parser(){
@@ -661,11 +728,12 @@ frm_fichiers_parser(){
 #		quitter=1"
 #               _quitter
                 ;;
-        4) git_status ;;
-        5) git_reset ;;
-        6) git_add_all ;;
-        7) git_reset_all ;;
-        8) git_commit_reset ;;
+        4) git_reset ;;
+        5) git_add_all ;;
+        6) git_reset_all ;;
+        7) git_commit_reset ;;
+        8) git_status ;;
+	9) change_wrapping ;;
         *) fonction_git ;;
         esac
 }
@@ -751,7 +819,7 @@ fonction_infos(){
 
 frm_git(){
 	en_tete
-	zenity --list --width=400 --height=480 --text='<span font-family=\"Arial\">'"$EN_TETE"'</span>' \
+	zenity --list --width=400 --height=500 --text='<span font-family=\"Arial\">'"$EN_TETE"'</span>' \
     	--title="Git" \
     	--ok-label="Sélectionner" \
     	--cancel-label="Quitter" \
@@ -762,6 +830,7 @@ frm_git(){
     	3 "  3" "			          $MI" ""\
     	4 "  4" "				     $GK" ""\
     	5 "  5" "				          $SC" "" 2>/dev/null;
+
 }
 
 frm_git_parser(){
