@@ -1,5 +1,5 @@
 # Easy Git !
-A dialog box to ease the use of Git
+A dialog box to ease the use of Git, with Linux
 
 This little script works better with aliasses to access it from any local Git repository.
   - Needs to be installed in the ~/bin directory, by now
