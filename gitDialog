@@ -543,14 +543,13 @@ $LOGO_FULL_500
 	fi
 
 elif [ "$filesStaged" = "" ]; then
-	if [ "$filesChangedAndUnfollowed" = "" ];then
+ 	if [ "$filesChangedAndUnfollowed" = "" ];then
                 EN_TETE="
 $LOGO_FULL_500
-\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>\n
+\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>\n\n\n\n\n\n\n\n
 \t<span color=\"gray\">Dernier commit</span>
 <span><b><i>$TEXT_COMMIT</i></b></span>\n
-<i>$(sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesCommitted | xargs -n $nbFilesByLine echo -e '\t')</i>\n
-\t$SIMPLE_LINE\n\n"
+<i>$(sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesCommitted | xargs -n $nbFilesByLine echo -e '\t')</i>\n\n\n"
 	elif [[ "$filesUnfollowed" == "" ]] && [[ "$filesChanged" != "" ]] ; then
                 EN_TETE="
 $LOGO_FULL_500
@@ -593,7 +592,7 @@ $LOGO_FULL_500
 \t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>\n
 \t<span color=\"gray\">Dernier commit</span>
 <span><b><i>$TEXT_COMMIT</i></b></span>\n
-<i>$(sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesCommitted | xargs -n $nbFilesByLine echo -e '\t')</i>\n\n
+ <i>$(sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesCommitted | xargs -n $nbFilesByLine echo -e '\t')</i>\n\n
 \t$SIMPLE_LINE\n\n\n
 \t<span color=\"gray\">Ajoutés</span>
 <span color=\"orange\"><b>$(sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesStaged | xargs -n $nbFilesByLine echo -e '\t')</b></span>\n\n\n"
