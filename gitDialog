@@ -15,6 +15,7 @@ GS="Stash"
 GR="Rebase"
 GSP="Stash Pop"
 GM="Merge"
+OR="Ouvrir dépot"
 GCL="Clone"
 
 GST="Status"
@@ -127,6 +128,10 @@ checkFilesChanged(){
 	TEXT_COMMIT=`echo "$TEXT_COMMIT" | fold -b60 -s  | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
 	REPO_ADRESS=`git config --get remote.origin.url`
 	actualBranch=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/actualBranch`
+}
+
+open_repo(){
+	xdg-open $REPO_ADRESS
 }
 
 if([ -d .git ] )
@@ -760,6 +765,7 @@ $LOGO_FULL_500
 <i>$filesCommitted</i>
 \t$SIMPLE_LINE
 
+
 \t<span color=\"gray\">Ajoutés</span>
 <span color=\"orange\"><b>$filesStaged</b></span>
 
@@ -779,6 +785,7 @@ $LOGO_FULL_500
 \t<span color=\"gray\">Modifiés</span>
 <span color=\"green\">$filesChanged</span>
 
+
 \t<span color=\"gray\">Ajoutés</span>
 <span color=\"orange\"><b>$filesStaged</b></span>
 
@@ -797,6 +804,7 @@ $LOGO_FULL_500
 
 \t<span color=\"gray\">Non suivis</span>
 <span color=\"#155162\">$filesUnfollowed</span>
+
 
 \t<span color=\"gray\">Ajoutés</span>
 <span color=\"orange\"><b>$filesStaged</b></span>
@@ -819,6 +827,7 @@ $LOGO_FULL_500
 
 \t<span color=\"gray\">Non suivis</span>
 <span color=\"#155162\">$filesUnfollowed</span>
+
 
 \t<span color=\"gray\">Ajoutés</span>
 <span color=\"orange\"><b>$filesStaged</b></span>
@@ -847,9 +856,9 @@ zenity --list --width=500 --height=$dialogHeight --text='<span font-family=\"Ari
     4 "    4" "						         $GP" ""\
     0 "" "" "" \
     5 "    5" "						        $GRT" ""\
-    6 "    6" "						       $GAA" ""\
-    7 "    7" "					              $GRA" ""\
-    8 "    8" "					        $GCR" ""\
+    6 "    6" "						      $GAA" ""\
+    7 "    7" "					             $GRA" ""\
+    8 "    8" "					       $GCR" ""\
     9 "    9" "						       $GST" "" 2>/dev/null ;
 }
 
@@ -883,7 +892,7 @@ fonction_fichiers(){
 
 frm_depots(){
 en_tete
-zenity --list --width=400 --height=520 --text='<span font-family=\"Arial\">'"$EN_TETE"'</span>' \
+zenity --list --width=400 --height=550 --text='<span font-family=\"Arial\">'"$EN_TETE"'</span>' \
     --title="Gestion des dépots" \
     --ok-label="Sélectionner" \
     --cancel-label="Quitter" \
@@ -894,7 +903,9 @@ zenity --list --width=400 --height=520 --text='<span font-family=\"Arial\">'"$EN
     0 "" "" "" \
     4 "    4" "				       $GR" ""\
     5 "    5" "				        $GM" ""\
-    6 "    6" "				         $GCL" "" 2>/dev/null ;
+    0 "" "" "" \
+    6 "    6" "				 $OR" ""\
+    7 "    7" "				         $GCL" "" 2>/dev/null ;
 }
 
 frm_depots_parser(){
@@ -904,7 +915,8 @@ frm_depots_parser(){
         3) git_stash_pop ;;
         4) git_rebase ;;
         5) git_merge ;;
-        6) git_clone ;;
+        6) open_repo ;;
+        7) git_clone ;;
         *) fonction_git ;;
 	esac
 }
