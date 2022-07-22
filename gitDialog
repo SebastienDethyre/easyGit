@@ -284,7 +284,7 @@ git_reflog(){
 }
 
 git_branch(){
-        git branch
+	git branch
 	echo "Git Branch"
 }
 
@@ -902,7 +902,7 @@ frm_infos_parser(){
         1) git_log ;;
         2) git_reflog ;;
         3) git_status ;;
-        3) git_branch ;;
+        4) git_branch ;;
         *) fonction_git ;;
         esac
 }
