@@ -308,7 +308,7 @@ git_checkout(){
 			echo "Basculement sur la branche :
 $actualBranch"
 			notification "Basculement sur la branche :
-<b>$actualBranch</b>"
+\t<b>$actualBranch</b>"
                 else
                         echo "Pas de branche choisie"
         fi
@@ -358,7 +358,7 @@ git_add(){
 				git add $titre && echo "fichier" $titre "ajouté"
 				checkFilesChanged
 				notification "Fichier ajouté au commit :
-$titre"
+\t$titre"
 				unset titre
 				git_add
 			else
@@ -411,7 +411,7 @@ git_reset(){
                         	git reset $titre && echo "fichier" $titre "supprimé"
 				checkFilesChanged
 				notification "Fichier retiré :
-$titre"
+\t$titre"
                         	unset titre
 				git_reset
                 	else
@@ -488,7 +488,7 @@ git_push(){
         	then
                        	git push origin $titre && echo "Push sur la branche" $titre "effectué"
                      	notification "Push sur la branche :
-$titre"
+\t$titre"
 	                unset titre
 			rm ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending
         		rmdir ~/bin/easyGit/currentCommits/$HASH_COMMIT
