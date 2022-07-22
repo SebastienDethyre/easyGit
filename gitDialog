@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 nbFilesByLine=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesByLinePref`
 nbWordsByCommit=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/wordsByLinePref`
 
@@ -563,7 +562,9 @@ filesUnfollowed=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesUnfollowed | fold 
 filesStaged=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesStaged | fold -b61 -s  | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
 filesCommitted=`sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesCommitted | fold -b61 -s  | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
 filesChangedAndUnfollowed=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUnfollowed`
+
 ############### commit ####################
+
 if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ];
 then
 	############### no modified and no untracked ####################
@@ -640,7 +641,9 @@ $LOGO_FULL_500
 
 "
 	fi
+
 ############### by default ####################
+
 elif [ "$filesStaged" = "" ]; then
 	############### no modified and no untracked ####################
  	if [ "$filesChangedAndUnfollowed" = "" ];then
@@ -706,7 +709,9 @@ $LOGO_FULL_500
 
 "
 	fi
+
 ############### files added ####################
+
 else
 	############### no modified and no untracked ####################
 	if [ "$filesChangedAndUnfollowed" = "" ];then
@@ -788,6 +793,7 @@ $LOGO_FULL_500
 fi
 
 # vertical responsiveness
+
 nbLines=`echo -n "$EN_TETE" | grep -c '^'`
 commandsHeight=355
 oneLineHeight=17
