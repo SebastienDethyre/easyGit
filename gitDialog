@@ -4,6 +4,7 @@ nbFilesByLine=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesByLinePref`
 nbWordsByCommit=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/wordsByLinePref`
 
 GA="Add"
+GAS="Add One"
 GC="Commit"
 GP="Push"
 GRT="Reset"
@@ -368,6 +369,40 @@ git_add(){
 	fi
 }
 
+git_add_single(){
+        checkFilesChanged
+        filesChangedAndUnfollowed=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUnfollowed`
+        if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ];then
+                echo "Commit en cours"
+                notification "Commit en cours"
+        elif [ "$filesChangedAndUnfollowed" = "" ];then
+                echo "Aucun fichier à ajouter"
+                notification "Aucun fichier à ajouter"
+        else
+                if file=`zenity --list --title=Add --text="Git add ..."  --column="Fichiers modifiés"  $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUnfollowed)`
+                then
+                        titre=$file
+                        if [ "$titre" = "" ]
+                        then
+                                echo "Pas de fichier ajouté"
+                        fi
+                else
+                        echo "Annulation"
+                fi
+                if ([ -n "$titre" ])
+                        then
+                                git add $titre && echo "fichier" $titre "ajouté"
+                                checkFilesChanged
+                                notification "Fichier ajouté au commit :
+\t$titre"
+                                unset titre
+                        else
+                                echo "Pas de fichier ajouté"
+                fi
+        2>/dev/null
+        fi
+}
+
 git_reset_all(){
 	filesStaged=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesStaged`
 	if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ];then
@@ -557,9 +592,9 @@ git_rebase(){
 frm_fichiers(){
 actualBranch=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/actualBranch`
 checkFilesChanged
-filesChanged=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChanged | fold -b61 -s  | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
-filesUnfollowed=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesUnfollowed | fold -b61 -s  | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
-filesStaged=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesStaged | fold -b61 -s  | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
+filesChanged=`sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesChanged | fold -b61 -s  | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
+filesUnfollowed=`sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesUnfollowed | fold -b61 -s  | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
+filesStaged=`sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesStaged | fold -b61 -s  | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
 filesCommitted=`sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesCommitted | fold -b61 -s  | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
 filesChangedAndUnfollowed=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUnfollowed`
 
@@ -795,7 +830,8 @@ fi
 # vertical responsiveness
 
 nbLines=`echo -n "$EN_TETE" | grep -c '^'`
-commandsHeight=355
+notification "$nbLines"
+commandsHeight=380
 oneLineHeight=17
 linesHeight=$(($oneLineHeight * $nbLines))
 dialogHeight=$(($commandsHeight + $linesHeight))
@@ -806,30 +842,32 @@ zenity --list --width=500 --height=$dialogHeight --text='<span font-family=\"Ari
     --ok-label="Sélectionner" \
     --cancel-label="Quitter" \
     --hide-column 1 --column "" --column "" --column "" --column "" \
-    1 "    1" "						         $GA" ""\
-    2 "    2" "					             $GC" ""\
-    3 "    3" "						        $GP" ""\
+    1 "    1" "						          $GA" ""\
+    2 "    2" "						     $GAS" ""\
+    3 "    3" "					              $GC" ""\
+    4 "    4" "						         $GP" ""\
     0 "" "" "" \
-    4 "    4" "						       $GRT" ""\
-    5 "    5" "						      $GAA" ""\
-    6 "    6" "					             $GRA" ""\
-    7 "    7" "					       $GCR" ""\
-    8 "    8" "						       $GST" "" 2>/dev/null ;
+    5 "    5" "						        $GRT" ""\
+    6 "    6" "						       $GAA" ""\
+    7 "    7" "					              $GRA" ""\
+    8 "    8" "					        $GCR" ""\
+    9 "    9" "						       $GST" "" 2>/dev/null ;
 }
 
 frm_fichiers_parser(){
     case $1 in
         1) git_add ;;
-        2) git_commit ;;
-        3) git_push
+        2) git_add_single ;;
+        3) git_commit ;;
+        4) git_push
 #		quitter=1"
 #               _quitter
                 ;;
-        4) git_reset ;;
-        5) git_add_all ;;
-        6) git_reset_all ;;
-        7) git_commit_reset ;;
-        8) git_status ;;
+        5) git_reset ;;
+        6) git_add_all ;;
+        7) git_reset_all ;;
+        8) git_commit_reset ;;
+        9) git_status ;;
         *) fonction_git ;;
         esac
 }
