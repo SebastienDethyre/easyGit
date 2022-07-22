@@ -31,7 +31,9 @@ MI="Informations"
 SC="Clear"
 CW="Résultats par ligne"
 
-#echo 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 | xclip
+CURRENT_DIR=`pwd`
+
+############### GENERAL FUNCTIONS ####################
 
 notification(){
 zenity --notification\
@@ -39,7 +41,6 @@ zenity --notification\
     --text="$1"
 }
 
-CURRENT_DIR=`pwd`
 
 sticker(){
 "\t<span color=\"$1\">$2</span>
@@ -123,9 +124,7 @@ checkFilesChanged(){
 	git diff-tree --no-commit-id --name-only -r $HASH_COMMIT > ~/bin/easyGit/filesCommitted
 #	TEXT_COMMIT=`git log --format=%B -n 1 | xargs -n $nbWordsByCommit echo -e '\t'`
 	TEXT_COMMIT=`git log --format=%B -n 1`
-	TEXT_COMMIT=`echo "$TEXT_COMMIT" | fold -b61 -s  | ( TAB=$'\t' ; sed "s/^/$TAB/" )
-`
-	
+	TEXT_COMMIT=`echo "$TEXT_COMMIT" | fold -b61 -s  | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
 	REPO_ADRESS=`git config --get remote.origin.url`
 	actualBranch=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/actualBranch`
 }
@@ -164,10 +163,6 @@ LOGO_FULL_500="
 \t<span color=\"blue\">$CURRENT_DIR</span>
 "
 
-
-
-
-
 LOGO_400="
 \t\t\t\t<span color=\"red\">╔═══╗░░░╔╗░</span>
 \t\t\t\t<span color=\"red\">║╔═╗║░░╔╝╚╗</span>
@@ -198,21 +193,23 @@ ELEMENT_FILE_WAIT="\t<span color=\"gray\">En attente</span>
 SIMPLE_LINE="___________________________________________________"
 
 en_tete(){
-checkFilesChanged
-actualBranch=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/actualBranch`
-EN_TETE="$LOGO_FULL_400
+	checkFilesChanged
+	actualBranch=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/actualBranch`
+	EN_TETE="$LOGO_FULL_400
 \t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>\n"
 }
 
 notification(){
-zenity --notification\
-    --window-icon="info" \
-    --text="$1"
+	zenity --notification\
+    	--window-icon="info" \
+    	--text="$1"
 }
 
 _quitter(){
     exit 0
 }
+
+############### GIT FUNCTIONS ####################
 
 git_clone(){
 	if ret=`zenity --entry --text='Dépot à cloner'`
@@ -324,7 +321,7 @@ git_add_all(){
 	if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ];then
                 echo "Commit en cours"
                 notification "Commit en cours"
-	elif [ "$filesChangedAndUnfollowed" = "" ];then 
+	elif [ "$filesChangedAndUnfollowed" = "" ];then
                 echo "Aucun fichier à ajouter"
                 notification "Aucun fichier à ajouter"
         else
@@ -343,12 +340,11 @@ git_add(){
 	if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ];then
                 echo "Commit en cours"
                 notification "Commit en cours"
-	elif [ "$filesChangedAndUnfollowed" = "" ];then 
+	elif [ "$filesChangedAndUnfollowed" = "" ];then
 		echo "Aucun fichier à ajouter"
 		notification "Aucun fichier à ajouter"
         else
 		if file=`zenity --list --title=Add --text="Git add ..."  --column="Fichiers modifiés"  $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUnfollowed)`
-#	if file=`zenity --entry --text=git add < ... >'`
 		then
 			titre=$file
 			if [ "$titre" = "" ]
@@ -378,7 +374,7 @@ git_reset_all(){
 	if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ];then
                 echo "Commit en cours"
                 notification "Commit en cours"
-	elif [ "$filesStaged" = "" ];then 
+	elif [ "$filesStaged" = "" ];then
                 echo "Aucun fichier à retirer"
                 notification "Aucun fichier à retirer"
         else
@@ -397,7 +393,7 @@ git_reset(){
 	if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ];then
                 echo "Commit en cours"
                 notification "Commit en cours"
-	elif [ "$filesStaged" = "" ];then 
+	elif [ "$filesStaged" = "" ];then
                 echo "Aucun fichier à retirer"
                 notification "Aucun fichier à retirer"
         else
@@ -557,6 +553,7 @@ git_rebase(){
 	2>/dev/null
 }
 
+############### FILES DIALOG ####################
 
 frm_fichiers(){
 actualBranch=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/actualBranch`
@@ -839,6 +836,7 @@ fonction_fichiers(){
         fi
 }
 
+############### REPOS DIALOG ####################
 
 frm_depots(){
 en_tete
@@ -876,6 +874,7 @@ fonction_depots(){
         fi
 }
 
+############### INFOS DIALOG ####################
 
 frm_infos(){
 en_tete
@@ -909,6 +908,8 @@ fonction_infos(){
                 fonction_infos
         fi
 }
+
+############### GENERAL DIALOG ####################
 
 frm_git(){
 	en_tete
