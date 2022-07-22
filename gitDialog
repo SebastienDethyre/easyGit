@@ -830,7 +830,6 @@ fi
 # vertical responsiveness
 
 nbLines=`echo -n "$EN_TETE" | grep -c '^'`
-notification "$nbLines"
 commandsHeight=380
 oneLineHeight=17
 linesHeight=$(($oneLineHeight * $nbLines))
