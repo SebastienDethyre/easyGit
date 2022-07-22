@@ -121,7 +121,11 @@ checkFilesChanged(){
         git diff --name-only --cached > ~/bin/easyGit/filesStaged
 	HASH_COMMIT=`git rev-parse HEAD`
 	git diff-tree --no-commit-id --name-only -r $HASH_COMMIT > ~/bin/easyGit/filesCommitted
-	TEXT_COMMIT=`git log --format=%B -n 1 | xargs -n $nbWordsByCommit echo -e '\t'`
+#	TEXT_COMMIT=`git log --format=%B -n 1 | xargs -n $nbWordsByCommit echo -e '\t'`
+	TEXT_COMMIT=`git log --format=%B -n 1`
+	TEXT_COMMIT=`echo "$TEXT_COMMIT" | fold -b61 -s  | ( TAB=$'\t' ; sed "s/^/$TAB/" )
+`
+	
 	REPO_ADRESS=`git config --get remote.origin.url`
 	actualBranch=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/actualBranch`
 }
@@ -557,12 +561,15 @@ git_rebase(){
 frm_fichiers(){
 actualBranch=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/actualBranch`
 checkFilesChanged
-filesChanged=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChanged`
-filesUnfollowed=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesUnfollowed`
-filesStaged=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesStaged`
+filesChanged=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChanged | fold -b61 -s  | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
+filesUnfollowed=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesUnfollowed | fold -b61 -s  | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
+filesStaged=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesStaged | fold -b61 -s  | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
+filesCommitted=`sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesCommitted | fold -b61 -s  | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
 filesChangedAndUnfollowed=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUnfollowed`
+############### commit ####################
 if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ];
 then
+	############### no modified and no untracked ####################
 	if [ "$filesChangedAndUnfollowed" = "" ];then
                 EN_TETE="
 $LOGO_FULL_500
@@ -574,15 +581,17 @@ $LOGO_FULL_500
 <span><b>$TEXT_COMMIT</b></span>
 
 \t<span color=\"gray\">Commités</span>
-<b>$(sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesCommitted | xargs -n $nbFilesByLine echo -e '\t')</b>
+<i>$filesCommitted</i>
+
 "
+	############### some modified and no untracked ####################
 	elif [[ "$filesUnfollowed" == "" ]] && [[ "$filesChanged" != "" ]] ; then
 		EN_TETE="
 $LOGO_FULL_500
 \t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>
 
 \t<span color=\"gray\">Modifiés</span>
-<span color=\"green\">$(sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesChanged | xargs -n $nbFilesByLine echo -e '\t')</span>
+<span color=\"green\">$filesChanged</span>
 \t$SIMPLE_LINE
 
 \t\t\t\t\t     <span color=\"grey\">Commit </span><span color=\"red\"><i>en cours</i></span>
@@ -591,15 +600,17 @@ $LOGO_FULL_500
 
 <span><b>$TEXT_COMMIT</b></span>
 \t<span color=\"gray\">Commités</span>
-<b>$(sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesCommitted | xargs -n $nbFilesByLine echo -e '\t')</b>
+<i>$filesCommitted</i>
+
 "
+	############### no modified but some untracked ####################
 	elif [[ "$filesChanged" == "" ]] && [[ "$filesUnfollowed" != "" ]]; then
 		EN_TETE="
 $LOGO_FULL_500
 \t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>
 
 \t<span color=\"gray\">Non suivis</span>
-<span color=\"#155162\">$(sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesUnfollowed | xargs -n $nbFilesByLine echo -e '\t')</span>
+<span color=\"#155162\">$filesUnfollowed</span>
 \t$SIMPLE_LINE
 
 \t\t\t\t\t     <span color=\"grey\">Commit </span><span color=\"red\"><i>en cours</i></span>
@@ -607,18 +618,20 @@ $LOGO_FULL_500
 <span><b>$TEXT_COMMIT</b></span>
 
 \t<span color=\"gray\">Commités</span>
-<b>$(sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesCommitted | xargs -n $nbFilesByLine echo -e '\t')</b>
+<i>$filesCommitted</i>
+
 "
+	############### by default ####################
 	else
 EN_TETE="
 $LOGO_FULL_500
 \t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>
 
 \t<span color=\"gray\">Modifiés</span>
-<span color=\"green\">$(sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesChanged | xargs -n $nbFilesByLine echo -e '\t')</span>
+<span color=\"green\">$filesChanged</span>
 
 \t<span color=\"gray\">Non suivis</span>
-<span color=\"#155162\">$(sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesUnfollowed | xargs -n $nbFilesByLine echo -e '\t')</span>
+<span color=\"#155162\">$filesUnfollowed</span>
 \t$SIMPLE_LINE
 
 \t\t\t\t\t     <span color=\"grey\">Commit </span><span color=\"red\"><i>en cours</i></span>
@@ -626,11 +639,13 @@ $LOGO_FULL_500
 <span><b>$TEXT_COMMIT</b></span>
 
 \t<span color=\"gray\">Commités</span>
-<b>$(sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesCommitted | xargs -n $nbFilesByLine echo -e '\t')</b>
+<i>$filesCommitted</i>
+
 "
 	fi
-
+############### by default ####################
 elif [ "$filesStaged" = "" ]; then
+	############### no modified and no untracked ####################
  	if [ "$filesChangedAndUnfollowed" = "" ];then
                 EN_TETE="
 $LOGO_FULL_500
@@ -640,8 +655,10 @@ $LOGO_FULL_500
 \t<span color=\"gray\">Dernier commit</span>
 <span><b><i>$TEXT_COMMIT</i></b></span>
 
-<i>$(sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesCommitted | xargs -n $nbFilesByLine echo -e '\t')</i>
+<i>$filesCommitted</i>
+
 "
+	############### some modified and no untracked ####################
 	elif [[ "$filesUnfollowed" == "" ]] && [[ "$filesChanged" != "" ]] ; then
                 EN_TETE="
 $LOGO_FULL_500
@@ -650,12 +667,14 @@ $LOGO_FULL_500
 \t<span color=\"gray\">Dernier commit</span>
 <span><b><i>$TEXT_COMMIT</i></b></span>
 
-<i>$(sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesCommitted | xargs -n $nbFilesByLine echo -e '\t')</i>
+<i>$filesCommitted</i>
 \t$SIMPLE_LINE
 
 \t<span color=\"gray\">Modifiés</span>
-<span color=\"green\">$(sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesChanged | xargs -n $nbFilesByLine echo -e '\t')</span>
+<span color=\"green\">$filesChanged</span>
+
 "
+	############### no modified but some untracked ####################
 	elif [[ "$filesChanged" == "" ]] && [[ "$filesUnfollowed" != "" ]]; then
                 EN_TETE="
 $LOGO_FULL_500
@@ -663,13 +682,14 @@ $LOGO_FULL_500
 
 \t<span color=\"gray\">Dernier commit</span>
 <span><b><i>$TEXT_COMMIT</i></b></span>\n
-<i>$(sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesCommitted | xargs -n $nbFilesByLine echo -e '\t')</i>
+<i>$filesCommitted</i>
 \t$SIMPLE_LINE
 
 \t<span color=\"gray\">Non suivis</span>
-<span color=\"#155162\">$(sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesUnfollowed | xargs -n $nbFilesByLine echo -e '\t')</span>
-"
+<span color=\"#155162\">$filesUnfollowed</span>
 
+"
+	############### by default ####################
 	else
 EN_TETE="
 $LOGO_FULL_500
@@ -678,18 +698,20 @@ $LOGO_FULL_500
 \t<span color=\"gray\">Dernier commit</span>
 <span><b><i>$TEXT_COMMIT</i></b></span>
 
-<i>$(sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesCommitted | xargs -n $nbFilesByLine echo -e '\t')</i>
+<i>$filesCommitted</i>
 \t$SIMPLE_LINE
 
 \t<span color=\"gray\">Modifiés</span>
-<span color=\"green\">$(sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesChanged | xargs -n $nbFilesByLine echo -e '\t')</span>
+<span color=\"green\">$filesChanged</span>
 
 \t<span color=\"gray\">Non suivis</span>
-<span color=\"#155162\">$(sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesUnfollowed | xargs -n $nbFilesByLine echo -e '\t')</span>
+<span color=\"#155162\">$filesUnfollowed</span>
+
 "
 	fi
-
+############### files added ####################
 else
+	############### no modified and no untracked ####################
 	if [ "$filesChangedAndUnfollowed" = "" ];then
 	EN_TETE="
 $LOGO_FULL_500
@@ -698,12 +720,14 @@ $LOGO_FULL_500
 \t<span color=\"gray\">Dernier commit</span>
 <span><b><i>$TEXT_COMMIT</i></b></span>
 
-<i>$(sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesCommitted | xargs -n $nbFilesByLine echo -e '\t')</i>
+<i>$filesCommitted</i>
 \t$SIMPLE_LINE
 
 \t<span color=\"gray\">Ajoutés</span>
-<span color=\"orange\"><b>$(sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesStaged | xargs -n $nbFilesByLine echo -e '\t')</b></span>
+<span color=\"orange\"><b>$filesStaged</b></span>
+
 "
+	############### some modified and no untracked ####################
 	elif [[ "$filesUnfollowed" == "" ]] && [[ "$filesChanged" != "" ]] ; then
 EN_TETE="
 $LOGO_FULL_500
@@ -712,16 +736,17 @@ $LOGO_FULL_500
 \t<span color=\"gray\">Dernier commit</span>
 <span><b><i>$TEXT_COMMIT</i></b></span>
 
-<i>$(sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesCommitted | xargs -n $nbFilesByLine echo -e '\t')</i>
+<i>$filesCommitted</i>
 \t$SIMPLE_LINE
 
 \t<span color=\"gray\">Modifiés</span>
-<span color=\"green\">$(sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesChanged | xargs -n $nbFilesByLine echo -e '\t')</span>
-
+<span color=\"green\">$filesChanged</span>
 
 \t<span color=\"gray\">Ajoutés</span>
-<span color=\"orange\"><b>$(sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesStaged | xargs -n $nbFilesByLine echo -e '\t')</b></span>
+<span color=\"orange\"><b>$filesStaged</b></span>
+
 "
+	############### no modified and some untracked ####################
 	elif [[ "$filesChanged" == "" ]] && [[ "$filesUnfollowed" != "" ]]; then
 EN_TETE="
 $LOGO_FULL_500
@@ -730,16 +755,17 @@ $LOGO_FULL_500
 \t<span color=\"gray\">Dernier commit</span>
 <span><b><i>$TEXT_COMMIT</i></b></span>
 
-<i>$(sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesCommitted | xargs -n $nbFilesByLine echo -e '\t')</i>
+<i>$filesCommitted</i>
 \t$SIMPLE_LINE
 
 \t<span color=\"gray\">Non suivis</span>
-<span color=\"#155162\">$(sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesUnfollowed | xargs -n $nbFilesByLine echo -e '\t')</span>
-
+<span color=\"#155162\">$filesUnfollowed</span>
 
 \t<span color=\"gray\">Ajoutés</span>
-<span color=\"orange\"><b>$(sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesStaged | xargs -n $nbFilesByLine echo -e '\t')</b></span>
+<span color=\"orange\"><b>$filesStaged</b></span>
+
 "
+	############### by default ####################
 	else
 EN_TETE="
 $LOGO_FULL_500
@@ -748,39 +774,27 @@ $LOGO_FULL_500
 \t<span color=\"gray\">Dernier commit</span>
 <span><b><i>$TEXT_COMMIT</i></b></span>
 
-<i>$(sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesCommitted | xargs -n $nbFilesByLine echo -e '\t')</i>
+<i>$filesCommitted</i>
 \t$SIMPLE_LINE
 
 \t<span color=\"gray\">Modifiés</span>
-<span color=\"green\">$(sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesChanged | xargs -n $nbFilesByLine echo -e '\t')</span>
+<span color=\"green\">$filesChanged</span>
 
 \t<span color=\"gray\">Non suivis</span>
-<span color=\"#155162\">$(sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesUnfollowed | xargs -n $nbFilesByLine echo -e '\t')</span>
+<span color=\"#155162\">$filesUnfollowed</span>
 
 \t<span color=\"gray\">Ajoutés</span>
-<span color=\"orange\"><b>$(sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesStaged | xargs -n $nbFilesByLine echo -e '\t')</b></span>
+<span color=\"orange\"><b>$filesStaged</b></span>
+
 "
 	fi
 fi
 
-EN_TEST="
-$LOGO_FULL_500
-\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>\n
-\t<span color=\"gray\">Dernier commit</span>
-<span><b><i>$TEXT_COMMIT</i></b></span>\n
-<i>$(sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesCommitted | xargs -n $nbFilesByLine echo -e '\t')</i>\n"
-EN_TEST="
-$LOGO_FULL_500
-\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>
-"
-
-#responsiveness
+# vertical responsiveness
 nbLines=`echo -n "$EN_TETE" | grep -c '^'`
-commandsHeight=375
+commandsHeight=355
 oneLineHeight=17
-
 linesHeight=$(($oneLineHeight * $nbLines))
-
 dialogHeight=$(($commandsHeight + $linesHeight))
 
 2>/dev/null # bug zenity
@@ -797,8 +811,7 @@ zenity --list --width=500 --height=$dialogHeight --text='<span font-family=\"Ari
     5 "    5" "						      $GAA" ""\
     6 "    6" "					             $GRA" ""\
     7 "    7" "					       $GCR" ""\
-    8 "    8" "						       $GST" ""\
-    9 "    9" "				            $CW" "" 2>/dev/null ;
+    8 "    8" "						       $GST" "" 2>/dev/null ;
 }
 
 frm_fichiers_parser(){
@@ -814,7 +827,6 @@ frm_fichiers_parser(){
         6) git_reset_all ;;
         7) git_commit_reset ;;
         8) git_status ;;
-	9) change_wrapping ;;
         *) fonction_git ;;
         esac
 }
