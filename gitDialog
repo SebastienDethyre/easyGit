@@ -124,7 +124,7 @@ checkFilesChanged(){
 	git diff-tree --no-commit-id --name-only -r $HASH_COMMIT > ~/bin/easyGit/filesCommitted
 #	TEXT_COMMIT=`git log --format=%B -n 1 | xargs -n $nbWordsByCommit echo -e '\t'`
 	TEXT_COMMIT=`git log --format=%B -n 1`
-	TEXT_COMMIT=`echo "$TEXT_COMMIT" | fold -b61 -s  | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
+	TEXT_COMMIT=`echo "$TEXT_COMMIT" | fold -b60 -s  | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
 	REPO_ADRESS=`git config --get remote.origin.url`
 	actualBranch=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/actualBranch`
 }
@@ -592,10 +592,10 @@ git_rebase(){
 frm_fichiers(){
 actualBranch=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/actualBranch`
 checkFilesChanged
-filesChanged=`sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesChanged | fold -b61 -s  | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
-filesUnfollowed=`sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesUnfollowed | fold -b61 -s  | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
-filesStaged=`sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesStaged | fold -b61 -s  | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
-filesCommitted=`sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesCommitted | fold -b61 -s  | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
+filesChanged=`sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesChanged | fold -b65 -s  | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
+filesUnfollowed=`sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesUnfollowed | fold -b65 -s  | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
+filesStaged=`sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesStaged | fold -b65 -s  | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
+filesCommitted=`sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesCommitted | fold -b65 -s  | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
 filesChangedAndUnfollowed=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUnfollowed`
 
 ############### commit ####################
