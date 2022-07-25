@@ -82,7 +82,7 @@ clear_screen(){
 
 change_width(){
 
-VALUE=`zenity --scale --title=Largeur --text="\t\t    Largeur de la fenêtre" --value=$filesDialogWidth --min-value=350 --max-value=1850 --step 50`
+VALUE=`zenity --scale --title=Largeur --text="\t\t    Largeur de la fenêtre" --value=$filesDialogWidth --min-value=450 --max-value=1850 --step 50`
 
 case $? in
          0)
@@ -250,10 +250,10 @@ add_spaces(){
 	totalLineNumber=${totalLineNumberFloat%.*}
 	TOTAL_LINE=`printf %$totalLineNumber\s |tr " " "_"`
 
-	simpleLineNumber=$(($totalLineNumber - $twelve))
+	simpleLineNumber=$(($totalLineNumber - $eleven))
 	SIMPLE_LINE=`printf %$simpleLineNumber\s |tr " " "_"`
 
-	REPO_ADRESS=`git config --get remote.origin.url | fold -b$(($totalLineNumber - $three)) | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
+	REPO_ADRESS=`git config --get remote.origin.url | fold -b$(($totalLineNumber - $one)) | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
 	
 	spaceRawLineSize="$(($totalLineNumber - $simpleLineNumber))"
 	spaceLineSize="$(($spaceRawLineSize - $three))"
@@ -967,7 +967,7 @@ nbColumn=${#EN_TETES}
 
 # vertical responsiveness
 nbLines=`echo -n "$EN_TETE" | grep -c '^'`
-commandsHeight=370
+commandsHeight=380
 oneLineHeight=17
 linesHeight=$(($oneLineHeight * $nbLines))
 dialogHeight=$(($commandsHeight + $linesHeight))
