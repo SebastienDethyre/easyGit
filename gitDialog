@@ -53,7 +53,7 @@ MF="Fichiers"
 MI="Informations"
 SC="Clear"
 RL="Résultats par ligne"
-CW="<- Largeur ->"
+CW="|← Largeur →|"
 
 CURRENT_DIR=`pwd`
 
@@ -81,7 +81,7 @@ clear_screen(){
 
 change_width(){
 
-VALUE=`zenity --scale --title=Largeur --text="\t\t    Largeur de la fenêtre" --value=$filesDialogWidth --min-value=300 --max-value=1850 --step 50`
+VALUE=`zenity --scale --title=Largeur --text="\t\t    Largeur de la fenêtre" --value=$filesDialogWidth --min-value=350 --max-value=1850 --step 50`
 
 case $? in
          0)
@@ -290,7 +290,7 @@ $SPACE_GIT$git6
 	spaceAddAllSize="$(($spaceAddSize - $three))"
 	spaceCommitResetSize="$(($spaceAddSize - $eleven))"
 	spaceStatusSize="$(($spaceAddSize - $two))"
-	spaceChangeWidthSize="$(($spaceAddSize - $nine))"
+	spaceChangeWidthSize="$(($spaceAddSize - $eleven))"
 	
 	spaceCommitPendingSize="$(($totalLineNumber - $seventeen))"
 
