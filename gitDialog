@@ -24,6 +24,7 @@ fourteen=14
 fifteen=15
 sixteen=16
 seventeen=17
+twenty=20
 
 GA="Add"
 GAS="Add One"
@@ -174,6 +175,7 @@ checkFilesChanged(){
 	TEXT_COMMIT=`echo "$TEXT_COMMIT" | fold -b$(($totalLineNumber)) -s  | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
 	REPO_ADRESS=`git config --get remote.origin.url`
 	actualBranch=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/actualBranch`
+	actualBranch=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/actualBranch`
 }
 
 open_repo(){
@@ -251,7 +253,8 @@ add_spaces(){
 	simpleLineNumber=$(($totalLineNumber - $twelve))
 	SIMPLE_LINE=`printf %$simpleLineNumber\s |tr " " "_"`
 
-
+	REPO_ADRESS=`git config --get remote.origin.url | fold -b$(($totalLineNumber - $three)) | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
+	
 	spaceRawLineSize="$(($totalLineNumber - $simpleLineNumber))"
 	spaceLineSize="$(($spaceRawLineSize - $three))"
 	SPACE_LINE=`printf %$spaceLineSize\s |tr " " " "`
@@ -274,6 +277,9 @@ $SPACE_GIT$git3
 $SPACE_GIT$git4
 $SPACE_GIT$git5
 $SPACE_GIT$git6
+
+<span color=\"darkblue\">$REPO_ADRESS</span>
+\t<span color=\"blue\">$CURRENT_DIR</span>
 "
 
 	diff=46
