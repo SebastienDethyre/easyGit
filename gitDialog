@@ -22,6 +22,8 @@ twelve=12
 thirteen=13
 fourteen=14
 fifteen=15
+sixteen=16
+seventeen=17
 
 GA="Add"
 GAS="Add One"
@@ -81,7 +83,6 @@ change_width(){
 
 VALUE=`zenity --scale --title=Largeur --text="\t\t    Largeur de la fenêtre" --value=$filesDialogWidth --min-value=500 --max-value=1850 --step 100`
 
-
 case $? in
          0)
 		filesDialogWidth=$VALUE
@@ -96,7 +97,6 @@ case $? in
 esac
 2>/dev/null
 }
-
 
 change_wrapping(){
 if ret=`zenity --list --title=Type --text="Choisir le type"  --column="Types disponibles"  $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/resultOptions)`
@@ -243,17 +243,17 @@ ELEMENT_FILE_WAIT="\t<span color=\"gray\">En attente</span>
 \t<span color=\"green\">$(sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesChanged)</span>"
 
 add_spaces(){
-	simpleLineNumber=51
-
-	SIMPLE_LINE=`printf %$simpleLineNumber\s |tr " " "_"`
 
 	totalLineNumberFloat=`echo $filesDialogWidth / 8 | bc -l`
-
 	totalLineNumber=${totalLineNumberFloat%.*}
-
 	TOTAL_LINE=`printf %$totalLineNumber\s |tr " " "_"`
 
-	spaceLineSize="$(($totalLineNumber - $simpleLineNumber))"
+	simpleLineNumber=$(($totalLineNumber - $twelve))
+	SIMPLE_LINE=`printf %$simpleLineNumber\s |tr " " "_"`
+
+
+	spaceRawLineSize="$(($totalLineNumber - $simpleLineNumber))"
+	spaceLineSize="$(($spaceRawLineSize - $three))"
 	SPACE_LINE=`printf %$spaceLineSize\s |tr " " " "`
 
 	git1="<span color=\"#A10101\"> ███████╗  ██╗████████╗    </span>"
@@ -291,6 +291,8 @@ $SPACE_GIT$git6
 	spaceCommitResetSize="$(($spaceAddSize - $eleven))"
 	spaceStatusSize="$(($spaceAddSize - $two))"
 	spaceChangeWidthSize="$(($spaceAddSize - $nine))"
+	
+	spaceCommitPendingSize="$(($totalLineNumber - $seventeen))"
 
 	SPACE_ADD=`printf %$spaceAddSize\s |tr " " " "`
 	SPACE_ADD_S=`printf %$spaceAddSSize\s |tr " " " "`
@@ -302,6 +304,8 @@ $SPACE_GIT$git6
 	SPACE_COMMIT_RESET=`printf %$spaceCommitResetSize\s |tr " " " "`
 	SPACE_STATUS=`printf %$spaceStatusSize\s |tr " " " "`
 	SPACE_CHANGE_WIDTH=`printf %$spaceChangeWidthSize\s |tr " " " "`
+
+	SPACE_COMMIT_PENDING=`printf %$spaceCommitPendingSize\s |tr " " " "`
 }
 
 add_spaces
@@ -360,8 +364,6 @@ git_clone(){
                                 else
                                         echo "Pas de clone effectué"
                         fi
-
-
 }
 
 git_fetch(){
@@ -701,18 +703,18 @@ git_rebase(){
 	2>/dev/null
 }
 
-############### FILES DIALOG ####################
-
+############### FILES DIALOG ####################$(($totalLineNumber - $three))
+txenty=20
 frm_fichiers(){
 actualBranch=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/actualBranch`
 checkFilesChanged
-filesChanged=`sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesChanged | fold -b65 -s  | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
-filesUnfollowed=`sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesUnfollowed | fold -b65 -s  | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
-filesStaged=`sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesStaged | fold -b65 -s  | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
-filesCommitted=`sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesCommitted | fold -b65 -s  | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
+filesChanged=`sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesChanged | fold -b$(($totalLineNumber - $sixteen)) -s  | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
+filesUnfollowed=`sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesUnfollowed | fold -b$(($totalLineNumber + $fifteen)) -s  | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
+filesStaged=`sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesStaged | fold -b$(($totalLineNumber - $sixteen)) -s  | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
+filesCommitted=`sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesCommitted | fold -b$(($totalLineNumber - $sixteen)) -s  | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
 filesChangedAndUnfollowed=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUnfollowed`
 
-############### commit ####################
+############### commit pending ####################
 
 if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ];
 then
@@ -723,7 +725,7 @@ $GIT
 \t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>
 $SPACE_LINE$SIMPLE_LINE
 
-\t\t\t\t\t     <span color=\"grey\">Commit </span><span color=\"red\"><i>en cours</i></span>
+$SPACE_COMMIT_PENDING<span color=\"grey\">Commit </span><span color=\"red\"><i>en cours</i></span>
 \t<span color=\"gray\">Contenu</span>
 <span><b>$TEXT_COMMIT</b></span>
 
@@ -741,7 +743,7 @@ $GIT
 <span color=\"green\">$filesChanged</span>
 $SPACE_LINE$SIMPLE_LINE
 
-\t\t\t\t\t     <span color=\"grey\">Commit </span><span color=\"red\"><i>en cours</i></span>
+$SPACE_COMMIT_PENDING<span color=\"grey\">Commit </span><span color=\"red\"><i>en cours</i></span>
 
 \t<span color=\"gray\">Contenu</span>
 
@@ -760,7 +762,7 @@ $GIT
 <span color=\"#155162\">$filesUnfollowed</span>
 $SPACE_LINE$SIMPLE_LINE
 
-\t\t\t\t\t     <span color=\"grey\">Commit </span><span color=\"red\"><i>en cours</i></span>
+$SPACE_COMMIT_PENDING<span color=\"grey\">Commit </span><span color=\"red\"><i>en cours</i></span>
 \t<span color=\"gray\">Contenu</span>
 <span><b>$TEXT_COMMIT</b></span>
 
@@ -781,7 +783,7 @@ $GIT
 <span color=\"#155162\">$filesUnfollowed</span>
 $SPACE_LINE$SIMPLE_LINE
 
-\t\t\t\t\t     <span color=\"grey\">Commit </span><span color=\"red\"><i>en cours</i></span>
+$SPACE_COMMIT_PENDING<span color=\"grey\">Commit </span><span color=\"red\"><i>en cours</i></span>
 \t<span color=\"gray\">Contenu</span>
 <span><b>$TEXT_COMMIT</b></span>
 
