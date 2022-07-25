@@ -81,7 +81,7 @@ clear_screen(){
 
 change_width(){
 
-VALUE=`zenity --scale --title=Largeur --text="\t\t    Largeur de la fenêtre" --value=$filesDialogWidth --min-value=500 --max-value=1850 --step 50`
+VALUE=`zenity --scale --title=Largeur --text="\t\t    Largeur de la fenêtre" --value=$filesDialogWidth --min-value=300 --max-value=1850 --step 50`
 
 case $? in
          0)
