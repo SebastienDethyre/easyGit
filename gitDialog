@@ -703,8 +703,8 @@ git_rebase(){
 	2>/dev/null
 }
 
-############### FILES DIALOG ####################$(($totalLineNumber - $three))
-txenty=20
+############### FILES DIALOG ####################
+
 frm_fichiers(){
 actualBranch=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/actualBranch`
 checkFilesChanged
