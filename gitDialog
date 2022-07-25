@@ -81,7 +81,7 @@ clear_screen(){
 
 change_width(){
 
-VALUE=`zenity --scale --title=Largeur --text="\t\t    Largeur de la fenêtre" --value=$filesDialogWidth --min-value=500 --max-value=1850 --step 100`
+VALUE=`zenity --scale --title=Largeur --text="\t\t    Largeur de la fenêtre" --value=$filesDialogWidth --min-value=500 --max-value=1850 --step 50`
 
 case $? in
          0)
@@ -171,7 +171,7 @@ checkFilesChanged(){
 	git diff-tree --no-commit-id --name-only -r $HASH_COMMIT > ~/bin/easyGit/filesCommitted
 #	TEXT_COMMIT=`git log --format=%B -n 1 | xargs -n $nbWordsByCommit echo -e '\t'`
 	TEXT_COMMIT=`git log --format=%B -n 1`
-	TEXT_COMMIT=`echo "$TEXT_COMMIT" | fold -b$(($totalLineNumber - $three)) -s  | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
+	TEXT_COMMIT=`echo "$TEXT_COMMIT" | fold -b$(($totalLineNumber)) -s  | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
 	REPO_ADRESS=`git config --get remote.origin.url`
 	actualBranch=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/actualBranch`
 }
