@@ -2,8 +2,26 @@
 
 nbFilesByLine=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesByLinePref`
 nbWordsByCommit=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/wordsByLinePref`
-filesDialogWidth=500
+filesDialogWidth=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/widthConfig`
 factor=3
+totalLineNumber=60
+
+
+
+one=1
+two=2
+three=3
+four=4
+five=5
+six=6
+seven=7
+nine=9
+ten=10
+eleven=11
+twelve=12
+thirteen=13
+fourteen=14
+fifteen=15
 
 GA="Add"
 GAS="Add One"
@@ -33,7 +51,7 @@ MF="Fichiers"
 MI="Informations"
 SC="Clear"
 RL="Résultats par ligne"
-CW="Changer largeur"
+CW="<- Largeur ->"
 
 CURRENT_DIR=`pwd`
 
@@ -61,13 +79,14 @@ clear_screen(){
 
 change_width(){
 
-VALUE=`zenity --scale --text="Sélectionnez la transparence de la fenêtre." --value=500 --max-value=1800 --step 100`
+VALUE=`zenity --scale --title=Largeur --text="\t\t    Largeur de la fenêtre" --value=500 --min-value=500 --max-value=1850 --step 100`
 
 
 case $? in
          0)
 		filesDialogWidth=$VALUE
 		add_spaces
+		echo $VALUE > ~/bin/easyGit/widthConfig
 		fonction_fichiers
 		echo "Vous avez choisi $VALUE%.";;
          1)
@@ -143,16 +162,16 @@ if ret=`zenity --list --title=Type --text="Choisir le type"  --column="Types dis
 }
 
 checkFilesChanged(){
-        git diff --name-only > ~/bin/easyGit/filesChanged
-        git ls-files --other --exclude-standard > ~/bin/easyGit/filesUnfollowed
+    git diff --name-only > ~/bin/easyGit/filesChanged
+    git ls-files --other --exclude-standard > ~/bin/easyGit/filesUnfollowed
 	git diff --name-only > ~/bin/easyGit/filesChangedAndUnfollowed
-        git ls-files --other --exclude-standard >> ~/bin/easyGit/filesChangedAndUnfollowed
-        git diff --name-only --cached > ~/bin/easyGit/filesStaged
+    git ls-files --other --exclude-standard >> ~/bin/easyGit/filesChangedAndUnfollowed
+    git diff --name-only --cached > ~/bin/easyGit/filesStaged
 	HASH_COMMIT=`git rev-parse HEAD`
 	git diff-tree --no-commit-id --name-only -r $HASH_COMMIT > ~/bin/easyGit/filesCommitted
 #	TEXT_COMMIT=`git log --format=%B -n 1 | xargs -n $nbWordsByCommit echo -e '\t'`
 	TEXT_COMMIT=`git log --format=%B -n 1`
-	TEXT_COMMIT=`echo "$TEXT_COMMIT" | fold -b60 -s  | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
+	TEXT_COMMIT=`echo "$TEXT_COMMIT" | fold -b$(($totalLineNumber - $three)) -s  | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
 	REPO_ADRESS=`git config --get remote.origin.url`
 	actualBranch=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/actualBranch`
 }
@@ -166,8 +185,8 @@ if([ -d .git ] )
         	git for-each-ref --format='%(refname:short)' refs/heads/ > ~/bin/easyGit/branchesList
         	cat .git/HEAD | cut -c 17- > ~/bin/easyGit/actualBranch
         	actualBranch=`cat .git/HEAD | cut -c 17-`
-		checkFilesChanged
-		echo $REPO_ADRESS | xclip
+			checkFilesChanged
+			echo $REPO_ADRESS | xclip
         else
                 echo "Le répertoire courant n'est pas un dépot Git."
 #                exit 0
@@ -224,76 +243,65 @@ ELEMENT_FILE_WAIT="\t<span color=\"gray\">En attente</span>
 \t<span color=\"green\">$(sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesChanged)</span>"
 
 add_spaces(){
+	simpleLineNumber=51
 
-simpleLineNumber=51
+	SIMPLE_LINE=`printf %$simpleLineNumber\s |tr " " "_"`
 
-SIMPLE_LINE=`printf %$simpleLineNumber\s |tr " " "_"`
+	totalLineNumberFloat=`echo $filesDialogWidth / 8 | bc -l`
 
-totalLineNumberFloat=`echo $filesDialogWidth / 8 | bc -l`
+	totalLineNumber=${totalLineNumberFloat%.*}
 
-totalLineNumber=${totalLineNumberFloat%.*}
+	TOTAL_LINE=`printf %$totalLineNumber\s |tr " " "_"`
 
-TOTAL_LINE=`printf %$totalLineNumber\s |tr " " "_"`
+	spaceLineSize="$(($totalLineNumber - $simpleLineNumber))"
+	SPACE_LINE=`printf %$spaceLineSize\s |tr " " " "`
 
-spaceLineSize="$(($totalLineNumber - $simpleLineNumber))"
-SPACE_LINE=`printf %$spaceLineSize\s |tr " " " "`
+	git1="<span color=\"#A10101\"> ███████╗  ██╗████████╗    </span>"
+	git2="<span color=\"#AE0404\">██╔ ════╝  ██║╚  ═██╔   ═╝ </span>"
+	git3="<span color=\"#C60606\">██║  ████╗ ██║       ██║   </span>"
+	git4="<span color=\"#D11E1E\">██║      ██ ║ ██║       ██║</span>"
+	git5="<span color=\"#F54B4B\"> ██████ ╔╝ ██║       ██║   </span>"
+	git6="<span color=\"#F65151\">  ╚═════╝    ╚  ╝       ╚═╝</span>"
 
-git1="<span color=\"#A10101\"> ███████╗  ██╗████████╗    </span>"
-git2="<span color=\"#AE0404\">██╔ ════╝  ██║╚  ═██╔   ═╝ </span>"
-git3="<span color=\"#C60606\">██║  ████╗ ██║       ██║   </span>"
-git4="<span color=\"#D11E1E\">██║      ██ ║ ██║       ██║</span>"
-git5="<span color=\"#F54B4B\"> ██████ ╔╝ ██║       ██║   </span>"
-git6="<span color=\"#F65151\">  ╚═════╝    ╚  ╝       ╚═╝</span>"
+	decorum=31
+	trueGitLength="$(( ${#git1} - $decorum ))"
+	spaceGitSize="$(($totalLineNumber - $trueGitLength - $three ))"
+	SPACE_GIT=`printf %$spaceGitSize\s |tr " " " "`
 
-decorum=31
-trueGitLength="$(( ${#git1} - $decorum ))"
-spaceGitSize="$(($totalLineNumber - $trueGitLength))"
-SPACE_GIT=`printf %$spaceGitSize\s |tr " " " "`
-
-GIT="$SPACE_GIT$git1
+	GIT="$SPACE_GIT$git1
 $SPACE_GIT$git2
 $SPACE_GIT$git3
 $SPACE_GIT$git4
 $SPACE_GIT$git5
 $SPACE_GIT$git6
 "
-one=1
-two=2
-three=3
-four=4
-five=5
-six=6
-seven=7
-nine=9
-eleven=11
-thirteen=13
-fifteen=15
-diff=46
 
-commandsDialogWidth="$(($totalLineNumber - $diff))"
-commandsLineNumberFloat=`echo $commandsDialogWidth / $factor | bc -l`
-commandsLineNumber=${commandsLineNumberFloat%.*}
-commandsLineNumber=$(($commandsLineNumber - $five))
+	diff=46
 
-spaceAddSize="$(($totalLineNumber + $commandsLineNumber))"
-spaceAddSSize="$(($spaceAddSize - $five))"
-spacePushSize="$(($spaceAddSize - $one))"
-spaceResetSize="$(($spaceAddSize - $one))"
-spaceAddAllSize="$(($spaceAddSize - $three))"
-spaceCommitResetSize="$(($spaceAddSize - $eleven))"
-spaceStatusSize="$(($spaceAddSize - $two))"
-spaceChangeWidthSize="$(($spaceAddSize - $thirteen))"
+	commandsDialogWidth="$(($totalLineNumber - $diff))"
+	commandsLineNumberFloat=`echo $commandsDialogWidth / $factor | bc -l`
+	commandsLineNumber=${commandsLineNumberFloat%.*}
+	commandsLineNumber=$(($commandsLineNumber - $four))
 
-SPACE_ADD=`printf %$spaceAddSize\s |tr " " " "`
-SPACE_ADD_S=`printf %$spaceAddSSize\s |tr " " " "`
-SPACE_COMMIT=`printf %$spaceAddSSize\s |tr " " " "`
-SPACE_PUSH=`printf %$spacePushSize\s |tr " " " "`
-SPACE_RESET=`printf %$spaceResetSize\s |tr " " " "`
-SPACE_ADD_ALL=`printf %$spaceAddAllSize\s |tr " " " "`
-SPACE_RESET_ALL=`printf %$spaceAddSSize\s |tr " " " "`
-SPACE_COMMIT_RESET=`printf %$spaceCommitResetSize\s |tr " " " "`
-SPACE_STATUS=`printf %$spaceStatusSize\s |tr " " " "`
-SPACE_CHANGE_WIDTH=`printf %$spaceChangeWidthSize\s |tr " " " "`
+	spaceAddSize="$(($totalLineNumber + $commandsLineNumber))"
+	spaceAddSSize="$(($spaceAddSize - $five))"
+	spacePushSize="$(($spaceAddSize - $one))"
+	spaceResetSize="$(($spaceAddSize - $one))"
+	spaceAddAllSize="$(($spaceAddSize - $three))"
+	spaceCommitResetSize="$(($spaceAddSize - $eleven))"
+	spaceStatusSize="$(($spaceAddSize - $two))"
+	spaceChangeWidthSize="$(($spaceAddSize - $nine))"
+
+	SPACE_ADD=`printf %$spaceAddSize\s |tr " " " "`
+	SPACE_ADD_S=`printf %$spaceAddSSize\s |tr " " " "`
+	SPACE_COMMIT=`printf %$spaceAddSSize\s |tr " " " "`
+	SPACE_PUSH=`printf %$spacePushSize\s |tr " " " "`
+	SPACE_RESET=`printf %$spaceResetSize\s |tr " " " "`
+	SPACE_ADD_ALL=`printf %$spaceAddAllSize\s |tr " " " "`
+	SPACE_RESET_ALL=`printf %$spaceAddSSize\s |tr " " " "`
+	SPACE_COMMIT_RESET=`printf %$spaceCommitResetSize\s |tr " " " "`
+	SPACE_STATUS=`printf %$spaceStatusSize\s |tr " " " "`
+	SPACE_CHANGE_WIDTH=`printf %$spaceChangeWidthSize\s |tr " " " "`
 }
 
 add_spaces
@@ -711,7 +719,7 @@ then
 	############### no modified and no untracked ####################
 	if [ "$filesChangedAndUnfollowed" = "" ];then
                 EN_TETE="
-$LOGO_FULL_500
+$GIT
 \t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>
 $SPACE_LINE$SIMPLE_LINE
 
@@ -726,7 +734,7 @@ $SPACE_LINE$SIMPLE_LINE
 	############### some modified and no untracked ####################
 	elif [[ "$filesUnfollowed" == "" ]] && [[ "$filesChanged" != "" ]] ; then
 		EN_TETE="
-$LOGO_FULL_500
+$GIT
 \t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>
 
 \t<span color=\"gray\">Modifiés</span>
@@ -745,7 +753,7 @@ $SPACE_LINE$SIMPLE_LINE
 	############### no modified but some untracked ####################
 	elif [[ "$filesChanged" == "" ]] && [[ "$filesUnfollowed" != "" ]]; then
 		EN_TETE="
-$LOGO_FULL_500
+$GIT
 \t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>
 
 \t<span color=\"gray\">Non suivis</span>
@@ -763,7 +771,7 @@ $SPACE_LINE$SIMPLE_LINE
 	############### by default ####################
 	else
 EN_TETE="
-$LOGO_FULL_500
+$GIT
 \t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>
 
 \t<span color=\"gray\">Modifiés</span>
@@ -789,7 +797,7 @@ elif [ "$filesStaged" = "" ]; then
 	############### no modified and no untracked ####################
  	if [ "$filesChangedAndUnfollowed" = "" ];then
                 EN_TETE="
-$LOGO_FULL_500
+$GIT
 \t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>
 
 
@@ -802,7 +810,7 @@ $LOGO_FULL_500
 	############### some modified and no untracked ####################
 	elif [[ "$filesUnfollowed" == "" ]] && [[ "$filesChanged" != "" ]] ; then
                 EN_TETE="
-$LOGO_FULL_500
+$GIT
 \t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>
 
 \t<span color=\"gray\">Dernier commit</span>
@@ -818,7 +826,7 @@ $SPACE_LINE$SIMPLE_LINE
 	############### no modified but some untracked ####################
 	elif [[ "$filesChanged" == "" ]] && [[ "$filesUnfollowed" != "" ]]; then
                 EN_TETE="
-$LOGO_FULL_500
+$GIT
 \t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>
 
 \t<span color=\"gray\">Dernier commit</span>
@@ -833,7 +841,7 @@ $SPACE_LINE$SIMPLE_LINE
 	############### by default ####################
 	else
 EN_TETE="
-$LOGO_FULL_500
+$GIT
 \t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>
 
 \t<span color=\"gray\">Dernier commit</span>
@@ -857,7 +865,7 @@ else
 	############### no modified and no untracked ####################
 	if [ "$filesChangedAndUnfollowed" = "" ];then
 	EN_TETE="
-$LOGO_FULL_500
+$GIT
 \t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>
 
 \t<span color=\"gray\">Dernier commit</span>
@@ -874,7 +882,7 @@ $SPACE$_LINESIMPLE_LINE
 	############### some modified and no untracked ####################
 	elif [[ "$filesUnfollowed" == "" ]] && [[ "$filesChanged" != "" ]] ; then
 EN_TETE="
-$LOGO_FULL_500
+$GIT
 \t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>
 
 \t<span color=\"gray\">Dernier commit</span>
@@ -894,7 +902,7 @@ $SPACE_LINE$SIMPLE_LINE
 	############### no modified and some untracked ####################
 	elif [[ "$filesChanged" == "" ]] && [[ "$filesUnfollowed" != "" ]]; then
 EN_TETE="
-$LOGO_FULL_500
+$GIT
 \t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>
 
 \t<span color=\"gray\">Dernier commit</span>
@@ -914,7 +922,7 @@ $SPACE_LINE$SIMPLE_LINE
 	############### by default ####################
 	else
 EN_TETE="
-$LOGO_FULL_500
+$GIT
 \t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>
 
 \t<span color=\"gray\">Dernier commit</span>
@@ -951,7 +959,7 @@ nbColumn=${#EN_TETES}
 
 # vertical responsiveness
 nbLines=`echo -n "$EN_TETE" | grep -c '^'`
-commandsHeight=395
+commandsHeight=370
 oneLineHeight=17
 linesHeight=$(($oneLineHeight * $nbLines))
 dialogHeight=$(($commandsHeight + $linesHeight))
@@ -972,8 +980,7 @@ zenity --list --width=$filesDialogWidth --height=$dialogHeight --text='<span fon
     6 "    6" "$SPACE_ADD_ALL$GAA" ""\
     7 "    7" "$SPACE_RESET_ALL$GRA" ""\
     8 "    8" "$SPACE_COMMIT_RESET$GCR" ""\
-    9 "    9" "$SPACE_STATUS$GST" ""\
-    10 "    10" "$SPACE_CHANGE_WIDTH$CW" "" 2>/dev/null ;
+    9 "    9" "$SPACE_CHANGE_WIDTH$CW" "" 2>/dev/null ;
 }
 
 frm_fichiers_parser(){
@@ -989,8 +996,7 @@ frm_fichiers_parser(){
         6) git_add_all ;;
         7) git_reset_all ;;
         8) git_commit_reset ;;
-        9) git_status ;;
-	10) change_width ;;
+		9) change_width ;;
         *) fonction_git ;;
         esac
 }
