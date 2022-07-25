@@ -13,4 +13,4 @@ around line 49 and before ```</object>```, add this one :
     ```<property name="has_default">True</property>```
 
 
-```quickGit``` is the executable of a small version of the main script```gitDialog```.
+```quickGit``` is a small version of the main script```gitDialog```
