@@ -1,5 +1,7 @@
 # Easy Git !
 A dialog box to ease the use of Git for Linux
+```quickGit``` is a small version of the main script```gitDialog```
+
 This little script works better with aliasses to access it from any local Git repository. (```aliasName='~/bin/easyGit/./gitDialog'```)
   - Needs to be installed in the ~/bin directory :
 
@@ -12,5 +14,3 @@ especially to avoid using both hands, you'd probably want to modify the /usr/loc
 around line 49 and before ```</object>```, add this one :
     ```<property name="has_default">True</property>```
 
-
-```quickGit``` is a small version of the main script```gitDialog```
