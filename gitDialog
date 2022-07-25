@@ -6,8 +6,6 @@ filesDialogWidth=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/widthConfig`
 factor=3
 totalLineNumber=60
 
-
-
 one=1
 two=2
 three=3
