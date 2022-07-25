@@ -391,7 +391,7 @@ git_status(){
 }
 
 git_log(){
-	git log --summary| sleep 5 | echo q
+	git log --summary
 	echo "Git Log"
 }
 
