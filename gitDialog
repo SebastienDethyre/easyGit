@@ -880,7 +880,7 @@ $GIT
 <span><b><i>$TEXT_COMMIT</i></b></span>
 
 <i>$filesCommitted</i>
-$SPACE$_LINESIMPLE_LINE
+$SPACE_LINE$SIMPLE_LINE
 
 
 \t<span color=\"gray\">Ajoutés</span>
