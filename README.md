@@ -8,7 +8,7 @@ This little script works better with aliasses to access it from any local Git re
   - Requires the Zenity library : https://doc.ubuntu-fr.org/zenity
 
 To avoid having to use Tab to confirm the width of the Files Manager Window ("Fichiers" -> "Largeur") once choosen,
-especially to avoid using both hands, you'd probably want to modify the ***/usr/locale/zenity.ui file***, 
+especially to avoid using both hands, you'd probably want to modify the ***/usr/locale/zenity.ui*** file, 
 
 around line 49 and before ```</object>```, add this one :
     ```<property name="has_default">True</property>```
