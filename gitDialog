@@ -2,6 +2,8 @@
 
 nbFilesByLine=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesByLinePref`
 nbWordsByCommit=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/wordsByLinePref`
+filesDialogWidth=500
+factor=3
 
 GA="Add"
 GAS="Add One"
@@ -30,7 +32,8 @@ MD="Dépot"
 MF="Fichiers"
 MI="Informations"
 SC="Clear"
-CW="Résultats par ligne"
+RL="Résultats par ligne"
+CW="Changer largeur"
 
 CURRENT_DIR=`pwd`
 
@@ -42,6 +45,10 @@ zenity --notification\
     --text="$1"
 }
 
+element_size(){
+	temp=$1
+	elemSize="${#temp}"
+}
 
 sticker(){
 "\t<span color=\"$1\">$2</span>
@@ -51,6 +58,26 @@ sticker(){
 clear_screen(){
 	clear
 }
+
+change_width(){
+
+VALUE=`zenity --scale --text="Sélectionnez la transparence de la fenêtre." --value=500 --max-value=1800 --step 100`
+
+
+case $? in
+         0)
+		filesDialogWidth=$VALUE
+		add_spaces
+		fonction_fichiers
+		echo "Vous avez choisi $VALUE%.";;
+         1)
+                echo "Aucune valeur sélectionnée.";;
+        -1)
+                echo "Une erreur inattendue est survenue.";;
+esac
+2>/dev/null
+}
+
 
 change_wrapping(){
 if ret=`zenity --list --title=Type --text="Choisir le type"  --column="Types disponibles"  $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/resultOptions)`
@@ -152,9 +179,10 @@ LOGO_FULL_400="
 \t\t<span color=\"#C60606\">     ██║  ████╗ ██║       ██║   </span>
 \t\t<span color=\"#D11E1E\">     ██║      ██ ║ ██║       ██║   </span>
 \t\t<span color=\"#F54B4B\">      ██████ ╔╝ ██║       ██║   </span>
-\t\t<span color=\"#F65151\">       ╚═════╝    ╚  ╝       ╚═╝   </span>\n
+\t\t<span color=\"#F65151\">       ╚═════╝    ╚  ╝       ╚═╝   </span>
 \t<span color=\"darkblue\">$REPO_ADRESS</span>
-\t<span color=\"blue\">$CURRENT_DIR</span>\n"
+\t<span color=\"blue\">$CURRENT_DIR</span>
+"
 
 LOGO_FULL_500="
 \t\t\t\t<span color=\"#A10101\">   ███████╗  ██╗████████╗</span>
@@ -195,7 +223,80 @@ ELEMENT_COMMIT="\t<span color=\"gray\">Dernier commit</span>
 ELEMENT_FILE_WAIT="\t<span color=\"gray\">En attente</span>
 \t<span color=\"green\">$(sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesChanged)</span>"
 
-SIMPLE_LINE="___________________________________________________"
+add_spaces(){
+
+simpleLineNumber=51
+
+SIMPLE_LINE=`printf %$simpleLineNumber\s |tr " " "_"`
+
+totalLineNumberFloat=`echo $filesDialogWidth / 8 | bc -l`
+
+totalLineNumber=${totalLineNumberFloat%.*}
+
+TOTAL_LINE=`printf %$totalLineNumber\s |tr " " "_"`
+
+spaceLineSize="$(($totalLineNumber - $simpleLineNumber))"
+SPACE_LINE=`printf %$spaceLineSize\s |tr " " " "`
+
+git1="<span color=\"#A10101\"> ███████╗  ██╗████████╗    </span>"
+git2="<span color=\"#AE0404\">██╔ ════╝  ██║╚  ═██╔   ═╝ </span>"
+git3="<span color=\"#C60606\">██║  ████╗ ██║       ██║   </span>"
+git4="<span color=\"#D11E1E\">██║      ██ ║ ██║       ██║</span>"
+git5="<span color=\"#F54B4B\"> ██████ ╔╝ ██║       ██║   </span>"
+git6="<span color=\"#F65151\">  ╚═════╝    ╚  ╝       ╚═╝</span>"
+
+decorum=31
+trueGitLength="$(( ${#git1} - $decorum ))"
+spaceGitSize="$(($totalLineNumber - $trueGitLength))"
+SPACE_GIT=`printf %$spaceGitSize\s |tr " " " "`
+
+GIT="$SPACE_GIT$git1
+$SPACE_GIT$git2
+$SPACE_GIT$git3
+$SPACE_GIT$git4
+$SPACE_GIT$git5
+$SPACE_GIT$git6
+"
+one=1
+two=2
+three=3
+four=4
+five=5
+six=6
+seven=7
+nine=9
+eleven=11
+thirteen=13
+fifteen=15
+diff=46
+
+commandsDialogWidth="$(($totalLineNumber - $diff))"
+commandsLineNumberFloat=`echo $commandsDialogWidth / $factor | bc -l`
+commandsLineNumber=${commandsLineNumberFloat%.*}
+commandsLineNumber=$(($commandsLineNumber - $five))
+
+spaceAddSize="$(($totalLineNumber + $commandsLineNumber))"
+spaceAddSSize="$(($spaceAddSize - $five))"
+spacePushSize="$(($spaceAddSize - $one))"
+spaceResetSize="$(($spaceAddSize - $one))"
+spaceAddAllSize="$(($spaceAddSize - $three))"
+spaceCommitResetSize="$(($spaceAddSize - $eleven))"
+spaceStatusSize="$(($spaceAddSize - $two))"
+spaceChangeWidthSize="$(($spaceAddSize - $thirteen))"
+
+SPACE_ADD=`printf %$spaceAddSize\s |tr " " " "`
+SPACE_ADD_S=`printf %$spaceAddSSize\s |tr " " " "`
+SPACE_COMMIT=`printf %$spaceAddSSize\s |tr " " " "`
+SPACE_PUSH=`printf %$spacePushSize\s |tr " " " "`
+SPACE_RESET=`printf %$spaceResetSize\s |tr " " " "`
+SPACE_ADD_ALL=`printf %$spaceAddAllSize\s |tr " " " "`
+SPACE_RESET_ALL=`printf %$spaceAddSSize\s |tr " " " "`
+SPACE_COMMIT_RESET=`printf %$spaceCommitResetSize\s |tr " " " "`
+SPACE_STATUS=`printf %$spaceStatusSize\s |tr " " " "`
+SPACE_CHANGE_WIDTH=`printf %$spaceChangeWidthSize\s |tr " " " "`
+}
+
+add_spaces
 
 en_tete(){
 	checkFilesChanged
@@ -280,7 +381,7 @@ git_status(){
 }
 
 git_log(){
-	git log --summary
+	git log --summary| sleep 5 | echo q
 	echo "Git Log"
 }
 
@@ -612,7 +713,7 @@ then
                 EN_TETE="
 $LOGO_FULL_500
 \t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>
-\t$SIMPLE_LINE
+$SPACE_LINE$SIMPLE_LINE
 
 \t\t\t\t\t     <span color=\"grey\">Commit </span><span color=\"red\"><i>en cours</i></span>
 \t<span color=\"gray\">Contenu</span>
@@ -630,7 +731,7 @@ $LOGO_FULL_500
 
 \t<span color=\"gray\">Modifiés</span>
 <span color=\"green\">$filesChanged</span>
-\t$SIMPLE_LINE
+$SPACE_LINE$SIMPLE_LINE
 
 \t\t\t\t\t     <span color=\"grey\">Commit </span><span color=\"red\"><i>en cours</i></span>
 
@@ -649,7 +750,7 @@ $LOGO_FULL_500
 
 \t<span color=\"gray\">Non suivis</span>
 <span color=\"#155162\">$filesUnfollowed</span>
-\t$SIMPLE_LINE
+$SPACE_LINE$SIMPLE_LINE
 
 \t\t\t\t\t     <span color=\"grey\">Commit </span><span color=\"red\"><i>en cours</i></span>
 \t<span color=\"gray\">Contenu</span>
@@ -670,7 +771,7 @@ $LOGO_FULL_500
 
 \t<span color=\"gray\">Non suivis</span>
 <span color=\"#155162\">$filesUnfollowed</span>
-\t$SIMPLE_LINE
+$SPACE_LINE$SIMPLE_LINE
 
 \t\t\t\t\t     <span color=\"grey\">Commit </span><span color=\"red\"><i>en cours</i></span>
 \t<span color=\"gray\">Contenu</span>
@@ -708,7 +809,7 @@ $LOGO_FULL_500
 <span><b><i>$TEXT_COMMIT</i></b></span>
 
 <i>$filesCommitted</i>
-\t$SIMPLE_LINE
+$SPACE_LINE$SIMPLE_LINE
 
 \t<span color=\"gray\">Modifiés</span>
 <span color=\"green\">$filesChanged</span>
@@ -723,7 +824,7 @@ $LOGO_FULL_500
 \t<span color=\"gray\">Dernier commit</span>
 <span><b><i>$TEXT_COMMIT</i></b></span>\n
 <i>$filesCommitted</i>
-\t$SIMPLE_LINE
+$SPACE_LINE$SIMPLE_LINE
 
 \t<span color=\"gray\">Non suivis</span>
 <span color=\"#155162\">$filesUnfollowed</span>
@@ -739,7 +840,7 @@ $LOGO_FULL_500
 <span><b><i>$TEXT_COMMIT</i></b></span>
 
 <i>$filesCommitted</i>
-\t$SIMPLE_LINE
+$SPACE_LINE$SIMPLE_LINE
 
 \t<span color=\"gray\">Modifiés</span>
 <span color=\"green\">$filesChanged</span>
@@ -763,7 +864,7 @@ $LOGO_FULL_500
 <span><b><i>$TEXT_COMMIT</i></b></span>
 
 <i>$filesCommitted</i>
-\t$SIMPLE_LINE
+$SPACE$_LINESIMPLE_LINE
 
 
 \t<span color=\"gray\">Ajoutés</span>
@@ -780,7 +881,7 @@ $LOGO_FULL_500
 <span><b><i>$TEXT_COMMIT</i></b></span>
 
 <i>$filesCommitted</i>
-\t$SIMPLE_LINE
+$SPACE_LINE$SIMPLE_LINE
 
 \t<span color=\"gray\">Modifiés</span>
 <span color=\"green\">$filesChanged</span>
@@ -800,7 +901,7 @@ $LOGO_FULL_500
 <span><b><i>$TEXT_COMMIT</i></b></span>
 
 <i>$filesCommitted</i>
-\t$SIMPLE_LINE
+$SPACE_LINE$SIMPLE_LINE
 
 \t<span color=\"gray\">Non suivis</span>
 <span color=\"#155162\">$filesUnfollowed</span>
@@ -820,7 +921,7 @@ $LOGO_FULL_500
 <span><b><i>$TEXT_COMMIT</i></b></span>
 
 <i>$filesCommitted</i>
-\t$SIMPLE_LINE
+$SPACE_LINE$SIMPLE_LINE
 
 \t<span color=\"gray\">Modifiés</span>
 <span color=\"green\">$filesChanged</span>
@@ -836,30 +937,43 @@ $LOGO_FULL_500
 	fi
 fi
 
-# vertical responsiveness
+#TESTS#######################################################################
+size=`echo "${#TOTAL_LINE}"`
+EN_TETES="
+$GIT
+$SIMPLE_LINE
+$TOTAL_LINE
+"
 
+nbColumn=${#EN_TETES}
+#notification $nbColumn
+#############################################################################
+
+# vertical responsiveness
 nbLines=`echo -n "$EN_TETE" | grep -c '^'`
-commandsHeight=380
+commandsHeight=395
 oneLineHeight=17
 linesHeight=$(($oneLineHeight * $nbLines))
 dialogHeight=$(($commandsHeight + $linesHeight))
 
+
 2>/dev/null # bug zenity
-zenity --list --width=500 --height=$dialogHeight --text='<span font-family=\"Arial\">'"$EN_TETE"'</span>' \
+zenity --list --width=$filesDialogWidth --height=$dialogHeight --text='<span font-family=\"Arial\">'"$EN_TETE"'</span>' \
     --title="Gestion des fichiers" \
     --ok-label="Sélectionner" \
     --cancel-label="Quitter" \
     --hide-column 1 --column "" --column "" --column "" --column "" \
-    1 "    1" "						          $GA" ""\
-    2 "    2" "						     $GAS" ""\
-    3 "    3" "					              $GC" ""\
-    4 "    4" "						         $GP" ""\
+    1 "    1" "$SPACE_ADD$GA" ""\
+    2 "    2" "$SPACE_ADD_S$GAS" ""\
+    3 "    3" "$SPACE_COMMIT$GC" ""\
+    4 "    4" "$SPACE_PUSH$GP" ""\
     0 "" "" "" \
-    5 "    5" "						        $GRT" ""\
-    6 "    6" "						      $GAA" ""\
-    7 "    7" "					             $GRA" ""\
-    8 "    8" "					       $GCR" ""\
-    9 "    9" "						       $GST" "" 2>/dev/null ;
+    5 "    5" "$SPACE_RESET$GRT" ""\
+    6 "    6" "$SPACE_ADD_ALL$GAA" ""\
+    7 "    7" "$SPACE_RESET_ALL$GRA" ""\
+    8 "    8" "$SPACE_COMMIT_RESET$GCR" ""\
+    9 "    9" "$SPACE_STATUS$GST" ""\
+    10 "    10" "$SPACE_CHANGE_WIDTH$CW" "" 2>/dev/null ;
 }
 
 frm_fichiers_parser(){
@@ -876,6 +990,7 @@ frm_fichiers_parser(){
         7) git_reset_all ;;
         8) git_commit_reset ;;
         9) git_status ;;
+	10) change_width ;;
         *) fonction_git ;;
         esac
 }
