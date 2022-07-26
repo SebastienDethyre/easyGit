@@ -320,6 +320,12 @@ en_tete(){
 	actualBranch=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/actualBranch`
 	nbFilesChanged=`wc -l < ~/bin/easyGit/filesChanged `
 	nbFilesUnfollowed=`wc -l < ~/bin/easyGit/filesUnfollowed`
+	if [ $nbFilesChanged -eq 0 ]; then 
+		nbFilesChanged=""	
+	fi
+	if [ $nbFilesUnfollowed -eq 0 ]; then 
+		nbFilesUnfollowed=""	
+	fi
 	EN_TETE="$LOGO_FULL_400
 \t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>
 
