@@ -317,8 +317,13 @@ add_spaces
 en_tete(){
 	checkFilesChanged
 	actualBranch=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/actualBranch`
+	nbFilesChanged=`wc -l < ~/bin/easyGit/filesChanged `
+	nbFilesUnfollowed=`wc -l < ~/bin/easyGit/filesUnfollowed`
 	EN_TETE="$LOGO_FULL_400
-\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>\n"
+\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>
+
+\t<span color=\"green\">$nbFilesChanged</span>\t<span color=\"#155162\">$nbFilesUnfollowed</span>
+"
 }
 
 notification(){
@@ -1095,17 +1100,17 @@ fonction_infos(){
 
 frm_git(){
 	en_tete
-	zenity --list --width=400 --height=480 --text='<span font-family=\"Arial\">'"$EN_TETE"'</span>' \
+	zenity --list --width=400 --height=500 --text='<span font-family=\"Arial\">'"$EN_TETE"'</span>' \
     	--title="Git" \
     	--ok-label="Sélectionner" \
     	--cancel-label="Quitter" \
     	--hide-column 1 --column "" --column "" --column "" --column "" \
-    	1 "  1" "				         $MD" ""\
-    	2 "  2" "				       $MF" ""\
+    	1 "  1" "				        $MD" ""\
+    	2 "  2" "				      $MF" ""\
     	0 "" "" "" \
-    	3 "  3" "			          $MI" ""\
-    	4 "  4" "				     $GK" ""\
-    	5 "  5" "				          $SC" "" 2>/dev/null;
+    	3 "  3" "			         $MI" ""\
+    	4 "  4" "				    $GK" ""\
+    	5 "  5" "				         $SC" "" 2>/dev/null;
 
 }
 
