@@ -199,6 +199,7 @@ LOGO_FULL_400="
 \t\t<span color=\"#D11E1E\">     ██║      ██ ║ ██║       ██║   </span>
 \t\t<span color=\"#F54B4B\">      ██████ ╔╝ ██║       ██║   </span>
 \t\t<span color=\"#F65151\">       ╚═════╝    ╚  ╝       ╚═╝   </span>
+
 \t<span color=\"darkblue\">$REPO_ADRESS</span>
 \t<span color=\"blue\">$CURRENT_DIR</span>
 "
@@ -1024,7 +1025,7 @@ fonction_fichiers(){
 
 frm_depots(){
 en_tete
-zenity --list --width=400 --height=550 --text='<span font-family=\"Arial\">'"$EN_TETE"'</span>' \
+zenity --list --width=400 --height=580 --text='<span font-family=\"Arial\">'"$EN_TETE"'</span>' \
     --title="Gestion des dépots" \
     --ok-label="Sélectionner" \
     --cancel-label="Quitter" \
@@ -1066,7 +1067,7 @@ fonction_depots(){
 frm_infos(){
 en_tete
 
-zenity --list --width=400 --height=460 --text='<span font-family=\"Arial\">'"$EN_TETE"'</span>' \
+zenity --list --width=400 --height=495 --text='<span font-family=\"Arial\">'"$EN_TETE"'</span>' \
     --title="Informations" \
     --ok-label="Sélectionner" \
     --cancel-label="Quitter" \
@@ -1100,7 +1101,7 @@ fonction_infos(){
 
 frm_git(){
 	en_tete
-	zenity --list --width=400 --height=500 --text='<span font-family=\"Arial\">'"$EN_TETE"'</span>' \
+	zenity --list --width=400 --height=515 --text='<span font-family=\"Arial\">'"$EN_TETE"'</span>' \
     	--title="Git" \
     	--ok-label="Sélectionner" \
     	--cancel-label="Quitter" \
