@@ -171,6 +171,8 @@ checkFilesChanged(){
 #	TEXT_COMMIT=`git log --format=%B -n 1 | xargs -n $nbWordsByCommit echo -e '\t'`
 	TEXT_COMMIT=`git log --format=%B -n 1`
 	TEXT_COMMIT=`echo "$TEXT_COMMIT" | fold -b$(($totalLineNumber - $two)) -s  | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
+	LAST_COMMIT_DATE_RAW=`git log -1 --format=%cd`
+	LAST_COMMIT_DATE=${LAST_COMMIT_DATE_RAW::-6}
 	REPO_ADRESS=`git config --get remote.origin.url`
 	actualBranch=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/actualBranch`
 	actualBranch=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/actualBranch`
@@ -298,9 +300,9 @@ $SPACE_GIT$git6
 	spaceStatusSize="$(($spaceAddSize - $three))"
 	spaceChangeWidthSize="$(($spaceAddSize - $five))"
 
-	spaceFilesSymbols="$(($spaceAddSize - $sixteen))"
-	
 	spaceCommitPendingSize="$(($totalLineNumber - $seventeen))"
+	
+	spaceFilesSymbols="$(($spaceAddSize - $sixteen))"
 
 	SPACE_ADD=`printf %$spaceAddSize\s |tr " " " "`
 	SPACE_ADD_S=`printf %$spaceAddSSize\s |tr " " " "`
@@ -828,7 +830,7 @@ $GIT
 \t⎇\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>
 
 
-\t<span color=\"gray\">📝\tDernier commit</span>
+\t<span color=\"gray\">📝\tDernier commit du <i>$LAST_COMMIT_DATE</i></span>
 <span><b><i>$TEXT_COMMIT</i></b></span>
 
 \t<span color=\"gray\">🗒\tCommités</span>
@@ -841,7 +843,7 @@ $GIT
 $GIT
 \t⎇\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>
 
-\t<span color=\"gray\">📝\tDernier commit</span>
+\t<span color=\"gray\">📝\tDernier commit du <i>$LAST_COMMIT_DATE</i></span>
 <span><b><i>$TEXT_COMMIT</i></b></span>
 
 \t<span color=\"gray\">🗒\tCommités</span>
@@ -858,7 +860,7 @@ $SPACE_LINE$SIMPLE_LINE
 $GIT
 \t⎇\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>
 
-\t<span color=\"gray\">📝\tDernier commit</span>
+\t<span color=\"gray\">📝\tDernier commit du <i>$LAST_COMMIT_DATE</i></span>
 <span><b><i>$TEXT_COMMIT</i></b></span>\n
 
 \t<span color=\"gray\">🗒\tCommités</span>
@@ -875,7 +877,7 @@ EN_TETE="
 $GIT
 \t⎇\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>
 
-\t<span color=\"gray\">📝\tDernier commit</span>
+\t<span color=\"gray\">📝\tDernier commit du <i>$LAST_COMMIT_DATE</i></span>
 <span><b><i>$TEXT_COMMIT</i></b></span>
 
 \t<span color=\"gray\">🗒\tCommités</span>
@@ -900,7 +902,7 @@ else
 $GIT
 \t⎇\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>
 
-\t<span color=\"gray\">📝\tDernier commit</span>
+\t<span color=\"gray\">📝\tDernier commit du <i>$LAST_COMMIT_DATE</i></span>
 <span><b><i>$TEXT_COMMIT</i></b></span>
 
 \t<span color=\"gray\">🗒\tCommités</span>
@@ -918,7 +920,7 @@ EN_TETE="
 $GIT
 \t⎇\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>
 
-\t<span color=\"gray\">📝\tDernier commit</span>
+\t<span color=\"gray\">📝\tDernier commit du <i>$LAST_COMMIT_DATE</i></span>
 <span><b><i>$TEXT_COMMIT</i></b></span>
 
 \t<span color=\"gray\">🗒\tCommités</span>
@@ -939,7 +941,7 @@ EN_TETE="
 $GIT
 \t⎇\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>
 
-\t<span color=\"gray\">📝\tDernier commit</span>
+\t<span color=\"gray\">📝\tDernier commit du <i>$LAST_COMMIT_DATE</i></span>
 <span><b><i>$TEXT_COMMIT</i></b></span>
 
 \t<span color=\"gray\">🗒\tCommités</span>
@@ -960,7 +962,7 @@ EN_TETE="
 $GIT
 \t⎇\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>
 
-\t<span color=\"gray\">📝\tDernier commit</span>
+\t<span color=\"gray\">📝\tDernier commit du <i>$LAST_COMMIT_DATE</i></span>
 <span><b><i>$TEXT_COMMIT</i></b></span>
 
 \t<span color=\"gray\">🗒\tCommités</span>
@@ -1006,16 +1008,16 @@ zenity --list --width=$filesDialogWidth --height=$dialogHeight --text='<span fon
     --ok-label="Sélectionner" \
     --cancel-label="Quitter" \
     --hide-column 1 --column "" --column "" --column "" --column ""  --column "" \
-    1 "    1" "$SPACE_ADD$GA" "$SPACE_FILES_SYMBOL" "✅"\
-    2 "    2" "$SPACE_ADD_S$GAS" "$SPACE_FILES_SYMBOL" "✅"\
+    1 "    1" "$SPACE_ADD$GA" "$SPACE_FILES_SYMBOL" "➕"\
+    2 "    2" "$SPACE_ADD_S$GAS" "$SPACE_FILES_SYMBOL" "➕"\
     3 "    3" "$SPACE_COMMIT$GC" "$SPACE_FILES_SYMBOL" "📝"\
     4 "    4" "$SPACE_PUSH$GP" "$SPACE_FILES_SYMBOL" "📤"\
     0 "" "" "" ""\
-    5 "    5" "$SPACE_ADD_ALL$GAA" "$SPACE_FILES_SYMBOL" "✅"\
-    6 "    6" "$SPACE_RESET$GRT" "$SPACE_FILES_SYMBOL" "⛔"\
-    7 "    7" "$SPACE_RESET_ALL$GRA" "$SPACE_FILES_SYMBOL" "⛔"\
-    8 "    8" "$SPACE_COMMIT_RESET$GCR" "$SPACE_FILES_SYMBOL" "⛔"\
-    9 "    9" "$SPACE_CHANGE_WIDTH$CW" "$SPACE_FILES_SYMBOL" "⟺" 2>/dev/null ;
+    5 "    5" "$SPACE_ADD_ALL$GAA" "$SPACE_FILES_SYMBOL" "➕"\
+    6 "    6" "$SPACE_RESET$GRT" "$SPACE_FILES_SYMBOL" "➖"\
+    7 "    7" "$SPACE_RESET_ALL$GRA" "$SPACE_FILES_SYMBOL" "➖"\
+    8 "    8" "$SPACE_COMMIT_RESET$GCR" "$SPACE_FILES_SYMBOL" "➖"\
+    9 "    9" "$SPACE_CHANGE_WIDTH$CW" "$SPACE_FILES_SYMBOL" "🎚" 2>/dev/null ;
 }
 
 frm_fichiers_parser(){
@@ -1060,7 +1062,7 @@ zenity --list --width=400 --height=580 --text='<span font-family=\"Arial\">'"$EN
     4 "    4" "				       $GR" "			    " "📥"\
     5 "    5" "				        $GM" "			    " "📥"\
     0 "" "" "" "" \
-    6 "    6" "				 $OR" "			    " "🌐"\
+    6 "    6" "				 $OR" "			    " "🌍"\
     7 "    7" "				         $GCL" "			    " "📚" 2>/dev/null ;
 }
 
