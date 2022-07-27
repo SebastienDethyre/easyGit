@@ -302,7 +302,7 @@ $SPACE_GIT$git6
 
 	spaceCommitPendingSize="$(($totalLineNumber - $seventeen))"
 	
-	spaceFilesSymbols="$(($spaceAddSize - $sixteen))"
+	spaceFilesSymbols="$(($spaceAddSize - $fifteen))"
 
 	SPACE_ADD=`printf %$spaceAddSize\s |tr " " " "`
 	SPACE_ADD_S=`printf %$spaceAddSSize\s |tr " " " "`
