@@ -291,11 +291,12 @@ $SPACE_GIT$git6
 	spaceAddSize="$(($totalLineNumber + $commandsLineNumber))"
 	spaceAddSSize="$(($spaceAddSize - $five))"
 	spacePushSize="$(($spaceAddSize - $one))"
-	spaceResetSize="$(($spaceAddSize - $one))"
-	spaceAddAllSize="$(($spaceAddSize - $three))"
-	spaceCommitResetSize="$(($spaceAddSize - $eleven))"
-	spaceStatusSize="$(($spaceAddSize - $two))"
-	spaceChangeWidthSize="$(($spaceAddSize - $four))"
+	spaceResetSize="$(($spaceAddSize - $two))"
+	spaceAddAllSize="$(($spaceAddSize - $four))"
+	spaceResetAllSize="$(($spaceAddSize - $six))"
+	spaceCommitResetSize="$(($spaceAddSize - $twelve))"
+	spaceStatusSize="$(($spaceAddSize - $three))"
+	spaceChangeWidthSize="$(($spaceAddSize - $five))"
 
 	spaceFilesSymbols="$(($spaceAddSize - $sixteen))"
 	
@@ -307,7 +308,7 @@ $SPACE_GIT$git6
 	SPACE_PUSH=`printf %$spacePushSize\s |tr " " " "`
 	SPACE_RESET=`printf %$spaceResetSize\s |tr " " " "`
 	SPACE_ADD_ALL=`printf %$spaceAddAllSize\s |tr " " " "`
-	SPACE_RESET_ALL=`printf %$spaceAddSSize\s |tr " " " "`
+	SPACE_RESET_ALL=`printf %$spaceResetAllSize\s |tr " " " "`
 	SPACE_COMMIT_RESET=`printf %$spaceCommitResetSize\s |tr " " " "`
 	SPACE_STATUS=`printf %$spaceStatusSize\s |tr " " " "`
 	SPACE_CHANGE_WIDTH=`printf %$spaceChangeWidthSize\s |tr " " " "`
