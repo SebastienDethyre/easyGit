@@ -830,6 +830,7 @@ $GIT
 \t<span color=\"gray\">📝\tDernier commit</span>
 <span><b><i>$TEXT_COMMIT</i></b></span>
 
+\t<span color=\"gray\">🗒\tCommités</span>
 <i>$filesCommitted</i>
 
 "
@@ -842,6 +843,7 @@ $GIT
 \t<span color=\"gray\">📝\tDernier commit</span>
 <span><b><i>$TEXT_COMMIT</i></b></span>
 
+\t<span color=\"gray\">🗒\tCommités</span>
 <i>$filesCommitted</i>
 $SPACE_LINE$SIMPLE_LINE
 
@@ -857,6 +859,8 @@ $GIT
 
 \t<span color=\"gray\">📝\tDernier commit</span>
 <span><b><i>$TEXT_COMMIT</i></b></span>\n
+
+\t<span color=\"gray\">🗒\tCommités</span>
 <i>$filesCommitted</i>
 $SPACE_LINE$SIMPLE_LINE
 
@@ -873,6 +877,7 @@ $GIT
 \t<span color=\"gray\">📝\tDernier commit</span>
 <span><b><i>$TEXT_COMMIT</i></b></span>
 
+\t<span color=\"gray\">🗒\tCommités</span>
 <i>$filesCommitted</i>
 $SPACE_LINE$SIMPLE_LINE
 
@@ -897,6 +902,7 @@ $GIT
 \t<span color=\"gray\">📝\tDernier commit</span>
 <span><b><i>$TEXT_COMMIT</i></b></span>
 
+\t<span color=\"gray\">🗒\tCommités</span>
 <i>$filesCommitted</i>
 $SPACE_LINE$SIMPLE_LINE
 
@@ -914,6 +920,7 @@ $GIT
 \t<span color=\"gray\">📝\tDernier commit</span>
 <span><b><i>$TEXT_COMMIT</i></b></span>
 
+\t<span color=\"gray\">🗒\tCommités</span>
 <i>$filesCommitted</i>
 $SPACE_LINE$SIMPLE_LINE
 
@@ -934,6 +941,7 @@ $GIT
 \t<span color=\"gray\">📝\tDernier commit</span>
 <span><b><i>$TEXT_COMMIT</i></b></span>
 
+\t<span color=\"gray\">🗒\tCommités</span>
 <i>$filesCommitted</i>
 $SPACE_LINE$SIMPLE_LINE
 
@@ -954,6 +962,7 @@ $GIT
 \t<span color=\"gray\">📝\tDernier commit</span>
 <span><b><i>$TEXT_COMMIT</i></b></span>
 
+\t<span color=\"gray\">🗒\tCommités</span>
 <i>$filesCommitted</i>
 $SPACE_LINE$SIMPLE_LINE
 
@@ -985,7 +994,7 @@ nbColumn=${#EN_TETES}
 
 # vertical responsiveness
 nbLines=`echo -n "$EN_TETE" | grep -c '^'`
-commandsHeight=380
+commandsHeight=385
 oneLineHeight=17
 linesHeight=$(($oneLineHeight * $nbLines))
 dialogHeight=$(($commandsHeight + $linesHeight))
@@ -1002,7 +1011,7 @@ zenity --list --width=$filesDialogWidth --height=$dialogHeight --text='<span fon
     4 "    4" "$SPACE_PUSH$GP" "$SPACE_FILES_SYMBOL" "📤"\
     0 "" "" "" ""\
     5 "    5" "$SPACE_ADD_ALL$GAA" "$SPACE_FILES_SYMBOL" "✅"\
-    6 "    6" "$SPACE_RESET$GRT" "$SPACE_FILES_SYMBOL" "⭕"\
+    6 "    6" "$SPACE_RESET$GRT" "$SPACE_FILES_SYMBOL" "⛔"\
     7 "    7" "$SPACE_RESET_ALL$GRA" "$SPACE_FILES_SYMBOL" "⛔"\
     8 "    8" "$SPACE_COMMIT_RESET$GCR" "$SPACE_FILES_SYMBOL" "⛔"\
     9 "    9" "$SPACE_CHANGE_WIDTH$CW" "$SPACE_FILES_SYMBOL" "⟺" 2>/dev/null ;
