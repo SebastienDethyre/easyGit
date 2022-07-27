@@ -52,7 +52,7 @@ MF="Fichiers"
 MI="Informations"
 SC="Clear"
 RL="Résultats par ligne"
-CW="|← Largeur →|"
+CW="Largeur"
 
 CURRENT_DIR=`pwd`
 
@@ -295,7 +295,9 @@ $SPACE_GIT$git6
 	spaceAddAllSize="$(($spaceAddSize - $three))"
 	spaceCommitResetSize="$(($spaceAddSize - $eleven))"
 	spaceStatusSize="$(($spaceAddSize - $two))"
-	spaceChangeWidthSize="$(($spaceAddSize - $eleven))"
+	spaceChangeWidthSize="$(($spaceAddSize - $four))"
+
+	spaceFilesSymbols="$(($spaceAddSize - $sixteen))"
 	
 	spaceCommitPendingSize="$(($totalLineNumber - $seventeen))"
 
@@ -311,6 +313,8 @@ $SPACE_GIT$git6
 	SPACE_CHANGE_WIDTH=`printf %$spaceChangeWidthSize\s |tr " " " "`
 
 	SPACE_COMMIT_PENDING=`printf %$spaceCommitPendingSize\s |tr " " " "`
+
+	SPACE_FILES_SYMBOL=`printf %$spaceFilesSymbols\s |tr " " " "`
 }
 
 add_spaces
@@ -318,18 +322,22 @@ add_spaces
 en_tete(){
 	checkFilesChanged
 	actualBranch=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/actualBranch`
-	nbFilesChanged=`wc -l < ~/bin/easyGit/filesChanged `
+	nbFilesChangedSymbol="🔧"
+	nbFilesChanged=`wc -l < ~/bin/easyGit/filesChanged`
+	nbFilesUnfollowedSymbol="🧩"
 	nbFilesUnfollowed=`wc -l < ~/bin/easyGit/filesUnfollowed`
 	if [ $nbFilesChanged -eq 0 ]; then 
-		nbFilesChanged=""	
+		nbFilesChangedSymbol=""
+		nbFilesChanged=""
 	fi
 	if [ $nbFilesUnfollowed -eq 0 ]; then 
-		nbFilesUnfollowed=""	
+		nbFilesUnfollowedSymbol=""
+		nbFilesUnfollowed=""
 	fi
 	EN_TETE="$LOGO_FULL_400
-\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>
+\t⎇\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>
 
-\t<span color=\"green\">$nbFilesChanged</span>\t<span color=\"#155162\">$nbFilesUnfollowed</span>
+\t<span color=\"green\">$nbFilesChangedSymbol  $nbFilesChanged</span>    <span color=\"#155162\">$nbFilesUnfollowedSymbol  $nbFilesUnfollowed</span>
 "
 }
 
@@ -452,7 +460,7 @@ git_add_all(){
 	filesChangedAndUnfollowed=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUnfollowed`
 	if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ];then
                 echo "Commit en cours"
-                notification "Commit en cours"
+                notification "Commit en cours 🔏"
 	elif [ "$filesChangedAndUnfollowed" = "" ];then
                 echo "Aucun fichier à ajouter"
                 notification "Aucun fichier à ajouter"
@@ -471,7 +479,7 @@ git_add(){
 	filesChangedAndUnfollowed=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUnfollowed`
 	if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ];then
                 echo "Commit en cours"
-                notification "Commit en cours"
+                notification "Commit en cours 🔏"
 	elif [ "$filesChangedAndUnfollowed" = "" ];then
 		echo "Aucun fichier à ajouter"
 		notification "Aucun fichier à ajouter"
@@ -506,7 +514,7 @@ git_add_single(){
         filesChangedAndUnfollowed=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUnfollowed`
         if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ];then
                 echo "Commit en cours"
-                notification "Commit en cours"
+                notification "Commit en cours 🔏"
         elif [ "$filesChangedAndUnfollowed" = "" ];then
                 echo "Aucun fichier à ajouter"
                 notification "Aucun fichier à ajouter"
@@ -539,7 +547,7 @@ git_reset_all(){
 	filesStaged=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesStaged`
 	if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ];then
                 echo "Commit en cours"
-                notification "Commit en cours"
+                notification "Commit en cours 🔏"
 	elif [ "$filesStaged" = "" ];then
                 echo "Aucun fichier à retirer"
                 notification "Aucun fichier à retirer"
@@ -558,7 +566,7 @@ git_reset(){
 	checkFilesChanged
 	if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ];then
                 echo "Commit en cours"
-                notification "Commit en cours"
+                notification "Commit en cours 🔏"
 	elif [ "$filesStaged" = "" ];then
                 echo "Aucun fichier à retirer"
                 notification "Aucun fichier à retirer"
@@ -592,7 +600,7 @@ git_commit(){
 	filesStaged=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesStaged`
  	if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ];then
 		echo "Commit déjà en cours"
-		notification "Commit déjà en cours"
+		notification "Commit déjà en cours 🔏"
 	else
 		if [ "$filesStaged" = "" ]; then
 			echo "Pas de fichier ajouté"
@@ -738,14 +746,14 @@ then
 	if [ "$filesChangedAndUnfollowed" = "" ];then
                 EN_TETE="
 $GIT
-\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>
+\t⎇\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>
 $SPACE_LINE$SIMPLE_LINE
 
 $SPACE_COMMIT_PENDING<span color=\"grey\">Commit </span><span color=\"red\"><i>en cours</i></span>
-\t<span color=\"gray\">Contenu</span>
+\t<span color=\"gray\">📝\tContenu</span>
 <span><b>$TEXT_COMMIT</b></span>
 
-\t<span color=\"gray\">Commités</span>
+\t<span color=\"gray\">🗒\tCommités</span>
 <i>$filesCommitted</i>
 
 "
@@ -753,18 +761,18 @@ $SPACE_COMMIT_PENDING<span color=\"grey\">Commit </span><span color=\"red\"><i>e
 	elif [[ "$filesUnfollowed" == "" ]] && [[ "$filesChanged" != "" ]] ; then
 		EN_TETE="
 $GIT
-\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>
+\t⎇\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>
 
-\t<span color=\"gray\">Modifiés</span>
+\t<span color=\"gray\">🔧\tModifiés</span>
 <span color=\"green\">$filesChanged</span>
 $SPACE_LINE$SIMPLE_LINE
 
 $SPACE_COMMIT_PENDING<span color=\"grey\">Commit </span><span color=\"red\"><i>en cours</i></span>
 
-\t<span color=\"gray\">Contenu</span>
+\t<span color=\"gray\">📝\tContenu</span>
 
 <span><b>$TEXT_COMMIT</b></span>
-\t<span color=\"gray\">Commités</span>
+\t<span color=\"gray\">🗒\tCommités</span>
 <i>$filesCommitted</i>
 
 "
@@ -772,17 +780,17 @@ $SPACE_COMMIT_PENDING<span color=\"grey\">Commit </span><span color=\"red\"><i>e
 	elif [[ "$filesChanged" == "" ]] && [[ "$filesUnfollowed" != "" ]]; then
 		EN_TETE="
 $GIT
-\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>
+\t⎇\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>
 
-\t<span color=\"gray\">Non suivis</span>
+\t<span color=\"gray\">🧩\tNon suivis</span>
 <span color=\"#155162\">$filesUnfollowed</span>
 $SPACE_LINE$SIMPLE_LINE
 
 $SPACE_COMMIT_PENDING<span color=\"grey\">Commit </span><span color=\"red\"><i>en cours</i></span>
-\t<span color=\"gray\">Contenu</span>
+\t<span color=\"gray\">📝\tContenu</span>
 <span><b>$TEXT_COMMIT</b></span>
 
-\t<span color=\"gray\">Commités</span>
+\t<span color=\"gray\">🗒\tCommités</span>
 <i>$filesCommitted</i>
 
 "
@@ -790,20 +798,20 @@ $SPACE_COMMIT_PENDING<span color=\"grey\">Commit </span><span color=\"red\"><i>e
 	else
 EN_TETE="
 $GIT
-\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>
+\t⎇\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>
 
-\t<span color=\"gray\">Modifiés</span>
+\t<span color=\"gray\">🔧\tModifiés</span>
 <span color=\"green\">$filesChanged</span>
 
-\t<span color=\"gray\">Non suivis</span>
+\t<span color=\"gray\">🧩\tNon suivis</span>
 <span color=\"#155162\">$filesUnfollowed</span>
 $SPACE_LINE$SIMPLE_LINE
 
 $SPACE_COMMIT_PENDING<span color=\"grey\">Commit </span><span color=\"red\"><i>en cours</i></span>
-\t<span color=\"gray\">Contenu</span>
+\t<span color=\"gray\">📝\tContenu</span>
 <span><b>$TEXT_COMMIT</b></span>
 
-\t<span color=\"gray\">Commités</span>
+\t<span color=\"gray\">🗒\tCommités</span>
 <i>$filesCommitted</i>
 
 "
@@ -816,10 +824,10 @@ elif [ "$filesStaged" = "" ]; then
  	if [ "$filesChangedAndUnfollowed" = "" ];then
                 EN_TETE="
 $GIT
-\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>
+\t⎇\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>
 
 
-\t<span color=\"gray\">Dernier commit</span>
+\t<span color=\"gray\">📝\tDernier commit</span>
 <span><b><i>$TEXT_COMMIT</i></b></span>
 
 <i>$filesCommitted</i>
@@ -829,15 +837,15 @@ $GIT
 	elif [[ "$filesUnfollowed" == "" ]] && [[ "$filesChanged" != "" ]] ; then
                 EN_TETE="
 $GIT
-\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>
+\t⎇\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>
 
-\t<span color=\"gray\">Dernier commit</span>
+\t<span color=\"gray\">📝\tDernier commit</span>
 <span><b><i>$TEXT_COMMIT</i></b></span>
 
 <i>$filesCommitted</i>
 $SPACE_LINE$SIMPLE_LINE
 
-\t<span color=\"gray\">Modifiés</span>
+\t<span color=\"gray\">🔧\tModifiés</span>
 <span color=\"green\">$filesChanged</span>
 
 "
@@ -845,14 +853,14 @@ $SPACE_LINE$SIMPLE_LINE
 	elif [[ "$filesChanged" == "" ]] && [[ "$filesUnfollowed" != "" ]]; then
                 EN_TETE="
 $GIT
-\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>
+\t⎇\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>
 
-\t<span color=\"gray\">Dernier commit</span>
+\t<span color=\"gray\">📝\tDernier commit</span>
 <span><b><i>$TEXT_COMMIT</i></b></span>\n
 <i>$filesCommitted</i>
 $SPACE_LINE$SIMPLE_LINE
 
-\t<span color=\"gray\">Non suivis</span>
+\t<span color=\"gray\">🧩\tNon suivis</span>
 <span color=\"#155162\">$filesUnfollowed</span>
 
 "
@@ -860,18 +868,18 @@ $SPACE_LINE$SIMPLE_LINE
 	else
 EN_TETE="
 $GIT
-\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>
+\t⎇\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>
 
-\t<span color=\"gray\">Dernier commit</span>
+\t<span color=\"gray\">📝\tDernier commit</span>
 <span><b><i>$TEXT_COMMIT</i></b></span>
 
 <i>$filesCommitted</i>
 $SPACE_LINE$SIMPLE_LINE
 
-\t<span color=\"gray\">Modifiés</span>
+\t<span color=\"gray\">🔧\tModifiés</span>
 <span color=\"green\">$filesChanged</span>
 
-\t<span color=\"gray\">Non suivis</span>
+\t<span color=\"gray\">🧩\tNon suivis</span>
 <span color=\"#155162\">$filesUnfollowed</span>
 
 "
@@ -884,16 +892,16 @@ else
 	if [ "$filesChangedAndUnfollowed" = "" ];then
 	EN_TETE="
 $GIT
-\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>
+\t⎇\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>
 
-\t<span color=\"gray\">Dernier commit</span>
+\t<span color=\"gray\">📝\tDernier commit</span>
 <span><b><i>$TEXT_COMMIT</i></b></span>
 
 <i>$filesCommitted</i>
 $SPACE_LINE$SIMPLE_LINE
 
 
-\t<span color=\"gray\">Ajoutés</span>
+\t<span color=\"gray\">✅\tAjoutés</span>
 <span color=\"orange\"><b>$filesStaged</b></span>
 
 "
@@ -901,19 +909,19 @@ $SPACE_LINE$SIMPLE_LINE
 	elif [[ "$filesUnfollowed" == "" ]] && [[ "$filesChanged" != "" ]] ; then
 EN_TETE="
 $GIT
-\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>
+\t⎇\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>
 
-\t<span color=\"gray\">Dernier commit</span>
+\t<span color=\"gray\">📝\tDernier commit</span>
 <span><b><i>$TEXT_COMMIT</i></b></span>
 
 <i>$filesCommitted</i>
 $SPACE_LINE$SIMPLE_LINE
 
-\t<span color=\"gray\">Modifiés</span>
+\t<span color=\"gray\">🔧\tModifiés</span>
 <span color=\"green\">$filesChanged</span>
 
 
-\t<span color=\"gray\">Ajoutés</span>
+\t<span color=\"gray\">✅\tAjoutés</span>
 <span color=\"orange\"><b>$filesStaged</b></span>
 
 "
@@ -921,19 +929,19 @@ $SPACE_LINE$SIMPLE_LINE
 	elif [[ "$filesChanged" == "" ]] && [[ "$filesUnfollowed" != "" ]]; then
 EN_TETE="
 $GIT
-\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>
+\t⎇\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>
 
-\t<span color=\"gray\">Dernier commit</span>
+\t<span color=\"gray\">📝\tDernier commit</span>
 <span><b><i>$TEXT_COMMIT</i></b></span>
 
 <i>$filesCommitted</i>
 $SPACE_LINE$SIMPLE_LINE
 
-\t<span color=\"gray\">Non suivis</span>
+\t<span color=\"gray\">🧩\tNon suivis</span>
 <span color=\"#155162\">$filesUnfollowed</span>
 
 
-\t<span color=\"gray\">Ajoutés</span>
+\t<span color=\"gray\">✅\tAjoutés</span>
 <span color=\"orange\"><b>$filesStaged</b></span>
 
 "
@@ -941,22 +949,22 @@ $SPACE_LINE$SIMPLE_LINE
 	else
 EN_TETE="
 $GIT
-\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>
+\t⎇\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>
 
-\t<span color=\"gray\">Dernier commit</span>
+\t<span color=\"gray\">📝\tDernier commit</span>
 <span><b><i>$TEXT_COMMIT</i></b></span>
 
 <i>$filesCommitted</i>
 $SPACE_LINE$SIMPLE_LINE
 
-\t<span color=\"gray\">Modifiés</span>
+\t<span color=\"gray\">🔧\tModifiés</span>
 <span color=\"green\">$filesChanged</span>
 
-\t<span color=\"gray\">Non suivis</span>
+\t<span color=\"gray\">🧩\tNon suivis</span>
 <span color=\"#155162\">$filesUnfollowed</span>
 
 
-\t<span color=\"gray\">Ajoutés</span>
+\t<span color=\"gray\">✅\tAjoutés</span>
 <span color=\"orange\"><b>$filesStaged</b></span>
 
 "
@@ -982,23 +990,22 @@ oneLineHeight=17
 linesHeight=$(($oneLineHeight * $nbLines))
 dialogHeight=$(($commandsHeight + $linesHeight))
 
-
 2>/dev/null # bug zenity
 zenity --list --width=$filesDialogWidth --height=$dialogHeight --text='<span font-family=\"Arial\">'"$EN_TETE"'</span>' \
     --title="Gestion des fichiers" \
     --ok-label="Sélectionner" \
     --cancel-label="Quitter" \
-    --hide-column 1 --column "" --column "" --column "" --column "" \
-    1 "    1" "$SPACE_ADD$GA" ""\
-    2 "    2" "$SPACE_ADD_S$GAS" ""\
-    3 "    3" "$SPACE_COMMIT$GC" ""\
-    4 "    4" "$SPACE_PUSH$GP" ""\
-    0 "" "" "" \
-    5 "    5" "$SPACE_RESET$GRT" ""\
-    6 "    6" "$SPACE_ADD_ALL$GAA" ""\
-    7 "    7" "$SPACE_RESET_ALL$GRA" ""\
-    8 "    8" "$SPACE_COMMIT_RESET$GCR" ""\
-    9 "    9" "$SPACE_CHANGE_WIDTH$CW" "" 2>/dev/null ;
+    --hide-column 1 --column "" --column "" --column "" --column ""  --column "" \
+    1 "    1" "$SPACE_ADD$GA" "$SPACE_FILES_SYMBOL" "✅"\
+    2 "    2" "$SPACE_ADD_S$GAS" "$SPACE_FILES_SYMBOL" "✅"\
+    3 "    3" "$SPACE_COMMIT$GC" "$SPACE_FILES_SYMBOL" "📝"\
+    4 "    4" "$SPACE_PUSH$GP" "$SPACE_FILES_SYMBOL" "📤"\
+    0 "" "" "" ""\
+    5 "    5" "$SPACE_ADD_ALL$GAA" "$SPACE_FILES_SYMBOL" "✅"\
+    6 "    6" "$SPACE_RESET$GRT" "$SPACE_FILES_SYMBOL" "⭕"\
+    7 "    7" "$SPACE_RESET_ALL$GRA" "$SPACE_FILES_SYMBOL" "⛔"\
+    8 "    8" "$SPACE_COMMIT_RESET$GCR" "$SPACE_FILES_SYMBOL" "⛔"\
+    9 "    9" "$SPACE_CHANGE_WIDTH$CW" "$SPACE_FILES_SYMBOL" "⟺" 2>/dev/null ;
 }
 
 frm_fichiers_parser(){
@@ -1010,8 +1017,8 @@ frm_fichiers_parser(){
 #		quitter=1"
 #               _quitter
                 ;;
-        5) git_reset ;;
-        6) git_add_all ;;
+        5) git_add_all ;;
+        6) git_reset ;;
         7) git_reset_all ;;
         8) git_commit_reset ;;
 		9) change_width ;;
@@ -1035,16 +1042,16 @@ zenity --list --width=400 --height=580 --text='<span font-family=\"Arial\">'"$EN
     --title="Gestion des dépots" \
     --ok-label="Sélectionner" \
     --cancel-label="Quitter" \
-    --hide-column 1 --column "" --column "" --column "" --column "" \
-    1 "    1" "				         $GF" ""\
-    2 "    2" "				         $GS" ""\
-    3 "    3" "		                      $GSP" ""\
-    0 "" "" "" \
-    4 "    4" "				       $GR" ""\
-    5 "    5" "				        $GM" ""\
-    0 "" "" "" \
-    6 "    6" "				 $OR" ""\
-    7 "    7" "				         $GCL" "" 2>/dev/null ;
+    --hide-column 1 --column "" --column "" --column "" --column "" --column "" \
+    1 "    1" "				         $GF" "			    " "📩"\
+    2 "    2" "				         $GS" "			    " "🔁"\
+    3 "    3" "		                      $GSP" "			    " "🔂"\
+    0 "" "" "" "" \
+    4 "    4" "				       $GR" "			    " "📥"\
+    5 "    5" "				        $GM" "			    " "📥"\
+    0 "" "" "" "" \
+    6 "    6" "				 $OR" "			    " "🌐"\
+    7 "    7" "				         $GCL" "			    " "📚" 2>/dev/null ;
 }
 
 frm_depots_parser(){
@@ -1104,20 +1111,20 @@ fonction_infos(){
 }
 
 ############### GENERAL DIALOG ####################
-
+SPACE_ICONS_HOME="			   "
 frm_git(){
 	en_tete
 	zenity --list --width=400 --height=515 --text='<span font-family=\"Arial\">'"$EN_TETE"'</span>' \
     	--title="Git" \
     	--ok-label="Sélectionner" \
     	--cancel-label="Quitter" \
-    	--hide-column 1 --column "" --column "" --column "" --column "" \
-    	1 "  1" "				        $MD" ""\
-    	2 "  2" "				      $MF" ""\
-    	0 "" "" "" \
-    	3 "  3" "			         $MI" ""\
-    	4 "  4" "				    $GK" ""\
-    	5 "  5" "				         $SC" "" 2>/dev/null;
+    	--hide-column 1 --column "" --column "" --column "" --column "" --column "" \
+    	1 "  1" "				        $MD" "			     " "🗃"\
+    	2 "  2" "				      $MF" "			     " "📑"\
+    	0 "" "" "" "" \
+    	3 "  3" "			         $MI" "			     " "📋"\
+    	4 "  4" "				    $GK" "			     " "⎇"\
+    	5 "  5" "				         $SC" "			     " "🗑" 2>/dev/null;
 
 }
 
