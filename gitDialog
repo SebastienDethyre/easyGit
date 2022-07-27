@@ -80,15 +80,15 @@ clear_screen(){
 
 change_width(){
 
-VALUE=`zenity --scale --title=Largeur --text="\t\t    Largeur de la fenêtre" --value=$filesDialogWidth --min-value=450 --max-value=1850 --step 50`
+width=`zenity --scale --title=Largeur --text="\t\t        Largeur en pixels" --value=$filesDialogWidth --min-value=450 --max-value=1850 --step 50`
 
 case $? in
          0)
-		filesDialogWidth=$VALUE
+		filesDialogWidth=$width
 		add_spaces
-		echo $VALUE > ~/bin/easyGit/widthConfig
-		fonction_fichiers
-		echo "Vous avez choisi $VALUE%.";;
+		echo $width > ~/bin/easyGit/widthConfig
+		echo "Vous avez choisi $width pixels."
+		fonction_fichiers ;;
          1)
                 echo "Aucune valeur sélectionnée.";;
         -1)
@@ -1017,7 +1017,7 @@ zenity --list --width=$filesDialogWidth --height=$dialogHeight --text='<span fon
     6 "    6" "$SPACE_RESET$GRT" "$SPACE_FILES_SYMBOL" "➖"\
     7 "    7" "$SPACE_RESET_ALL$GRA" "$SPACE_FILES_SYMBOL" "➖"\
     8 "    8" "$SPACE_COMMIT_RESET$GCR" "$SPACE_FILES_SYMBOL" "➖"\
-    9 "    9" "$SPACE_CHANGE_WIDTH$CW" "$SPACE_FILES_SYMBOL" "🎚" 2>/dev/null ;
+    9 "    9" "$SPACE_CHANGE_WIDTH$CW" "$SPACE_FILES_SYMBOL" "📏" 2>/dev/null ;
 }
 
 frm_fichiers_parser(){
@@ -1096,12 +1096,12 @@ zenity --list --width=400 --height=495 --text='<span font-family=\"Arial\">'"$EN
     --title="Informations" \
     --ok-label="Sélectionner" \
     --cancel-label="Quitter" \
-    --hide-column 1 --column "" --column "" --column "" --column ""\
-    1 "    1" "				            $GL" "" \
-    2 "    2" "			                  $GLL" ""\
-    0 "" "" "" \
-    3 "    3" "			                  $GST" ""\
-    4 "    4" "			                  $GB" "" 2>/dev/null ;
+    --hide-column 1 --column "" --column "" --column "" --column "" --column ""\
+    1 "    1" "				           $GL" "			           " "📓"\
+    2 "    2" "			                 $GLL" "			           " "📃"\
+    0 "" "" "" ""\
+    3 "    3" "			                 $GST" "			           " "🔎"\
+    4 "    4" "			                 $GB" "			           " "⎇" 2>/dev/null ;
 }
 
 frm_infos_parser(){
