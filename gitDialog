@@ -103,7 +103,7 @@ if ret=`zenity --list --title=Type --text="Choisir le type"  --column="Types dis
                 titre=$ret
                 if [ "$titre" = "" ]
                 then
-                        echo "Il faut un type"
+					echo "Il faut un type"
                 fi
         else
                 echo "Annulation"
@@ -114,48 +114,48 @@ if ret=`zenity --list --title=Type --text="Choisir le type"  --column="Types dis
                 	then
                         	if ret=`zenity --list --title=Nombre --text="Choisir le nombre"  --column="Nombres"  $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/resultNumbers)`
 				then
-                		titre=$ret
-                			if [ "$titre" = "" ]
-                			then
-                        			echo "Il faut un nombre"
-                			fi
+					titre=$ret
+						if [ "$titre" = "" ]
+						then
+							echo "Il faut un nombre"
+						fi
         			else
                 			echo "Annulation"
         			fi
         			if ([ -n "$titre" ])
                 		then
-					nbWordsByCommit=$(($titre))
-					echo $nbWordsByCommit > ~/bin/easyGit/wordsByLinePref
-					echo "$titre mots par ligne"
-					notification "$titre mots par ligne"
+							nbWordsByCommit=$(($titre))
+							echo $nbWordsByCommit > ~/bin/easyGit/wordsByLinePref
+							echo "$titre mots par ligne"
+							notification "$titre mots par ligne"
                 		else
                         		echo "Pas de nombre choisi"
         			fi
         			2>/dev/null
 			else
 				if ret=`zenity --list --title=Nombre --text="Choisir le nombre"  --column="Nombres"  $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/resultNumbers)`
-                                then
-                                titre=$ret
-                                        if [ "$titre" = "" ]
-                                        then
-                                                echo "Il faut un nombre"
-                                        fi
-                                else
-                                        echo "Annulation"
-                                fi
-                                if ([ -n "$titre" ])
-                                then
-					nbFilesByLine=$(($titre))
-					echo $nbFilesByLine > ~/bin/easyGit/filesByLinePref
-                                        echo "$titre fichiers par ligne"
-					notification "$titre fichiers par ligne"
-                                else
-                                        echo "Pas de nombre choisi"
-                                fi
-                                2>/dev/null
+					then
+						titre=$ret
+						if [ "$titre" = "" ]
+						then
+								echo "Il faut un nombre"
+						fi
+					else
+							echo "Annulation"
+					fi
+					if ([ -n "$titre" ])
+					then
+						nbFilesByLine=$(($titre))
+						echo $nbFilesByLine > ~/bin/easyGit/filesByLinePref
+											echo "$titre fichiers par ligne"
+						notification "$titre fichiers par ligne"
+					else
+						echo "Pas de nombre choisi"
+					fi
+					2>/dev/null
                 	fi
                 else
-                        echo "Pas de type choisi"
+					echo "Pas de type choisi"
         fi
         2>/dev/null
 }
@@ -282,9 +282,7 @@ $SPACE_GIT$git6
 <span color=\"darkblue\">$REPO_ADRESS</span>
 \t<span color=\"blue\">$CURRENT_DIR</span>
 "
-
 	diff=46
-
 	commandsDialogWidth="$(($totalLineNumber - $diff))"
 	commandsLineNumberFloat=`echo $commandsDialogWidth / $factor | bc -l`
 	commandsLineNumber=${commandsLineNumberFloat%.*}
@@ -568,26 +566,26 @@ git_add_single(){
 			echo "Aucun fichier à ajouter"
 			notification "Aucun fichier à ajouter"
 	else
-			if file=`zenity --list --title="Add  ＋" --text="Git add ..."  --column="Fichiers modifiés"  $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUnfollowed)`
+		if file=`zenity --list --title="Add  ＋" --text="Git add ..."  --column="Fichiers modifiés"  $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUnfollowed)`
+		then
+			titre=$file
+			if [ "$titre" = "" ]
 			then
-					titre=$file
-					if [ "$titre" = "" ]
-					then
-							echo "Pas de fichier ajouté"
-					fi
-			else
-					echo "Annulation"
+					echo "Pas de fichier ajouté"
 			fi
-			if ([ -n "$titre" ])
-					then
-							git add $titre && echo "fichier" $titre "ajouté"
-							checkFilesChanged
-							notification "Fichier ajouté au commit :
+		else
+				echo "Annulation"
+		fi
+		if ([ -n "$titre" ])
+			then
+				git add $titre && echo "fichier" $titre "ajouté"
+				checkFilesChanged
+				notification "Fichier ajouté au commit :
 \t$titre"
-							unset titre
-					else
-							echo "Pas de fichier ajouté"
-			fi
+				unset titre
+			else
+				echo "Pas de fichier ajouté"
+		fi
 	2>/dev/null
 	fi
 }
@@ -595,12 +593,12 @@ git_add_single(){
 git_reset_all(){
 	filesStaged=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesStaged`
 	if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ];then
-                echo "Commit en cours"
-                notification "Commit en cours 🔏"
+		echo "Commit en cours"
+		notification "Commit en cours 🔏"
 	elif [ "$filesStaged" = "" ];then
-                echo "Aucun fichier à retirer"
-                notification "Aucun fichier à retirer"
-        else
+		echo "Aucun fichier à retirer"
+		notification "Aucun fichier à retirer"
+	else
 		git reset
 		checkFilesChanged
 		echo "Fichiers non suivis :
@@ -614,34 +612,34 @@ git_reset(){
 	filesStaged=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesStaged`
 	checkFilesChanged
 	if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ];then
-                echo "Commit en cours"
-                notification "Commit en cours 🔏"
+		echo "Commit en cours"
+		notification "Commit en cours 🔏"
 	elif [ "$filesStaged" = "" ];then
-                echo "Aucun fichier à retirer"
-                notification "Aucun fichier à retirer"
-        else
-        	if file=`zenity --list --title="Reset  −" --text="Git reset ..."  --column="Fichiers ajoutés"  $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesStaged)`
-       		then
-	                titre=$file
-        	        if [ "$titre" = "" ]
- 	                then
-        	                echo "Pas de fichier supprimé"
-			fi
-        	else
-      	        	echo "Annulation"
-        	fi
-        	if ([ -n "$titre" ])
-                	then
-                        	git reset $titre && echo "fichier" $titre "supprimé"
+		echo "Aucun fichier à retirer"
+		notification "Aucun fichier à retirer"
+	else
+		if file=`zenity --list --title="Reset  −" --text="Git reset ..."  --column="Fichiers ajoutés"  $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesStaged)`
+		then
+			titre=$file
+			if [ "$titre" = "" ]
+			then
+				echo "Pas de fichier supprimé"
+		fi
+		else
+				echo "Annulation"
+		fi
+		if ([ -n "$titre" ])
+			then
+				git reset $titre && echo "fichier" $titre "supprimé"
 				checkFilesChanged
 				notification "Fichier retiré :
 \t$titre"
-                        	unset titre
+				unset titre
 				git_reset
-                	else
-                        	echo "Pas de fichier supprimé"
-        	fi
-        	2>/dev/null
+			else
+				echo "Pas de fichier supprimé"
+		fi
+		2>/dev/null
 	fi
 }
 
@@ -726,7 +724,7 @@ git_push(){
 		fi
 		2>/dev/null
 	else echo "Aucun commit : push impossible"
-	notification "Aucun commit : push impossible"
+		notification "Aucun commit : push impossible"
 	fi
 }
 
@@ -1038,7 +1036,6 @@ $TOTAL_LINE
 "
 
 nbColumn=${#EN_TETES}
-#notification $nbColumn
 #############################################################################
 
 # vertical responsiveness
