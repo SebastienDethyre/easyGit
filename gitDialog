@@ -1200,7 +1200,6 @@ frm_git_parser(){
 }
 
 fonction_git(){
-	echo "$TEXT_COMMIT"
 	checkFilesChanged
 	menuchoice=$(frm_git)
 	frm_git_parser ${menuchoice%|*}
