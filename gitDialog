@@ -80,7 +80,7 @@ clear_screen(){
 
 change_width(){
 
-width=`zenity --scale --title=Largeur --text="\t\t        Largeur en pixels" --value=$filesDialogWidth --min-value=450 --max-value=1850 --step 50`
+width=`zenity --scale --title="Largeur  📏"--text="\t\t        Largeur en pixels" --value=$filesDialogWidth --min-value=450 --max-value=1850 --step 50`
 
 case $? in
          0)
@@ -301,7 +301,6 @@ $SPACE_GIT$git6
 	spaceChangeWidthSize="$(($spaceAddSize - $five))"
 
 	spaceCommitPendingSize="$(($totalLineNumber - $seventeen))"
-	
 	spaceFilesSymbols="$(($spaceAddSize - $fifteen))"
 
 	SPACE_ADD=`printf %$spaceAddSize\s |tr " " " "`
@@ -316,7 +315,6 @@ $SPACE_GIT$git6
 	SPACE_CHANGE_WIDTH=`printf %$spaceChangeWidthSize\s |tr " " " "`
 
 	SPACE_COMMIT_PENDING=`printf %$spaceCommitPendingSize\s |tr " " " "`
-
 	SPACE_FILES_SYMBOL=`printf %$spaceFilesSymbols\s |tr " " " "`
 }
 
@@ -356,42 +354,90 @@ _quitter(){
 
 ############### GIT FUNCTIONS ####################
 
-git_clone(){
-	if ret=`zenity --entry --text='Dépot à cloner'`
-                        then
-                                titre=$ret
-                                if [ "$titre" = "" ]
-                                then
-                                        echo "Il faut un dépot pour cloner"
-                                fi
-                        else
-                                echo "Annulation"
-                        fi
-			if ([ -n "$titre" ])
-                                then
-					if ret=`zenity  --file-selection --title="Répertoire de réception" --directory`
-                        			then
-                                			titre2=$ret
-                                			if [ "$titre2" = "" ]
-                               				then
-								echo "Pas de répertoire choisi"
-                                			fi
-                        			else
-                                			echo "Annulation"
-                        		fi
-                        		if ([ -n "$titre2" ])
-                                		then
-                                        		git clone $titre $titre2
-							echo "Git clone de $titre dans $titre2"
-							notification "Git clone de $titre dans $titre2"
-                                		else
-                                        		echo "Pas de clone effectué"
-                        		fi
-
-                                else
-                                        echo "Pas de clone effectué"
-                        fi
+git_clone_this(){
+	if ret=`zenity  --file-selection --title="Clone  📚" --text="Répertoire de réception" --directory`
+		then
+			titre=$ret
+			if [ "$titre" = "" ]
+				then
+					echo "Pas de répertoire choisi"
+			fi
+		else
+			echo "Annulation"
+	fi
+	if ([ -n "$titre" ])
+		then
+			git clone $REPO_ADRESS $titre
+			echo "Git clone de $REPO_ADRESS dans $titre"
+			notification "Git clone de $REPO_ADRESS dans $titre"
+		else
+			echo "Pas de clone effectué"
+	fi
 }
+
+git_clone_any(){
+	if ret=`zenity --entry --title="Clone  📚" --text='Dépot à cloner'`
+		then
+			titre=$ret
+		if [ "$titre" = "" ]
+			then
+				echo "Il faut un dépot pour cloner"
+		fi
+		else
+				echo "Annulation"
+	fi
+	if ([ -n "$titre" ])
+		then
+			if ret=`zenity  --file-selection --title="Clone  📚" --text="Répertoire de réception" --directory`
+				then
+					titre2=$ret
+					if [ "$titre2" = "" ]
+						then
+							echo "Pas de répertoire choisi"
+					fi
+				else
+					echo "Annulation"
+			fi
+			if ([ -n "$titre2" ])
+				then
+					git clone $titre $titre2
+					echo "Git clone de $titre dans $titre2"
+					notification "Git clone de $titre dans $titre2"
+				else
+					echo "Pas de clone effectué"
+			fi
+
+		else
+			echo "Pas de clone effectué"
+	fi
+}
+
+git_clone(){
+	if ret=`zenity --list --title="Clone   📚" --text=""  --column="Que désirez-vous ?"  "Cloner ce dépot" "Cloner un autre dépot"`
+		then
+			titre=$ret
+				if [ "$titre" = "" ]
+				then
+					echo "Aucun choix effectué"
+				fi
+		else
+				echo "Annulation"
+	fi
+	if ([ -n "$titre" ])
+		then
+			if [ "$titre" = "Cloner ce dépot" ];then
+				unset titre
+				git_clone_this
+				else
+					unset titre
+					git_clone_any
+			fi
+		else
+			echo "Aucun clone effectué"
+	fi
+	2>/dev/null
+}
+
 
 git_fetch(){
 	REPO_ADRESS=`git config --get remote.origin.url`
@@ -433,29 +479,29 @@ git_branch(){
 }
 
 git_checkout(){
-        if ret=`zenity --list --title=Checkout --text="Git checkout ..."  --column="Branches disponibles"  $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/branchesList)`
-      	then
-           	titre=$ret
-              	if [ "$titre" = "" ]
-              	then
-                	echo "Il faut une branche"
-              	fi
-        else
-              	echo "Annulation"
-   	fi
+	if ret=`zenity --list --title="Checkout  ⎇" --text="Git checkout ..."  --column="Branches disponibles"  $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/branchesList)`
+	then
+		titre=$ret
+			if [ "$titre" = "" ]
+			then
+				echo "Il faut une branche"
+			fi
+	else
+			echo "Annulation"
+	fi
 	if ([ -n "$titre" ])
-                then
+		then
 			git checkout $titre
 			actualBranch=`cat .git/HEAD | cut -c 17-`
 			cat .git/HEAD | cut -c 17- > ~/bin/easyGit/actualBranch
-                        unset titre
+					unset titre
 			echo "Basculement sur la branche :
 $actualBranch"
 			notification "Basculement sur la branche :
 \t<b>$actualBranch</b>"
-                else
-                        echo "Pas de branche choisie"
-        fi
+		else
+			echo "Pas de branche choisie"
+	fi
 	2>/dev/null
 }
 
@@ -487,7 +533,7 @@ git_add(){
 		echo "Aucun fichier à ajouter"
 		notification "Aucun fichier à ajouter"
         else
-		if file=`zenity --list --title=Add --text="Git add ..."  --column="Fichiers modifiés"  $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUnfollowed)`
+		if file=`zenity --list --title="Add  ＋" --text="Git add ..."  --column="Fichiers modifiés"  $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUnfollowed)`
 		then
 			titre=$file
 			if [ "$titre" = "" ]
@@ -513,37 +559,37 @@ git_add(){
 }
 
 git_add_single(){
-        checkFilesChanged
-        filesChangedAndUnfollowed=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUnfollowed`
-        if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ];then
-                echo "Commit en cours"
-                notification "Commit en cours 🔏"
-        elif [ "$filesChangedAndUnfollowed" = "" ];then
-                echo "Aucun fichier à ajouter"
-                notification "Aucun fichier à ajouter"
-        else
-                if file=`zenity --list --title=Add --text="Git add ..."  --column="Fichiers modifiés"  $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUnfollowed)`
-                then
-                        titre=$file
-                        if [ "$titre" = "" ]
-                        then
-                                echo "Pas de fichier ajouté"
-                        fi
-                else
-                        echo "Annulation"
-                fi
-                if ([ -n "$titre" ])
-                        then
-                                git add $titre && echo "fichier" $titre "ajouté"
-                                checkFilesChanged
-                                notification "Fichier ajouté au commit :
+	checkFilesChanged
+	filesChangedAndUnfollowed=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUnfollowed`
+	if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ];then
+			echo "Commit en cours"
+			notification "Commit en cours 🔏"
+	elif [ "$filesChangedAndUnfollowed" = "" ];then
+			echo "Aucun fichier à ajouter"
+			notification "Aucun fichier à ajouter"
+	else
+			if file=`zenity --list --title="Add  ＋" --text="Git add ..."  --column="Fichiers modifiés"  $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUnfollowed)`
+			then
+					titre=$file
+					if [ "$titre" = "" ]
+					then
+							echo "Pas de fichier ajouté"
+					fi
+			else
+					echo "Annulation"
+			fi
+			if ([ -n "$titre" ])
+					then
+							git add $titre && echo "fichier" $titre "ajouté"
+							checkFilesChanged
+							notification "Fichier ajouté au commit :
 \t$titre"
-                                unset titre
-                        else
-                                echo "Pas de fichier ajouté"
-                fi
-        2>/dev/null
-        fi
+							unset titre
+					else
+							echo "Pas de fichier ajouté"
+			fi
+	2>/dev/null
+	fi
 }
 
 git_reset_all(){
@@ -574,7 +620,7 @@ git_reset(){
                 echo "Aucun fichier à retirer"
                 notification "Aucun fichier à retirer"
         else
-        	if file=`zenity --list --title=Suppression --text="Git reset ..."  --column="Fichiers ajoutés"  $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesStaged)`
+        	if file=`zenity --list --title="Reset  −" --text="Git reset ..."  --column="Fichiers ajoutés"  $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesStaged)`
        		then
 	                titre=$file
         	        if [ "$titre" = "" ]
@@ -609,7 +655,7 @@ git_commit(){
 			echo "Pas de fichier ajouté"
 			notification "Aucun fichier ajouté pour commit"
 		else
- 			if ret=`zenity --entry --width=1000 --text='Texte du commit'`
+ 			if ret=`zenity --entry --title="Commit  📝" --width=1000 --text='Texte du commit'`
 			then
 	   			titre=$ret
 		      		if [ "$titre" = "" ]
@@ -652,7 +698,7 @@ git_commit_reset(){
 
 git_push(){
 	if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ];then
-	        if ret=`zenity --list --title=Push --text="Git push origin ..."  --column="Branche actuelle"  $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/actualBranch)`
+	        if ret=`zenity --list --title="Push  📤" --text="Git push origin ..." --column="Branche actuelle" $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/actualBranch)`
 	        then
        		        titre=$ret
  	               if [ "$titre" = "" ]
@@ -685,7 +731,7 @@ git_push(){
 }
 
 git_merge(){
-	if ret=`zenity --list --title=Merge --text="Git pull --merge origin ..."  --column="Nom de branche"  $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/branchesList)`
+	if ret=`zenity --list --title="Merge  📥" --text="Git pull --merge origin ..."  --column="Nom de branche"  $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/branchesList)`
         then
            titre=$ret
               if [ "$titre" = "" ]
@@ -708,7 +754,7 @@ git_merge(){
 }
 
 git_rebase(){
-	if ret=`zenity --list --title=Rebase --text="Git pull --rebase origin ..."  --column="Nom de branche"  $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/branchesList)`
+	if ret=`zenity --list --title="Rebase  📥"--text="Git pull --rebase origin ..."  --column="Nom de branche"  $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/branchesList)`
         then
            	titre=$ret
               	if [ "$titre" = "" ]
@@ -910,7 +956,7 @@ $GIT
 $SPACE_LINE$SIMPLE_LINE
 
 
-\t<span color=\"gray\">✅\tAjoutés</span>
+\t<span color=\"gray\">➕\tAjoutés</span>
 <span color=\"orange\"><b>$filesStaged</b></span>
 
 "
@@ -931,7 +977,7 @@ $SPACE_LINE$SIMPLE_LINE
 <span color=\"green\">$filesChanged</span>
 
 
-\t<span color=\"gray\">✅\tAjoutés</span>
+\t<span color=\"gray\">➕\tAjoutés</span>
 <span color=\"orange\"><b>$filesStaged</b></span>
 
 "
@@ -952,7 +998,7 @@ $SPACE_LINE$SIMPLE_LINE
 <span color=\"#155162\">$filesUnfollowed</span>
 
 
-\t<span color=\"gray\">✅\tAjoutés</span>
+\t<span color=\"gray\">➕tAjoutés</span>
 <span color=\"orange\"><b>$filesStaged</b></span>
 
 "
@@ -976,7 +1022,7 @@ $SPACE_LINE$SIMPLE_LINE
 <span color=\"#155162\">$filesUnfollowed</span>
 
 
-\t<span color=\"gray\">✅\tAjoutés</span>
+\t<span color=\"gray\">➕\tAjoutés</span>
 <span color=\"orange\"><b>$filesStaged</b></span>
 
 "
@@ -1004,7 +1050,7 @@ dialogHeight=$(($commandsHeight + $linesHeight))
 
 2>/dev/null # bug zenity
 zenity --list --width=$filesDialogWidth --height=$dialogHeight --text='<span font-family=\"Arial\">'"$EN_TETE"'</span>' \
-    --title="Gestion des fichiers" \
+    --title="Fichiers 📑" \
     --ok-label="Sélectionner" \
     --cancel-label="Quitter" \
     --hide-column 1 --column "" --column "" --column "" --column ""  --column "" \
@@ -1050,8 +1096,8 @@ fonction_fichiers(){
 
 frm_depots(){
 en_tete
-zenity --list --width=400 --height=580 --text='<span font-family=\"Arial\">'"$EN_TETE"'</span>' \
-    --title="Gestion des dépots" \
+zenity --list --width=400 --height=590 --text='<span font-family=\"Arial\">'"$EN_TETE"'</span>' \
+    --title="Dépot🗃" \
     --ok-label="Sélectionner" \
     --cancel-label="Quitter" \
     --hide-column 1 --column "" --column "" --column "" --column "" --column "" \
@@ -1093,7 +1139,7 @@ frm_infos(){
 en_tete
 
 zenity --list --width=400 --height=495 --text='<span font-family=\"Arial\">'"$EN_TETE"'</span>' \
-    --title="Informations" \
+    --title="Infos 📋" \
     --ok-label="Sélectionner" \
     --cancel-label="Quitter" \
     --hide-column 1 --column "" --column "" --column "" --column "" --column ""\
@@ -1154,6 +1200,7 @@ frm_git_parser(){
 }
 
 fonction_git(){
+	echo "$TEXT_COMMIT"
 	checkFilesChanged
 	menuchoice=$(frm_git)
 	frm_git_parser ${menuchoice%|*}
