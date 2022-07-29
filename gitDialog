@@ -39,6 +39,8 @@ GM="Merge"
 OR="Ouvrir dépot"
 GCL="Clone"
 
+GLCP="Log Pick"
+CP="Cherry-Pick"
 GST="Status"
 GL="Log"
 GLL="Reflog"
@@ -185,6 +187,7 @@ open_repo(){
 if([ -d .git ] )
         then
         	git for-each-ref --format='%(refname:short)' refs/heads/ > ~/bin/easyGit/branchesList
+			git log --pretty=format:"%H" > ~/bin/easyGit/allCommitsHashes
         	cat .git/HEAD | cut -c 17- > ~/bin/easyGit/actualBranch
         	actualBranch=`cat .git/HEAD | cut -c 17-`
 			checkFilesChanged
@@ -318,6 +321,29 @@ $SPACE_GIT$git6
 
 add_spaces
 
+en_tete_depots(){
+	checkFilesChanged
+	actualBranch=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/actualBranch`
+	nbFilesChangedSymbol="🔧"
+	nbFilesChanged=`wc -l < ~/bin/easyGit/filesChanged`
+	nbFilesUnfollowedSymbol="🧩"
+	nbFilesUnfollowed=`wc -l < ~/bin/easyGit/filesUnfollowed`
+	if [ $nbFilesChanged -eq 0 ]; then 
+		nbFilesChangedSymbol=""
+		nbFilesChanged=""
+	fi
+	if [ $nbFilesUnfollowed -eq 0 ]; then 
+		nbFilesUnfollowedSymbol=""
+		nbFilesUnfollowed=""
+	fi
+	EN_TETE="$LOGO_FULL_400
+\t⎇\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>
+
+\t<span color=\"green\">$nbFilesChangedSymbol  $nbFilesChanged</span>    <span color=\"#155162\">$nbFilesUnfollowedSymbol  $nbFilesUnfollowed</span>
+
+$TMP_SCREEN
+"
+}
 en_tete(){
 	checkFilesChanged
 	actualBranch=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/actualBranch`
@@ -365,7 +391,10 @@ git_clone_this(){
 	fi
 	if ([ -n "$titre" ])
 		then
-			git clone $REPO_ADRESS $titre
+			git clone $REPO_ADRESS $titre &> ~/bin/easyGit/gitTemp
+			TMP_SCREEN=$(<~/bin/easyGit/gitTemp)
+			lineNumber=52
+			TMP_SCREEN=`echo "$TMP_SCREEN" | fold -b$(($lineNumber)) -s  | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
 			echo "Git clone de $REPO_ADRESS dans $titre"
 			notification "Git clone de $REPO_ADRESS dans $titre"
 		else
@@ -398,7 +427,10 @@ git_clone_any(){
 			fi
 			if ([ -n "$titre2" ])
 				then
-					git clone $titre $titre2
+					git clone $titre $titre2 &> ~/bin/easyGit/gitTemp
+					TMP_SCREEN=$(<~/bin/easyGit/gitTemp)
+					lineNumber=52
+					TMP_SCREEN=`echo "$TMP_SCREEN" | fold -b$(($lineNumber)) -s  | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
 					echo "Git clone de $titre dans $titre2"
 					notification "Git clone de $titre dans $titre2"
 				else
@@ -439,41 +471,191 @@ git_clone(){
 
 git_fetch(){
 	REPO_ADRESS=`git config --get remote.origin.url`
-        git fetch
+	git fetch
 	echo "Git Fetch du dépot $REPO_ADRESS"
-        notification "Git Fetch du dépot $REPO_ADRESS"
+	notification "Git Fetch du dépot $REPO_ADRESS"
 }
 
 git_stash(){
-        git stash
+	git stash &> ~/bin/easyGit/gitTemp
+	TMP_SCREEN=$(<~/bin/easyGit/gitTemp)
+	lineNumber=52
+	TMP_SCREEN=`echo "$TMP_SCREEN" | fold -b$(($lineNumber)) -s  | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
 	echo "Stockage des modifications locales"
-        notification "Stockage des modifications locales"
+	notification "Stockage des modifications locales"
 }
 
 git_stash_pop(){
-        git stash pop
-	echo "Récupération des modifications locales"
-        notification "Récupération des modifications locales"
+	git stash pop &> ~/bin/easyGit/gitTemp
+	FILE=`dirname $0`/gitTemp
+	zenity --text-info \
+       --title="Stash Pop" \
+	   --width=650 \
+	   --height=700 \
+       --filename=$FILE 
+
+	case $? in
+		0)
+			echo "Récupération des modifications locales"
+			notification "Récupération des modifications locales"
+		;;
+		1)
+			echo "Git Stash Pop quitté"
+		;;
+		-1)
+			echo "An unexpected error has occurred."
+		;;
+	esac
+	
 }
 
 git_status(){
-        git status
-	echo "Git Status"
+    git status > ~/bin/easyGit/gitTemp
+	FILE=`dirname $0`/gitTemp
+	zenity --text-info \
+       --title="Status" \
+	   --width=650 \
+	   --height=700 \
+       --filename=$FILE 
+
+	case $? in
+		0)
+			echo "Git Status"
+		# next step
+		;;
+		1)
+			echo "Git Status quitté"
+		;;
+		-1)
+			echo "An unexpected error has occurred."
+		;;
+	esac
+	
+}
+
+git_cherry_pick(){
+	actualBranch=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/actualBranch`
+	
+	if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ];then
+                echo "Commit en cours"
+                notification "Commit en cours 🔏"
+	
+        else
+		if file=`zenity --list --title="Cherry Pick  🍒" --width=370 --height=900 --text="Cherry pick depuis $actualBranch" --column="Hashs"  $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/allCommitsHashes)`
+		then
+			titre=$file
+			if [ "$titre" = "" ]
+	                then
+	                        echo "Pas de Cherry-Pick effectué"
+			fi
+	       	else
+	       		echo "Annulation"
+	   	fi
+		if ([ -n "$titre" ])
+			then
+				git cherry-pick $titre
+				echo "Cherry-Pick sur la branche $actualBranch du commit : $titre"
+				checkFilesChanged
+				notification "Cherry-Pick sur la branche $actualBranch du commit :
+\t$titre"
+				unset titre
+			else
+				echo "Pas de Cherry-Pick effectué"
+		fi
+	2>/dev/null
+	fi
 }
 
 git_log(){
-	git log --summary
-	echo "Git Log"
+	git log --graph --summary > ~/bin/easyGit/gitTemp
+	FILE=`dirname $0`/gitTemp
+	zenity --text-info \
+       --title="Log" \
+	   --width=950 \
+	   --height=1050 \
+       --filename=$FILE 
+
+	case $? in
+		0)
+			echo "Git Log"
+		# next step
+		;;
+		1)
+			echo "Git Log quitté"
+		;;
+		-1)
+			echo "An unexpected error has occurred."
+		;;
+	esac
 }
 
 git_reflog(){
-	git reflog
-	echo "Git Reflog"
+	git reflog --summary > ~/bin/easyGit/gitTemp
+	FILE=`dirname $0`/gitTemp
+	zenity --text-info \
+       --title="Reflog" \
+	   --width=950 \
+	   --height=1050 \
+       --filename=$FILE 
+
+	case $? in
+		0)
+			echo "Git Reflog"
+		# next step
+		;;
+		1)
+			echo "Git Reflog quitté"
+		;;
+		-1)
+			echo "An unexpected error has occurred."
+		;;
+	esac
+}
+
+git_log_cherry(){
+	git log --pretty=format:"%h %s" --graph > ~/bin/easyGit/gitTemp
+	FILE=`dirname $0`/gitTemp
+	zenity --text-info \
+       --title="Log pour Cherry-Pick" \
+	   --width=950 \
+	   --height=1050 \
+       --filename=$FILE 
+
+	case $? in
+		0)
+			echo "Log pour Cherry-Pick"
+		# next step
+		;;
+		1)
+			echo "Log pour Cherry-Pick quitté"
+		;;
+		-1)
+			echo "An unexpected error has occurred."
+		;;
+	esac
 }
 
 git_branch(){
-	git branch
-	echo "Git Branch"
+	git branch > ~/bin/easyGit/gitTemp
+	FILE=`dirname $0`/gitTemp
+	zenity --text-info \
+       --title="Branch" \
+	   --width=300 \
+	   --height=200 \
+       --filename=$FILE 
+
+	case $? in
+		0)
+			echo "Git Branch"
+		# next step
+		;;
+		1)
+			echo "Git Branch quitté"
+		;;
+		-1)
+			echo "An unexpected error has occurred."
+		;;
+	esac
 }
 
 git_checkout(){
@@ -643,6 +825,20 @@ git_reset(){
 	fi
 }
 
+git_commit_reset(){
+	if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ];
+	then
+		git reset HEAD^
+		rm ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending
+		rmdir ~/bin/easyGit/currentCommits/$HASH_COMMIT
+		echo "Commit annulé"
+		notification "Commit annulé"
+	else
+		echo "Opération impossible"
+		notification "Impossible de reset plus que le commit courant."
+	fi
+}
+
 git_commit(){
 	filesStaged=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesStaged`
  	if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ];then
@@ -664,15 +860,18 @@ git_commit(){
 	      			echo "Annulation"
    			fi
 			if ([ -n "$titre" ])
-                		then
-					git commit -m "$titre" && echo "Commit effectué :" $titre
-		                	TEXT_COMMIT=$titre
-					HASH_COMMIT=`git rev-parse HEAD`
-					mkdir ~/bin/easyGit/currentCommits/$HASH_COMMIT
-					touch ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending
-					notification "Commit défini :
+				then
+				git commit -m "$titre"
+				echo "Commit effectué :" $titre
+				TEXT_COMMIT=$titre
+				HASH_COMMIT=`git rev-parse HEAD`
+				mkdir ~/bin/easyGit/currentCommits/$HASH_COMMIT
+				touch ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending
+				notification "Commit défini :
 \t$titre"
-					unset titre
+						unset titre
+				
+		                	
                 		else
                         		echo "Pas de commit effectué"
         		fi
@@ -680,19 +879,6 @@ git_commit(){
 	fi
 }
 
-git_commit_reset(){
-	if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ];
-	then
-		git reset HEAD^
-		rm ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending
-		rmdir ~/bin/easyGit/currentCommits/$HASH_COMMIT
-		echo "Commit annulé"
-		notification "Commit annulé"
-	else
-		echo "Opération impossible"
-		notification "Impossible de reset plus que le commit courant."
-	fi
-}
 
 git_push(){
 	if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ];then
@@ -708,20 +894,21 @@ git_push(){
      	 	fi
 	        if ([ -n "$titre" ])
         	then
-                       	git push origin $titre && echo "Push sur la branche" $titre "effectué"
-                     	notification "Push sur la branche :
+				git push origin $titre
+				echo "Push sur la branche" $titre "effectué"
+				notification "Push sur la branche :
 \t$titre"
-	                unset titre
-			rm ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending
-        		rmdir ~/bin/easyGit/currentCommits/$HASH_COMMIT
-
-			if [ "$?" = -1 ] ; then
-        	        	zenity --error \
-                	        --text="Mise à jour annulée."
-	               	fi
+				unset titre
+				rm ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending
+				rmdir ~/bin/easyGit/currentCommits/$HASH_COMMIT
+				
+				if [ "$?" = -1 ] ; then
+					zenity --error \
+						--text="Mise à jour annulée."
+				fi
 	        else
         		echo "Pas de Push effectué"
-		fi
+			fi
 		2>/dev/null
 	else echo "Aucun commit : push impossible"
 		notification "Aucun commit : push impossible"
@@ -731,22 +918,41 @@ git_push(){
 git_merge(){
 	if ret=`zenity --list --title="Merge  📥" --text="Git pull --merge origin ..."  --column="Nom de branche"  $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/branchesList)`
         then
-           titre=$ret
-              if [ "$titre" = "" ]
-              then
-                	echo "Il faut un dépot distant"
-              fi
+           	titre=$ret
+			if [ "$titre" = "" ]
+			then
+				echo "Il faut un dépot distant"
+			fi
         else
               	echo "Annulation"
    	fi
 	if ([ -n "$titre" ])
-                then
-			git pull --merge origin $titre
-			echo "Git Pull en statégie Merge de la branche $titre"
-                        notification "Git Pull en statégie Merge de la branche $titre"
-                	unset titre
-                else
-                        echo "Pas de Pull Merge effectué"
+		then
+			git merge origin $titre &> ~/bin/easyGit/gitTemp
+			FILE=`dirname $0`/gitTemp
+			zenity --text-info \
+			--title="Merge" \
+			--width=450 \
+			--height=300 \
+			--filename=$FILE 
+
+			case $? in
+				0)
+					echo "Git Pull en statégie Merge de la branche $titre"
+					notification "Git Pull en statégie Merge de la branche $titre"
+					unset titre	
+				# next step
+				;;
+				1)
+					echo "Git Merge quitté"
+				;;
+				-1)
+					echo "An unexpected error has occurred."
+				;;
+			esac
+					
+		else
+			echo "Pas de Pull Merge effectué"
         fi
 	2>/dev/null
 }
@@ -763,13 +969,32 @@ git_rebase(){
               	echo "Annulation"
    	fi
 	if ([ -n "$titre" ])
-                then
-			git pull --rebase origin $titre
-			echo "Git Pull en statégie Rebase de la branche $titre"
-                	notification "Git Pull en statégie Rebase de la branche $titre"
-                        unset titre
-                else
-                        echo "Pas de Pull Rebase effectué"
+		then
+			git pull --rebase origin $titre &> ~/bin/easyGit/gitTemp
+			FILE=`dirname $0`/gitTemp
+			zenity --text-info \
+			--title="Rebase" \
+			--width=450 \
+			--height=300 \
+			--filename=$FILE 
+
+			case $? in
+				0)
+					echo "Git Pull en statégie Rebase de la branche $titre"
+					notification "Git Pull en statégie Merge de la branche $titre"
+					unset titre	
+				# next step
+				;;
+				1)
+					echo "Git Rebase quitté"
+				;;
+				-1)
+					echo "An unexpected error has occurred."
+				;;
+			esac
+					
+		else
+			echo "Pas de Pull Rebase effectué"
         fi
 	2>/dev/null
 }
@@ -1033,6 +1258,7 @@ EN_TETES="
 $GIT
 $SIMPLE_LINE
 $TOTAL_LINE
+$TMP_SCREEN
 "
 
 nbColumn=${#EN_TETES}
@@ -1043,10 +1269,10 @@ nbLines=`echo -n "$EN_TETE" | grep -c '^'`
 commandsHeight=385
 oneLineHeight=17
 linesHeight=$(($oneLineHeight * $nbLines))
-dialogHeight=$(($commandsHeight + $linesHeight))
+dialogFilesHeight=$(($commandsHeight + $linesHeight))
 
 2>/dev/null # bug zenity
-zenity --list --width=$filesDialogWidth --height=$dialogHeight --text='<span font-family=\"Arial\">'"$EN_TETE"'</span>' \
+zenity --list --width=$filesDialogWidth --height=$dialogFilesHeight --text='<span font-family=\"Arial\">'"$EN_TETE"'</span>' \
     --title="Fichiers 📑" \
     --ok-label="Sélectionner" \
     --cancel-label="Quitter" \
@@ -1092,8 +1318,14 @@ fonction_fichiers(){
 ############### REPOS DIALOG ####################
 
 frm_depots(){
-en_tete
-zenity --list --width=400 --height=590 --text='<span font-family=\"Arial\">'"$EN_TETE"'</span>' \
+
+en_tete_depots
+nbLines=`echo -n "$EN_TETE" | grep -c '^'`
+commandsHeight=350
+oneLineHeight=17
+linesHeight=$(($oneLineHeight * $nbLines))
+dialogRepoHeight=$(($commandsHeight + $linesHeight))
+zenity --list --width=400 --height=$dialogRepoHeight --text='<span font-family=\"Arial\">'"$EN_TETE"'</span>' \
     --title="Dépot🗃" \
     --ok-label="Sélectionner" \
     --cancel-label="Quitter" \
@@ -1118,7 +1350,8 @@ frm_depots_parser(){
         5) git_merge ;;
         6) open_repo ;;
         7) git_clone ;;
-        *) fonction_git ;;
+        *) TMP_SCREEN=""
+			fonction_git ;;
 	esac
 }
 
@@ -1135,24 +1368,32 @@ fonction_depots(){
 frm_infos(){
 en_tete
 
-zenity --list --width=400 --height=495 --text='<span font-family=\"Arial\">'"$EN_TETE"'</span>' \
+zenity --list --width=400 --height=595 --text='<span font-family=\"Arial\">'"$EN_TETE"'</span>' \
     --title="Infos 📋" \
     --ok-label="Sélectionner" \
     --cancel-label="Quitter" \
-    --hide-column 1 --column "" --column "" --column "" --column "" --column ""\
-    1 "    1" "				           $GL" "			           " "📓"\
-    2 "    2" "			                 $GLL" "			           " "📃"\
+    --hide-column 1 --column "" --column "" --column "" --column "" --column "" \
+    1 "    1" "				           $GL" "			      " "📓" \
+    2 "    2" "				     $GK" "			" "⎇" \
+	0 "" "" "" ""\
+	3 "    3" "				      $GLCP" "		" "🍒"\
+    4 "    4" "				   $CP" "		   " "🍒"\
     0 "" "" "" ""\
-    3 "    3" "			                 $GST" "			           " "🔎"\
-    4 "    4" "			                 $GB" "			           " "⎇" 2>/dev/null ;
+    5 "    5" "			                 $GLL" "			      " "📃"\
+    6 "    6" "			                 $GST" "			      " "🔎"\
+    7 "    7" "			                 $GB" "			      " "⎇" 2>/dev/null ;
+
 }
 
 frm_infos_parser(){
     case $1 in
         1) git_log ;;
-        2) git_reflog ;;
-        3) git_status ;;
-        4) git_branch ;;
+        2) git_checkout ;;
+		3) git_log_cherry ;;
+		4) git_cherry_pick ;;
+        5) git_reflog ;;
+        6) git_status ;;
+        7) git_branch ;;
         *) fonction_git ;;
         esac
 }
@@ -1166,20 +1407,19 @@ fonction_infos(){
 }
 
 ############### GENERAL DIALOG ####################
-SPACE_ICONS_HOME="			   "
+
 frm_git(){
 	en_tete
-	zenity --list --width=400 --height=515 --text='<span font-family=\"Arial\">'"$EN_TETE"'</span>' \
+	zenity --list --width=400 --height=500 --text='<span font-family=\"Arial\">'"$EN_TETE"'</span>' \
     	--title="Git" \
     	--ok-label="Sélectionner" \
     	--cancel-label="Quitter" \
     	--hide-column 1 --column "" --column "" --column "" --column "" --column "" \
     	1 "  1" "				        $MD" "			     " "🗃"\
     	2 "  2" "				      $MF" "			     " "📑"\
-    	0 "" "" "" "" \
     	3 "  3" "			         $MI" "			     " "📋"\
-    	4 "  4" "				    $GK" "			     " "⎇"\
-    	5 "  5" "				         $SC" "			     " "🗑" 2>/dev/null;
+    	0 "" "" "" "" \
+    	4 "  4" "				         $SC" "			     " "🗑" 2>/dev/null;
 
 }
 
@@ -1187,9 +1427,8 @@ frm_git_parser(){
     case $1 in
         1) fonction_depots ;;
         2) fonction_fichiers ;;
-	3) fonction_infos ;;
-	4) git_checkout ;;
-	5) clear_screen ;;
+		3) fonction_infos ;;
+		4) clear_screen ;;
         *)
             quitter="1"
             _quitter ;;

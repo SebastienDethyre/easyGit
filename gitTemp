@@ -1,0 +1,4 @@
+error: Impossible de tirer car vous avez des fichiers non fusionnés.
+astuce: Corrigez-les puis lancez 'git add/rm <fichier>'
+astuce: si nécessaire pour marquer la résolution et valider.
+fatal: Abandon à cause de conflit non résolu.
