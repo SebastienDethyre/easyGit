@@ -48,6 +48,7 @@ GK="Checkout"
 GB="Branch"
 GAA="Add All"
 GRA="Reset All"
+GRM="Remove"
 
 MD="Dépot"
 MF="Fichiers"
@@ -101,65 +102,65 @@ esac
 
 change_wrapping(){
 if ret=`zenity --list --title=Type --text="Choisir le type"  --column="Types disponibles"  $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/resultOptions)`
-        then
-                titre=$ret
-                if [ "$titre" = "" ]
-                then
-					echo "Il faut un type"
-                fi
-        else
-                echo "Annulation"
-        fi
-        if ([ -n "$titre" ])
-                then
-			if [ "$titre" = "texte" ]
-                	then
-                        	if ret=`zenity --list --title=Nombre --text="Choisir le nombre"  --column="Nombres"  $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/resultNumbers)`
+	then
+			titre=$ret
+			if [ "$titre" = "" ]
+			then
+				echo "Il faut un type"
+			fi
+	else
+			echo "Annulation"
+	fi
+	if ([ -n "$titre" ])
+			then
+		if [ "$titre" = "texte" ]
+				then
+						if ret=`zenity --list --title=Nombre --text="Choisir le nombre"  --column="Nombres"  $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/resultNumbers)`
+			then
+				titre=$ret
+					if [ "$titre" = "" ]
+					then
+						echo "Il faut un nombre"
+					fi
+				else
+						echo "Annulation"
+				fi
+				if ([ -n "$titre" ])
+					then
+						nbWordsByCommit=$(($titre))
+						echo $nbWordsByCommit > ~/bin/easyGit/wordsByLinePref
+						echo "$titre mots par ligne"
+						notification "$titre mots par ligne"
+					else
+							echo "Pas de nombre choisi"
+				fi
+				2>/dev/null
+		else
+			if ret=`zenity --list --title=Nombre --text="Choisir le nombre"  --column="Nombres"  $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/resultNumbers)`
 				then
 					titre=$ret
-						if [ "$titre" = "" ]
-						then
+					if [ "$titre" = "" ]
+					then
 							echo "Il faut un nombre"
-						fi
-        			else
-                			echo "Annulation"
-        			fi
-        			if ([ -n "$titre" ])
-                		then
-							nbWordsByCommit=$(($titre))
-							echo $nbWordsByCommit > ~/bin/easyGit/wordsByLinePref
-							echo "$titre mots par ligne"
-							notification "$titre mots par ligne"
-                		else
-                        		echo "Pas de nombre choisi"
-        			fi
-        			2>/dev/null
+					fi
+				else
+						echo "Annulation"
+				fi
+				if ([ -n "$titre" ])
+				then
+					nbFilesByLine=$(($titre))
+					echo $nbFilesByLine > ~/bin/easyGit/filesByLinePref
+										echo "$titre fichiers par ligne"
+					notification "$titre fichiers par ligne"
+				else
+					echo "Pas de nombre choisi"
+				fi
+				2>/dev/null
+				fi
 			else
-				if ret=`zenity --list --title=Nombre --text="Choisir le nombre"  --column="Nombres"  $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/resultNumbers)`
-					then
-						titre=$ret
-						if [ "$titre" = "" ]
-						then
-								echo "Il faut un nombre"
-						fi
-					else
-							echo "Annulation"
-					fi
-					if ([ -n "$titre" ])
-					then
-						nbFilesByLine=$(($titre))
-						echo $nbFilesByLine > ~/bin/easyGit/filesByLinePref
-											echo "$titre fichiers par ligne"
-						notification "$titre fichiers par ligne"
-					else
-						echo "Pas de nombre choisi"
-					fi
-					2>/dev/null
-                	fi
-                else
-					echo "Pas de type choisi"
-        fi
-        2>/dev/null
+				echo "Pas de type choisi"
+	fi
+	2>/dev/null
 }
 
 checkFilesChanged(){
@@ -185,15 +186,15 @@ open_repo(){
 }
 
 if([ -d .git ] )
-        then
-        	git for-each-ref --format='%(refname:short)' refs/heads/ > ~/bin/easyGit/branchesList
-			git log --pretty=format:"%H" > ~/bin/easyGit/allCommitsHashes
-        	cat .git/HEAD | cut -c 17- > ~/bin/easyGit/actualBranch
-        	actualBranch=`cat .git/HEAD | cut -c 17-`
-			checkFilesChanged
-			echo $REPO_ADRESS | xclip
-        else
-                echo "Le répertoire courant n'est pas un dépot Git."
+	then
+		git for-each-ref --format='%(refname:short)' refs/heads/ > ~/bin/easyGit/branchesList
+		git log --pretty=format:"%H" > ~/bin/easyGit/allCommitsHashes
+		cat .git/HEAD | cut -c 17- > ~/bin/easyGit/actualBranch
+		actualBranch=`cat .git/HEAD | cut -c 17-`
+		checkFilesChanged
+		echo $REPO_ADRESS | xclip
+	else
+			echo "Le répertoire courant n'est pas un dépot Git."
 #                exit 0
 fi
 
@@ -296,10 +297,11 @@ $SPACE_GIT$git6
 	spacePushSize="$(($spaceAddSize - $one))"
 	spaceResetSize="$(($spaceAddSize - $two))"
 	spaceAddAllSize="$(($spaceAddSize - $four))"
-	spaceResetAllSize="$(($spaceAddSize - $six))"
+	spaceResetAllSize="$(($spaceAddSize - $five))"
 	spaceCommitResetSize="$(($spaceAddSize - $twelve))"
 	spaceStatusSize="$(($spaceAddSize - $three))"
-	spaceChangeWidthSize="$(($spaceAddSize - $five))"
+	spaceRemove="$(($spaceAddSize - $four))"
+	spaceChangeWidthSize="$(($spaceAddSize - $four))"
 
 	spaceCommitPendingSize="$(($totalLineNumber - $seventeen))"
 	spaceFilesSymbols="$(($spaceAddSize - $fifteen))"
@@ -313,6 +315,7 @@ $SPACE_GIT$git6
 	SPACE_RESET_ALL=`printf %$spaceResetAllSize\s |tr " " " "`
 	SPACE_COMMIT_RESET=`printf %$spaceCommitResetSize\s |tr " " " "`
 	SPACE_STATUS=`printf %$spaceStatusSize\s |tr " " " "`
+SPACE_REMOVE=`printf %$spaceRemove\s |tr " " " "`
 	SPACE_CHANGE_WIDTH=`printf %$spaceChangeWidthSize\s |tr " " " "`
 
 	SPACE_COMMIT_PENDING=`printf %$spaceCommitPendingSize\s |tr " " " "`
@@ -825,6 +828,137 @@ git_reset(){
 	fi
 }
 
+git_remove_simple(){
+	filesChangedAndUnfollowed=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUnfollowed`
+	checkFilesChanged
+	if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ];then
+		echo "Commit en cours"
+		notification "Commit en cours 🔏"
+	elif [ "$filesChangedAndUnfollowed" = "" ];then
+		echo "Aucun fichier à retirer du dépot"
+		notification "Aucun fichier à retirer du dépot"
+	else
+		if file=`zenity --list --title="Remove Simple ❌" --text="Git rm ..."  --column="Fichiers changés et non-suivis"  $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUnfollowed)`
+		then
+			titre=$file
+			if [ "$titre" = "" ]
+			then
+				echo "Pas de fichier retiré du dépot"
+		fi
+		else
+				echo "Annulation"
+		fi
+		if ([ -n "$titre" ])
+			then
+				git rm $titre && echo "fichier" $titre "retiré du dépot (cached)"
+				checkFilesChanged
+				notification "Fichier retiré du dépot (cached) :
+\t$titre"
+				unset titre
+			else
+				echo "Pas de fichier retiré du dépot"
+		fi
+		2>/dev/null
+	fi
+}
+
+git_remove_cached(){
+	filesChangedAndUnfollowed=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUnfollowed`
+	checkFilesChanged
+	if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ];then
+		echo "Commit en cours"
+		notification "Commit en cours 🔏"
+	elif [ "$filesChangedAndUnfollowed" = "" ];then
+		echo "Aucun fichier à retirer du dépot"
+		notification "Aucun fichier à retirer du dépot"
+	else
+		if file=`zenity --list --title="Remove Cached ❌" --text="Git rm ..."  --column="Fichiers changés et non-suivis"  $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUnfollowed)`
+		then
+			titre=$file
+			if [ "$titre" = "" ]
+			then
+				echo "Pas de fichier retiré du dépot"
+		fi
+		else
+				echo "Annulation"
+		fi
+		if ([ -n "$titre" ])
+			then
+				git rm --cached $titre && echo "fichier" $titre "retiré du dépot (cached)"
+				checkFilesChanged
+				notification "Fichier retiré du dépot (cached) :
+\t$titre"
+				unset titre
+			else
+				echo "Pas de fichier retiré du dépot"
+		fi
+		2>/dev/null
+	fi
+}
+
+git_remove_forced(){
+	filesChangedAndUnfollowed=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUnfollowed`
+	checkFilesChanged
+	if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ];then
+		echo "Commit en cours"
+		notification "Commit en cours 🔏"
+	elif [ "$filesChangedAndUnfollowed" = "" ];then
+		echo "Aucun fichier à retirer du dépot"
+		notification "Aucun fichier à retirer du dépot"
+	else
+		if file=`zenity --list --title="Remove Forced ❌" --text="Git rm ..."  --column="Fichiers changés et non-suivis"  $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUnfollowed)`
+		then
+			titre=$file
+			if [ "$titre" = "" ]
+			then
+				echo "Pas de fichier retiré du dépot"
+		fi
+		else
+				echo "Annulation"
+		fi
+		if ([ -n "$titre" ])
+			then
+				git rm -f $titre && echo "fichier" $titre "retiré du dépot (forced)"
+				checkFilesChanged
+				notification "Fichier retiré du dépot (forced) :
+\t$titre"
+				unset titre
+			else
+				echo "Pas de fichier retiré du dépot"
+		fi
+		2>/dev/null
+	fi
+}
+
+git_remove(){
+if file=`zenity --list --title="Type de Remove ❌" --text="Git rm ..."  --column="Type de Git Remove"  "Simple" "Cached" "Forced"`
+then
+			titre=$file
+			if [ "$titre" = "" ]
+			then
+				echo "Pas de choix effectué"
+		fi
+		else
+				echo "Annulation"
+		fi
+		if ([ -n "$titre" ])
+			then
+				if [ "$titre" = "Simple" ];then
+					git_remove_simple
+				elif [ "$titre" = "Cached" ];then
+					git_remove_cached
+				elif [ "$titre" = "Forced" ];then
+					git_remove_forced
+				fi
+
+
+		else
+			echo "Pas de choix effectué"
+		fi
+		2>/dev/null
+}
+
+
 git_commit_reset(){
 	if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ];
 	then
@@ -1010,6 +1144,16 @@ filesStaged=`sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesStaged | fol
 filesCommitted=`sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesCommitted | fold -b$(($totalLineNumber + $fifteen)) -s  | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
 filesChangedAndUnfollowed=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUnfollowed`
 
+
+BRANCH_DISPLAY="\t⎇\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>"
+COMMIT_PENDING_SIGN_DISPLAY="<span color=\"grey\">Commit </span><span color=\"red\"><i>en cours</i></span>"
+COMMIT_PENDING_LABEL_DISPLAY="\t<span color=\"gray\">📝\tContenu</span>"
+COMMIT_LABEL_DISPLAY="\t<span color=\"gray\">📝\tDernier commit du <i>$LAST_COMMIT_DATE</i></span>"
+COMMITTED_LABEL_DISPLAY="\t<span color=\"gray\">🗒\tCommités</span>"
+CHANGED_LABEL_DISPLAY="\t<span color=\"gray\">🔧\tModifiés</span>"
+UNFOLLOWED_LABEL_DISPLAY="\t<span color=\"gray\">🧩\tNon suivis</span>"
+STAGED_LABEL_DISPLAY="\t<span color=\"gray\">➕\tAjoutés</span>"
+
 ############### commit pending ####################
 
 if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ];
@@ -1018,14 +1162,14 @@ then
 	if [ "$filesChangedAndUnfollowed" = "" ];then
                 EN_TETE="
 $GIT
-\t⎇\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>
+$BRANCH_DISPLAY
 $SPACE_LINE$SIMPLE_LINE
 
-$SPACE_COMMIT_PENDING<span color=\"grey\">Commit </span><span color=\"red\"><i>en cours</i></span>
-\t<span color=\"gray\">📝\tContenu</span>
+$SPACE_COMMIT_PENDING$COMMIT_PENDING_SIGN_DISPLAY
+$COMMIT_PENDING_LABEL_DISPLAY
 <span><b>$TEXT_COMMIT</b></span>
 
-\t<span color=\"gray\">🗒\tCommités</span>
+$COMMITTED_LABEL_DISPLAY
 <i>$filesCommitted</i>
 
 "
@@ -1033,18 +1177,18 @@ $SPACE_COMMIT_PENDING<span color=\"grey\">Commit </span><span color=\"red\"><i>e
 	elif [[ "$filesUnfollowed" == "" ]] && [[ "$filesChanged" != "" ]] ; then
 		EN_TETE="
 $GIT
-\t⎇\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>
+$BRANCH_DISPLAY
 
-\t<span color=\"gray\">🔧\tModifiés</span>
+$CHANGED_LABEL_DISPLAY
 <span color=\"green\">$filesChanged</span>
 $SPACE_LINE$SIMPLE_LINE
 
-$SPACE_COMMIT_PENDING<span color=\"grey\">Commit </span><span color=\"red\"><i>en cours</i></span>
+$SPACE_COMMIT_PENDING$COMMIT_PENDING_SIGN_DISPLAY
 
-\t<span color=\"gray\">📝\tContenu</span>
+$COMMIT_PENDING_LABEL_DISPLAY
 
 <span><b>$TEXT_COMMIT</b></span>
-\t<span color=\"gray\">🗒\tCommités</span>
+$COMMITTED_LABEL_DISPLAY
 <i>$filesCommitted</i>
 
 "
@@ -1052,17 +1196,17 @@ $SPACE_COMMIT_PENDING<span color=\"grey\">Commit </span><span color=\"red\"><i>e
 	elif [[ "$filesChanged" == "" ]] && [[ "$filesUnfollowed" != "" ]]; then
 		EN_TETE="
 $GIT
-\t⎇\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>
+$BRANCH_DISPLAY
 
-\t<span color=\"gray\">🧩\tNon suivis</span>
+$UNFOLLOWED_LABEL_DISPLAY
 <span color=\"#155162\">$filesUnfollowed</span>
 $SPACE_LINE$SIMPLE_LINE
 
-$SPACE_COMMIT_PENDING<span color=\"grey\">Commit </span><span color=\"red\"><i>en cours</i></span>
-\t<span color=\"gray\">📝\tContenu</span>
+$SPACE_COMMIT_PENDING$COMMIT_PENDING_SIGN_DISPLAY
+$COMMIT_PENDING_LABEL_DISPLAY
 <span><b>$TEXT_COMMIT</b></span>
 
-\t<span color=\"gray\">🗒\tCommités</span>
+$COMMITTED_LABEL_DISPLAY
 <i>$filesCommitted</i>
 
 "
@@ -1070,20 +1214,20 @@ $SPACE_COMMIT_PENDING<span color=\"grey\">Commit </span><span color=\"red\"><i>e
 	else
 EN_TETE="
 $GIT
-\t⎇\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>
+$BRANCH_DISPLAY
 
-\t<span color=\"gray\">🔧\tModifiés</span>
+$CHANGED_LABEL_DISPLAY
 <span color=\"green\">$filesChanged</span>
 
-\t<span color=\"gray\">🧩\tNon suivis</span>
+$UNFOLLOWED_LABEL_DISPLAY
 <span color=\"#155162\">$filesUnfollowed</span>
 $SPACE_LINE$SIMPLE_LINE
 
-$SPACE_COMMIT_PENDING<span color=\"grey\">Commit </span><span color=\"red\"><i>en cours</i></span>
-\t<span color=\"gray\">📝\tContenu</span>
+$SPACE_COMMIT_PENDING$COMMIT_PENDING_SIGN_DISPLAY
+$COMMIT_PENDING_LABEL_DISPLAY
 <span><b>$TEXT_COMMIT</b></span>
 
-\t<span color=\"gray\">🗒\tCommités</span>
+$COMMITTED_LABEL_DISPLAY
 <i>$filesCommitted</i>
 
 "
@@ -1096,13 +1240,13 @@ elif [ "$filesStaged" = "" ]; then
  	if [ "$filesChangedAndUnfollowed" = "" ];then
                 EN_TETE="
 $GIT
-\t⎇\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>
+$BRANCH_DISPLAY
 
 
-\t<span color=\"gray\">📝\tDernier commit du <i>$LAST_COMMIT_DATE</i></span>
+$COMMIT_LABEL_DISPLAY
 <span><b><i>$TEXT_COMMIT</i></b></span>
 
-\t<span color=\"gray\">🗒\tCommités</span>
+$COMMITTED_LABEL_DISPLAY
 <i>$filesCommitted</i>
 
 "
@@ -1110,16 +1254,16 @@ $GIT
 	elif [[ "$filesUnfollowed" == "" ]] && [[ "$filesChanged" != "" ]] ; then
                 EN_TETE="
 $GIT
-\t⎇\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>
+$BRANCH_DISPLAY
 
-\t<span color=\"gray\">📝\tDernier commit du <i>$LAST_COMMIT_DATE</i></span>
+$COMMIT_LABEL_DISPLAY
 <span><b><i>$TEXT_COMMIT</i></b></span>
 
-\t<span color=\"gray\">🗒\tCommités</span>
+$COMMITTED_LABEL_DISPLAY
 <i>$filesCommitted</i>
 $SPACE_LINE$SIMPLE_LINE
 
-\t<span color=\"gray\">🔧\tModifiés</span>
+$CHANGED_LABEL_DISPLAY
 <span color=\"green\">$filesChanged</span>
 
 "
@@ -1127,16 +1271,16 @@ $SPACE_LINE$SIMPLE_LINE
 	elif [[ "$filesChanged" == "" ]] && [[ "$filesUnfollowed" != "" ]]; then
                 EN_TETE="
 $GIT
-\t⎇\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>
+$BRANCH_DISPLAY
 
-\t<span color=\"gray\">📝\tDernier commit du <i>$LAST_COMMIT_DATE</i></span>
+$COMMIT_LABEL_DISPLAY
 <span><b><i>$TEXT_COMMIT</i></b></span>\n
 
-\t<span color=\"gray\">🗒\tCommités</span>
+$COMMITTED_LABEL_DISPLAY
 <i>$filesCommitted</i>
 $SPACE_LINE$SIMPLE_LINE
 
-\t<span color=\"gray\">🧩\tNon suivis</span>
+$UNFOLLOWED_LABEL_DISPLAY
 <span color=\"#155162\">$filesUnfollowed</span>
 
 "
@@ -1144,19 +1288,19 @@ $SPACE_LINE$SIMPLE_LINE
 	else
 EN_TETE="
 $GIT
-\t⎇\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>
+$BRANCH_DISPLAY
 
-\t<span color=\"gray\">📝\tDernier commit du <i>$LAST_COMMIT_DATE</i></span>
+$COMMIT_LABEL_DISPLAY
 <span><b><i>$TEXT_COMMIT</i></b></span>
 
-\t<span color=\"gray\">🗒\tCommités</span>
+$COMMITTED_LABEL_DISPLAY
 <i>$filesCommitted</i>
 $SPACE_LINE$SIMPLE_LINE
 
-\t<span color=\"gray\">🔧\tModifiés</span>
+$CHANGED_LABEL_DISPLAY
 <span color=\"green\">$filesChanged</span>
 
-\t<span color=\"gray\">🧩\tNon suivis</span>
+$UNFOLLOWED_LABEL_DISPLAY
 <span color=\"#155162\">$filesUnfollowed</span>
 
 "
@@ -1169,17 +1313,17 @@ else
 	if [ "$filesChangedAndUnfollowed" = "" ];then
 	EN_TETE="
 $GIT
-\t⎇\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>
+$BRANCH_DISPLAY
 
-\t<span color=\"gray\">📝\tDernier commit du <i>$LAST_COMMIT_DATE</i></span>
+$COMMIT_LABEL_DISPLAY
 <span><b><i>$TEXT_COMMIT</i></b></span>
 
-\t<span color=\"gray\">🗒\tCommités</span>
+$COMMITTED_LABEL_DISPLAY
 <i>$filesCommitted</i>
 $SPACE_LINE$SIMPLE_LINE
 
 
-\t<span color=\"gray\">➕\tAjoutés</span>
+$STAGED_LABEL_DISPLAY
 <span color=\"orange\"><b>$filesStaged</b></span>
 
 "
@@ -1187,20 +1331,20 @@ $SPACE_LINE$SIMPLE_LINE
 	elif [[ "$filesUnfollowed" == "" ]] && [[ "$filesChanged" != "" ]] ; then
 EN_TETE="
 $GIT
-\t⎇\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>
+$BRANCH_DISPLAY
 
-\t<span color=\"gray\">📝\tDernier commit du <i>$LAST_COMMIT_DATE</i></span>
+$COMMIT_LABEL_DISPLAY
 <span><b><i>$TEXT_COMMIT</i></b></span>
 
-\t<span color=\"gray\">🗒\tCommités</span>
+$COMMITTED_LABEL_DISPLAY
 <i>$filesCommitted</i>
 $SPACE_LINE$SIMPLE_LINE
 
-\t<span color=\"gray\">🔧\tModifiés</span>
+$CHANGED_LABEL_DISPLAY
 <span color=\"green\">$filesChanged</span>
 
 
-\t<span color=\"gray\">➕\tAjoutés</span>
+$STAGED_LABEL_DISPLAY
 <span color=\"orange\"><b>$filesStaged</b></span>
 
 "
@@ -1208,20 +1352,20 @@ $SPACE_LINE$SIMPLE_LINE
 	elif [[ "$filesChanged" == "" ]] && [[ "$filesUnfollowed" != "" ]]; then
 EN_TETE="
 $GIT
-\t⎇\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>
+$BRANCH_DISPLAY
 
-\t<span color=\"gray\">📝\tDernier commit du <i>$LAST_COMMIT_DATE</i></span>
+$COMMIT_LABEL_DISPLAY
 <span><b><i>$TEXT_COMMIT</i></b></span>
 
-\t<span color=\"gray\">🗒\tCommités</span>
+$COMMITTED_LABEL_DISPLAY
 <i>$filesCommitted</i>
 $SPACE_LINE$SIMPLE_LINE
 
-\t<span color=\"gray\">🧩\tNon suivis</span>
+$UNFOLLOWED_LABEL_DISPLAY
 <span color=\"#155162\">$filesUnfollowed</span>
 
 
-\t<span color=\"gray\">➕tAjoutés</span>
+$STAGED_LABEL_DISPLAY
 <span color=\"orange\"><b>$filesStaged</b></span>
 
 "
@@ -1229,23 +1373,23 @@ $SPACE_LINE$SIMPLE_LINE
 	else
 EN_TETE="
 $GIT
-\t⎇\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>
+$BRANCH_DISPLAY
 
-\t<span color=\"gray\">📝\tDernier commit du <i>$LAST_COMMIT_DATE</i></span>
+$COMMIT_LABEL_DISPLAY
 <span><b><i>$TEXT_COMMIT</i></b></span>
 
-\t<span color=\"gray\">🗒\tCommités</span>
+$COMMITTED_LABEL_DISPLAY
 <i>$filesCommitted</i>
 $SPACE_LINE$SIMPLE_LINE
 
-\t<span color=\"gray\">🔧\tModifiés</span>
+$CHANGED_LABEL_DISPLAY
 <span color=\"green\">$filesChanged</span>
 
-\t<span color=\"gray\">🧩\tNon suivis</span>
+$UNFOLLOWED_LABEL_DISPLAY
 <span color=\"#155162\">$filesUnfollowed</span>
 
 
-\t<span color=\"gray\">➕\tAjoutés</span>
+$STAGED_LABEL_DISPLAY
 <span color=\"orange\"><b>$filesStaged</b></span>
 
 "
@@ -1266,12 +1410,32 @@ nbColumn=${#EN_TETES}
 
 # vertical responsiveness
 nbLines=`echo -n "$EN_TETE" | grep -c '^'`
-commandsHeight=385
+
 oneLineHeight=17
 linesHeight=$(($oneLineHeight * $nbLines))
-dialogFilesHeight=$(($commandsHeight + $linesHeight))
 
 2>/dev/null # bug zenity
+
+if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ];
+then
+commandsHeight=250
+dialogFilesHeight=$(($commandsHeight + $linesHeight))
+zenity --list --width=$filesDialogWidth --height=$dialogFilesHeight --text='<span font-family=\"Arial\">'"$EN_TETE"'</span>' \
+    --title="Fichiers 📑" \
+    --ok-label="Sélectionner" \
+    --cancel-label="Quitter" \
+    --hide-column 1 --column "" --column "" --column "" --column ""  --column "" \
+    1 "    1" "$SPACE_PUSH$GP" "$SPACE_FILES_SYMBOL" "📤"\
+    0 "" "" "" ""\
+    2 "    2" "$SPACE_COMMIT_RESET$GCR" "$SPACE_FILES_SYMBOL" "➖"\
+    3 "    3" "$SPACE_CHANGE_WIDTH$CW" "$SPACE_FILES_SYMBOL" "📏" 2>/dev/null ;
+
+
+
+
+else
+commandsHeight=365
+dialogFilesHeight=$(($commandsHeight + $linesHeight))
 zenity --list --width=$filesDialogWidth --height=$dialogFilesHeight --text='<span font-family=\"Arial\">'"$EN_TETE"'</span>' \
     --title="Fichiers 📑" \
     --ok-label="Sélectionner" \
@@ -1280,32 +1444,50 @@ zenity --list --width=$filesDialogWidth --height=$dialogFilesHeight --text='<spa
     1 "    1" "$SPACE_ADD$GA" "$SPACE_FILES_SYMBOL" "➕"\
     2 "    2" "$SPACE_ADD_S$GAS" "$SPACE_FILES_SYMBOL" "➕"\
     3 "    3" "$SPACE_COMMIT$GC" "$SPACE_FILES_SYMBOL" "📝"\
-    4 "    4" "$SPACE_PUSH$GP" "$SPACE_FILES_SYMBOL" "📤"\
     0 "" "" "" ""\
-    5 "    5" "$SPACE_ADD_ALL$GAA" "$SPACE_FILES_SYMBOL" "➕"\
-    6 "    6" "$SPACE_RESET$GRT" "$SPACE_FILES_SYMBOL" "➖"\
-    7 "    7" "$SPACE_RESET_ALL$GRA" "$SPACE_FILES_SYMBOL" "➖"\
-    8 "    8" "$SPACE_COMMIT_RESET$GCR" "$SPACE_FILES_SYMBOL" "➖"\
-    9 "    9" "$SPACE_CHANGE_WIDTH$CW" "$SPACE_FILES_SYMBOL" "📏" 2>/dev/null ;
+    4 "    4" "$SPACE_ADD_ALL$GAA" "$SPACE_FILES_SYMBOL" "➕"\
+    5 "    5" "$SPACE_RESET$GRT" "$SPACE_FILES_SYMBOL" "➖"\
+    6 "    6" "$SPACE_RESET_ALL$GRA" "$SPACE_FILES_SYMBOL" "➖"\
+    7 "    7" "$SPACE_REMOVE$GRM" "$SPACE_FILES_SYMBOL" "❌"\
+    8 "    8" "$SPACE_CHANGE_WIDTH$CW" "$SPACE_FILES_SYMBOL" "📏" 2>/dev/null ;
+
+
+
+fi
 }
 
 frm_fichiers_parser(){
-    case $1 in
-        1) git_add ;;
-        2) git_add_single ;;
-        3) git_commit ;;
-        4) git_push
-#		quitter=1"
-#               _quitter
-                ;;
-        5) git_add_all ;;
-        6) git_reset ;;
-        7) git_reset_all ;;
-        8) git_commit_reset ;;
-		9) change_width ;;
-        *) fonction_git ;;
-        esac
+	if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ];
+	then
+		case $1 in
+			1) git_push ;;
+		#		quitter=1"
+		#       _quitter
+			2) git_commit_reset ;;
+			3) change_width ;;
+			*) fonction_git ;;
+		esac
+	else
+		case $1 in
+			1) git_add ;;
+			2) git_add_single ;;
+			3) git_commit ;;
+			4) git_add_all ;;
+			5) git_reset ;;
+			6) git_reset_all ;;
+			7) git_remove ;;
+			8) change_width ;;
+			*) fonction_git ;;
+			esac
+fi
 }
+
+
+
+
+
+
+
 
 fonction_fichiers(){
         menuchoice=$(frm_fichiers)
@@ -1326,7 +1508,7 @@ oneLineHeight=17
 linesHeight=$(($oneLineHeight * $nbLines))
 dialogRepoHeight=$(($commandsHeight + $linesHeight))
 zenity --list --width=400 --height=$dialogRepoHeight --text='<span font-family=\"Arial\">'"$EN_TETE"'</span>' \
-    --title="Dépot🗃" \
+    --title="Dépot 🗃" \
     --ok-label="Sélectionner" \
     --cancel-label="Quitter" \
     --hide-column 1 --column "" --column "" --column "" --column "" --column "" \
@@ -1338,7 +1520,7 @@ zenity --list --width=400 --height=$dialogRepoHeight --text='<span font-family=\
     5 "    5" "				        $GM" "			    " "📥"\
     0 "" "" "" "" \
     6 "    6" "				 $OR" "			    " "🌍"\
-    7 "    7" "				         $GCL" "			    " "📚" 2>/dev/null ;
+    7 "    7" "				        $GCL" "			     " "📚" 2>/dev/null ;
 }
 
 frm_depots_parser(){
