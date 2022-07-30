@@ -3,9 +3,10 @@
 nbFilesByLine=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesByLinePref`
 nbWordsByCommit=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/wordsByLinePref`
 filesDialogWidth=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/widthConfig`
+CURRENT_DIR=`pwd`
+
 factor=3
 totalLineNumber=60
-
 fichiersDisplay=1
 
 one=1
@@ -61,8 +62,6 @@ RL="Résultats par ligne"
 AFF="Affichage"
 CW="Largeur"
 
-CURRENT_DIR=`pwd`
-
 ################# GENERAL FUNCTIONS ####################
 
 notification(){
@@ -95,9 +94,9 @@ change_width(){
 			echo "Vous avez choisi $width pixels."
 			fonction_fichiers ;;
 			1)
-					echo "Aucune valeur sélectionnée.";;
+				echo "Aucune valeur sélectionnée.";;
 			-1)
-					echo "Une erreur inattendue est survenue.";;
+				echo "Une erreur inattendue est survenue.";;
 	esac
 	2>/dev/null
 }
@@ -117,7 +116,7 @@ switch_display2(){
 			echo "Pas de choix effectué"
 		fi
 	else
-			echo "Annulation"
+		echo "Annulation"
 	fi
 	if ([ -n "$titre" ]); then
 		if [ "$titre" = "		  Fichiers" ]; then
@@ -372,6 +371,7 @@ en_tete_depots(){
 $TMP_SCREEN
 "
 }
+
 en_tete(){
 	checkFilesChanged
 	actualBranch=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/actualBranch`
@@ -433,8 +433,8 @@ git_clone_any(){
 		if [ "$titre" = "" ]; then
 			echo "Il faut un dépot pour cloner"
 		fi
-		else
-			echo "Annulation"
+	else
+		echo "Annulation"
 	fi
 	if ([ -n "$titre" ])
 		then
@@ -513,15 +513,12 @@ git_stash_pop(){
 		0)
 			echo "Récupération des modifications locales"
 			notification "Récupération des modifications locales"
-		;;
+			;;
 		1)
-			echo "Git Stash Pop quitté"
-		;;
+			echo "Git Stash Pop quitté"	;;
 		-1)
-			echo "An unexpected error has occurred."
-		;;
+			echo "An unexpected error has occurred." ;;
 	esac
-	
 }
 
 git_status(){
@@ -535,17 +532,12 @@ git_status(){
 
 	case $? in
 		0)
-			echo "Git Status"
-		# next step
-		;;
+			echo "Git Status" ;;
 		1)
-			echo "Git Status quitté"
-		;;
+			echo "Git Status quitté" ;;
 		-1)
-			echo "An unexpected error has occurred."
-		;;
+			echo "An unexpected error has occurred." ;;
 	esac
-	
 }
 
 git_cherry_pick_skip(){
@@ -640,15 +632,11 @@ git_log_simple(){
 
 	case $? in
 		0)
-			echo "Git Log"
-		# next step
-		;;
+			echo "Git Log" ;;
 		1)
-			echo "Git Log quitté"
-		;;
+			echo "Git Log quitté" ;;
 		-1)
-			echo "An unexpected error has occurred."
-		;;
+			echo "An unexpected error has occurred." ;;
 	esac
 }
 
@@ -671,7 +659,6 @@ git_log(){
 		fi
 	else
 		echo "Pas de choix effectué"
-
 	fi
 }
 
@@ -686,15 +673,11 @@ git_reflog(){
 
 	case $? in
 		0)
-			echo "Git Reflog"
-		# next step
-		;;
+			echo "Git Reflog" ;;
 		1)
-			echo "Git Reflog quitté"
-		;;
+			echo "Git Reflog quitté" ;;
 		-1)
-			echo "An unexpected error has occurred."
-		;;
+			echo "An unexpected error has occurred." ;;
 	esac
 }
 
@@ -709,15 +692,11 @@ git_log_cherry(){
 
 	case $? in
 		0)
-			echo "Log pour Cherry-Pick"
-		# next step
-		;;
+			echo "Log pour Cherry-Pick" ;;
 		1)
-			echo "Log pour Cherry-Pick quitté"
-		;;
+			echo "Log pour Cherry-Pick quitté" ;;
 		-1)
-			echo "An unexpected error has occurred."
-		;;
+			echo "An unexpected error has occurred." ;;
 	esac
 }
 
@@ -732,15 +711,11 @@ git_branch(){
 
 	case $? in
 		0)
-			echo "Git Branch"
-		# next step
-		;;
+			echo "Git Branch" ;;
 		1)
-			echo "Git Branch quitté"
-		;;
+			echo "Git Branch quitté" ;;
 		-1)
-			echo "An unexpected error has occurred."
-		;;
+			echo "An unexpected error has occurred." ;;
 	esac
 }
 
@@ -1099,7 +1074,6 @@ git_erase(){
 	2>/dev/null
 }
 
-
 git_commit(){
 	filesStaged=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesStaged`
  	if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ]; then
@@ -1146,7 +1120,7 @@ git_push(){
 				echo "Il faut une destination"
 			fi
 		else
-				echo "Annulation"
+			echo "Annulation"
 		fi
 		if ([ -n "$titre" ]); then
 			git push origin $titre &> ~/bin/easyGit/gitTemp
@@ -1181,7 +1155,7 @@ git_merge(){
 			echo "Il faut un dépot distant"
 		fi
 	else
-			echo "Annulation"
+		echo "Annulation"
    	fi
 	if ([ -n "$titre" ]); then
 		git merge origin $titre &> ~/bin/easyGit/gitTemp
@@ -1216,7 +1190,7 @@ git_rebase(){
 				echo "Il faut un dépot distant"
 			fi
 	else
-			echo "Annulation"
+		echo "Annulation"
    	fi
 	if ([ -n "$titre" ]); then
 		git pull --rebase origin $titre &> ~/bin/easyGit/gitTemp
@@ -1254,7 +1228,6 @@ filesUnfollowed=`sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesUnfollow
 filesStaged=`sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesStaged | fold -b$(($totalLineNumber + $fifteen)) -s  | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
 filesCommitted=`sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesCommitted | fold -b$(($totalLineNumber + $fifteen)) -s  | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
 filesChangedAndUnfollowed=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUnfollowed`
-
 
 BRANCH_DISPLAY="\t⎇\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>"
 COMMIT_PENDING_SIGN_DISPLAY="<span color=\"grey\">Commit </span><span color=\"red\"><i>en cours</i></span>"
@@ -1511,9 +1484,7 @@ $TMP_SCREEN
 "
 fi
 
-
-
-# vertical responsiveness
+# vertical responsiveness example
 nbLines=`echo -n "$EN_TETE" | grep -c '^'`
 oneLineHeight=17
 linesHeight=$(($oneLineHeight * $nbLines))
