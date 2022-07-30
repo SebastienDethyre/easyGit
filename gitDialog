@@ -6,6 +6,8 @@ filesDialogWidth=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/widthConfig`
 factor=3
 totalLineNumber=60
 
+fichiersDisplay=1
+
 one=1
 two=2
 three=3
@@ -49,12 +51,14 @@ GB="Branch"
 GAA="Add All"
 GRA="Reset All"
 GRM="Remove"
+GE="Erase"
 
 MD="Dépot"
 MF="Fichiers"
 MI="Informations"
 SC="Clear"
 RL="Résultats par ligne"
+AFF="Affichage"
 CW="Largeur"
 
 CURRENT_DIR=`pwd`
@@ -98,6 +102,39 @@ case $? in
                 echo "Une erreur inattendue est survenue.";;
 esac
 2>/dev/null
+}
+switch_display(){
+	if [ $fichiersDisplay -eq 1 ];then
+		fichiersDisplay=0
+	else
+		fichiersDisplay=1
+	fi
+}
+
+switch_display2(){
+if file=`zenity --list --title="Affichage ❌" --height=200 --text=""  --column=""  "		  Fichiers" "		 Terminal" "		  Largeur"`
+then
+			titre=$file
+			if [ "$titre" = "" ]
+			then
+				echo "Pas de choix effectué"
+		fi
+		else
+				echo "Annulation"
+		fi
+		if ([ -n "$titre" ])
+			then
+				if [ "$titre" = "		  Fichiers" ];then
+					fichiersDisplay=1
+				elif [ "$titre" = "		 Terminal" ];then
+					fichiersDisplay=0					
+				elif [ "$titre" = "		  Largeur" ];then
+					change_width
+				fi
+		else
+			echo "Pas de choix effectué"
+		fi
+		2>/dev/null	
 }
 
 change_wrapping(){
@@ -301,6 +338,7 @@ $SPACE_GIT$git6
 	spaceCommitResetSize="$(($spaceAddSize - $twelve))"
 	spaceStatusSize="$(($spaceAddSize - $three))"
 	spaceRemove="$(($spaceAddSize - $four))"
+	spaceDisplay="$(($spaceAddSize - $six))"
 	spaceChangeWidthSize="$(($spaceAddSize - $four))"
 
 	spaceCommitPendingSize="$(($totalLineNumber - $seventeen))"
@@ -316,6 +354,8 @@ $SPACE_GIT$git6
 	SPACE_COMMIT_RESET=`printf %$spaceCommitResetSize\s |tr " " " "`
 	SPACE_STATUS=`printf %$spaceStatusSize\s |tr " " " "`
 	SPACE_REMOVE=`printf %$spaceRemove\s |tr " " " "`
+	SPACE_DISPLAY=`printf %$spaceDisplay\s |tr " " " "`
+
 	SPACE_CHANGE_WIDTH=`printf %$spaceChangeWidthSize\s |tr " " " "`
 
 	SPACE_COMMIT_PENDING=`printf %$spaceCommitPendingSize\s |tr " " " "`
@@ -569,7 +609,12 @@ git_cherry_pick(){
 	fi
 }
 
-git_log(){
+git_log_terminal(){
+	git config --global alias.tree "log --oneline --decorate --all --graph"
+	git tree
+}
+
+git_log_simple(){
 	git log --graph --summary > ~/bin/easyGit/gitTemp
 	FILE=`dirname $0`/gitTemp
 	zenity --text-info \
@@ -590,6 +635,31 @@ git_log(){
 			echo "An unexpected error has occurred."
 		;;
 	esac
+}
+git_log(){
+	if file=`zenity --list --title="Log " --height=200 --text=""  --column="Type de Log"  "Simple" "Terminal"`
+		then
+		titre=$file
+		if [ "$titre" = "" ]
+			then
+				echo "Pas de choix effectué"
+			fi
+		else
+			fonction_fichiers
+			echo "Annulation"
+	fi
+	if ([ -n "$titre" ])
+		then
+			if [ "$titre" = "Simple" ];then
+				git_log_simple
+			elif [ "$titre" = "Terminal (couleurs)" ];then
+				git_log_terminal
+		fi
+		else
+			echo "Pas de choix effectué"
+	fi
+		2>/dev/null
+
 }
 
 git_reflog(){
@@ -763,7 +833,8 @@ git_add_single(){
 		fi
 		if ([ -n "$titre" ])
 			then
-				git add $titre && echo "fichier" $titre "ajouté"
+				git add $titre 
+				echo "fichier" $titre "ajouté"
 				checkFilesChanged
 				notification "Fichier ajouté au commit :
 \t$titre"
@@ -967,14 +1038,15 @@ git_remove_forced(){
 
 git_remove(){
 if file=`zenity --list --title="Type de Remove ❌" --height=200 --text="Git rm ..."  --column="Type de Git Remove"  "Simple" "Simple One" "Cached" "Forced"`
-then
-			titre=$file
-			if [ "$titre" = "" ]
-			then
-				echo "Pas de choix effectué"
+	then
+		titre=$file
+		if [ "$titre" = "" ]
+		then
+			echo "Pas de choix effectué"
 		fi
 		else
 				echo "Annulation"
+				git_erase
 		fi
 		if ([ -n "$titre" ])
 			then
@@ -987,8 +1059,6 @@ then
 				elif [ "$titre" = "Forced" ];then
 					git_remove_forced
 				fi
-
-
 		else
 			echo "Pas de choix effectué"
 		fi
@@ -1025,6 +1095,32 @@ git_commit_reset(){
 	fi
 }
 
+git_erase(){
+if file=`zenity --list --title="Erase ❌" --height=200 --text="Git rm ..."  --column="Type de Git Remove"  "Remove" "Commit Reset"`
+	then
+	titre=$file
+	if [ "$titre" = "" ]
+		then
+			echo "Pas de choix effectué"
+		fi
+	else
+		fonction_fichiers
+		echo "Annulation"
+fi
+if ([ -n "$titre" ])
+	then
+		if [ "$titre" = "Remove" ];then
+			git_remove
+		elif [ "$titre" = "Commit Reset" ];then
+			git_commit_reset
+	fi
+	else
+		echo "Pas de choix effectué"
+fi
+	2>/dev/null
+}
+
+
 git_commit(){
 	filesStaged=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesStaged`
  	if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ];then
@@ -1047,7 +1143,10 @@ git_commit(){
    			fi
 			if ([ -n "$titre" ])
 				then
-				git commit -m "$titre"
+				git commit -m "$titre" &> ~/bin/easyGit/gitTemp
+				TMP_SCREEN=$(<~/bin/easyGit/gitTemp)
+				lineNumber=$(($totalLineNumber - $three))
+				TMP_SCREEN=`echo "$TMP_SCREEN" | fold -b$(($lineNumber)) -s  | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
 				echo "Commit effectué :" $titre
 				TEXT_COMMIT=$titre
 				HASH_COMMIT=`git rev-parse HEAD`
@@ -1080,7 +1179,10 @@ git_push(){
      	 	fi
 	        if ([ -n "$titre" ])
         	then
-				git push origin $titre
+				git push origin $titre &> ~/bin/easyGit/gitTemp
+				TMP_SCREEN=$(<~/bin/easyGit/gitTemp)
+				lineNumber=$(($totalLineNumber - $three))
+				TMP_SCREEN=`echo "$TMP_SCREEN" | fold -b$(($lineNumber)) -s  | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
 				echo "Push sur la branche" $titre "effectué"
 				notification "Push sur la branche :
 \t$titre"
@@ -1206,13 +1308,14 @@ CHANGED_LABEL_DISPLAY="\t<span color=\"gray\">🔧\tModifiés</span>"
 UNFOLLOWED_LABEL_DISPLAY="\t<span color=\"gray\">🧩\tNon suivis</span>"
 STAGED_LABEL_DISPLAY="\t<span color=\"gray\">➕\tAjoutés</span>"
 
-############### commit pending ####################
+if [ "$fichiersDisplay" -eq 1 ];then
 
-if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ];
-then
-	############### no modified and no untracked ####################
-	if [ "$filesChangedAndUnfollowed" = "" ];then
-                EN_TETE="
+	############### commit pending ####################
+	if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ];
+	then
+		############### no modified and no untracked ####################
+		if [ "$filesChangedAndUnfollowed" = "" ];then
+            EN_TETE="
 $GIT
 $BRANCH_DISPLAY
 $SPACE_LINE$SIMPLE_LINE
@@ -1225,9 +1328,9 @@ $COMMITTED_LABEL_DISPLAY
 <i>$filesCommitted</i>
 
 "
-	############### some modified and no untracked ####################
-	elif [[ "$filesUnfollowed" == "" ]] && [[ "$filesChanged" != "" ]] ; then
-		EN_TETE="
+		############### some modified and no untracked ####################
+		elif [[ "$filesUnfollowed" == "" ]] && [[ "$filesChanged" != "" ]] ; then
+			EN_TETE="
 $GIT
 $BRANCH_DISPLAY
 
@@ -1244,9 +1347,9 @@ $COMMITTED_LABEL_DISPLAY
 <i>$filesCommitted</i>
 
 "
-	############### no modified but some untracked ####################
-	elif [[ "$filesChanged" == "" ]] && [[ "$filesUnfollowed" != "" ]]; then
-		EN_TETE="
+		############### no modified but some untracked ####################
+		elif [[ "$filesChanged" == "" ]] && [[ "$filesUnfollowed" != "" ]]; then
+			EN_TETE="
 $GIT
 $BRANCH_DISPLAY
 
@@ -1262,35 +1365,35 @@ $COMMITTED_LABEL_DISPLAY
 <i>$filesCommitted</i>
 
 "
+		############### by default ####################
+		else
+			EN_TETE="
+$GIT
+$BRANCH_DISPLAY
+
+$CHANGED_LABEL_DISPLAY
+<span color=\"green\">$filesChanged</span>
+
+$UNFOLLOWED_LABEL_DISPLAY
+<span color=\"#155162\">$filesUnfollowed</span>
+$SPACE_LINE$SIMPLE_LINE
+
+$SPACE_COMMIT_PENDING$COMMIT_PENDING_SIGN_DISPLAY
+$COMMIT_PENDING_LABEL_DISPLAY
+<span><b>$TEXT_COMMIT</b></span>
+
+$COMMITTED_LABEL_DISPLAY
+<i>$filesCommitted</i>
+
+"
+		fi
+
 	############### by default ####################
-	else
-EN_TETE="
-$GIT
-$BRANCH_DISPLAY
 
-$CHANGED_LABEL_DISPLAY
-<span color=\"green\">$filesChanged</span>
-
-$UNFOLLOWED_LABEL_DISPLAY
-<span color=\"#155162\">$filesUnfollowed</span>
-$SPACE_LINE$SIMPLE_LINE
-
-$SPACE_COMMIT_PENDING$COMMIT_PENDING_SIGN_DISPLAY
-$COMMIT_PENDING_LABEL_DISPLAY
-<span><b>$TEXT_COMMIT</b></span>
-
-$COMMITTED_LABEL_DISPLAY
-<i>$filesCommitted</i>
-
-"
-	fi
-
-############### by default ####################
-
-elif [ "$filesStaged" = "" ]; then
-	############### no modified and no untracked ####################
- 	if [ "$filesChangedAndUnfollowed" = "" ];then
-                EN_TETE="
+	elif [ "$filesStaged" = "" ]; then
+		############### no modified and no untracked ####################
+		if [ "$filesChangedAndUnfollowed" = "" ];then
+			EN_TETE="
 $GIT
 $BRANCH_DISPLAY
 
@@ -1302,9 +1405,9 @@ $COMMITTED_LABEL_DISPLAY
 <i>$filesCommitted</i>
 
 "
-	############### some modified and no untracked ####################
-	elif [[ "$filesUnfollowed" == "" ]] && [[ "$filesChanged" != "" ]] ; then
-                EN_TETE="
+		############### some modified and no untracked ####################
+		elif [[ "$filesUnfollowed" == "" ]] && [[ "$filesChanged" != "" ]] ; then
+			EN_TETE="
 $GIT
 $BRANCH_DISPLAY
 
@@ -1319,9 +1422,9 @@ $CHANGED_LABEL_DISPLAY
 <span color=\"green\">$filesChanged</span>
 
 "
-	############### no modified but some untracked ####################
-	elif [[ "$filesChanged" == "" ]] && [[ "$filesUnfollowed" != "" ]]; then
-                EN_TETE="
+		############### no modified but some untracked ####################
+		elif [[ "$filesChanged" == "" ]] && [[ "$filesUnfollowed" != "" ]]; then
+			EN_TETE="
 $GIT
 $BRANCH_DISPLAY
 
@@ -1336,9 +1439,9 @@ $UNFOLLOWED_LABEL_DISPLAY
 <span color=\"#155162\">$filesUnfollowed</span>
 
 "
-	############### by default ####################
-	else
-EN_TETE="
+		############### by default ####################
+		else
+			EN_TETE="
 $GIT
 $BRANCH_DISPLAY
 
@@ -1356,98 +1459,101 @@ $UNFOLLOWED_LABEL_DISPLAY
 <span color=\"#155162\">$filesUnfollowed</span>
 
 "
+		fi
+
+	############### files added ####################
+	else
+		############### no modified and no untracked ####################
+		if [ "$filesChangedAndUnfollowed" = "" ];then
+			EN_TETE="
+$GIT
+$BRANCH_DISPLAY
+
+$COMMIT_LABEL_DISPLAY
+<span><b><i>$TEXT_COMMIT</i></b></span>
+
+$COMMITTED_LABEL_DISPLAY
+<i>$filesCommitted</i>
+$SPACE_LINE$SIMPLE_LINE
+
+
+$STAGED_LABEL_DISPLAY
+<span color=\"orange\"><b>$filesStaged</b></span>
+
+"
+		############### some modified and no untracked ####################
+		elif [[ "$filesUnfollowed" == "" ]] && [[ "$filesChanged" != "" ]] ; then
+			EN_TETE="
+$GIT
+$BRANCH_DISPLAY
+
+$COMMIT_LABEL_DISPLAY
+<span><b><i>$TEXT_COMMIT</i></b></span>
+
+$COMMITTED_LABEL_DISPLAY
+<i>$filesCommitted</i>
+$SPACE_LINE$SIMPLE_LINE
+
+$CHANGED_LABEL_DISPLAY
+<span color=\"green\">$filesChanged</span>
+
+
+$STAGED_LABEL_DISPLAY
+<span color=\"orange\"><b>$filesStaged</b></span>
+
+"
+		############### no modified and some untracked ####################
+		elif [[ "$filesChanged" == "" ]] && [[ "$filesUnfollowed" != "" ]]; then
+			EN_TETE="
+$GIT
+$BRANCH_DISPLAY
+
+$COMMIT_LABEL_DISPLAY
+<span><b><i>$TEXT_COMMIT</i></b></span>
+
+$COMMITTED_LABEL_DISPLAY
+<i>$filesCommitted</i>
+$SPACE_LINE$SIMPLE_LINE
+
+$UNFOLLOWED_LABEL_DISPLAY
+<span color=\"#155162\">$filesUnfollowed</span>
+
+
+$STAGED_LABEL_DISPLAY
+<span color=\"orange\"><b>$filesStaged</b></span>
+
+"
+		############### by default ####################
+		else
+			EN_TETE="
+$GIT
+$BRANCH_DISPLAY
+
+$COMMIT_LABEL_DISPLAY
+<span><b><i>$TEXT_COMMIT</i></b></span>
+
+$COMMITTED_LABEL_DISPLAY
+<i>$filesCommitted</i>
+$SPACE_LINE$SIMPLE_LINE
+
+$CHANGED_LABEL_DISPLAY
+<span color=\"green\">$filesChanged</span>
+
+$UNFOLLOWED_LABEL_DISPLAY
+<span color=\"#155162\">$filesUnfollowed</span>
+
+
+$STAGED_LABEL_DISPLAY
+<span color=\"orange\"><b>$filesStaged</b></span>
+
+"
+		fi
 	fi
-
-############### files added ####################
-
 else
-	############### no modified and no untracked ####################
-	if [ "$filesChangedAndUnfollowed" = "" ];then
-	EN_TETE="
-$GIT
-$BRANCH_DISPLAY
-
-$COMMIT_LABEL_DISPLAY
-<span><b><i>$TEXT_COMMIT</i></b></span>
-
-$COMMITTED_LABEL_DISPLAY
-<i>$filesCommitted</i>
-$SPACE_LINE$SIMPLE_LINE
-
-
-$STAGED_LABEL_DISPLAY
-<span color=\"orange\"><b>$filesStaged</b></span>
-
-"
-	############### some modified and no untracked ####################
-	elif [[ "$filesUnfollowed" == "" ]] && [[ "$filesChanged" != "" ]] ; then
 EN_TETE="
 $GIT
-$BRANCH_DISPLAY
-
-$COMMIT_LABEL_DISPLAY
-<span><b><i>$TEXT_COMMIT</i></b></span>
-
-$COMMITTED_LABEL_DISPLAY
-<i>$filesCommitted</i>
-$SPACE_LINE$SIMPLE_LINE
-
-$CHANGED_LABEL_DISPLAY
-<span color=\"green\">$filesChanged</span>
-
-
-$STAGED_LABEL_DISPLAY
-<span color=\"orange\"><b>$filesStaged</b></span>
-
-"
-	############### no modified and some untracked ####################
-	elif [[ "$filesChanged" == "" ]] && [[ "$filesUnfollowed" != "" ]]; then
-EN_TETE="
-$GIT
-$BRANCH_DISPLAY
-
-$COMMIT_LABEL_DISPLAY
-<span><b><i>$TEXT_COMMIT</i></b></span>
-
-$COMMITTED_LABEL_DISPLAY
-<i>$filesCommitted</i>
-$SPACE_LINE$SIMPLE_LINE
-
-$UNFOLLOWED_LABEL_DISPLAY
-<span color=\"#155162\">$filesUnfollowed</span>
-
-
-$STAGED_LABEL_DISPLAY
-<span color=\"orange\"><b>$filesStaged</b></span>
-
-"
-	############### by default ####################
-	else
-EN_TETE="
-$GIT
-$BRANCH_DISPLAY
-
-$COMMIT_LABEL_DISPLAY
-<span><b><i>$TEXT_COMMIT</i></b></span>
-
-$COMMITTED_LABEL_DISPLAY
-<i>$filesCommitted</i>
-$SPACE_LINE$SIMPLE_LINE
-
-$CHANGED_LABEL_DISPLAY
-<span color=\"green\">$filesChanged</span>
-
-$UNFOLLOWED_LABEL_DISPLAY
-<span color=\"#155162\">$filesUnfollowed</span>
-
-
-$STAGED_LABEL_DISPLAY
-<span color=\"orange\"><b>$filesStaged</b></span>
-
-"
-	fi
+$TMP_SCREEN"
 fi
-
 #TESTS#######################################################################
 size=`echo "${#TOTAL_LINE}"`
 EN_TETES="
@@ -1470,41 +1576,74 @@ linesHeight=$(($oneLineHeight * $nbLines))
 
 if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ];
 then
-commandsHeight=250
-dialogFilesHeight=$(($commandsHeight + $linesHeight))
-zenity --list --width=$filesDialogWidth --height=$dialogFilesHeight --text='<span font-family=\"Arial\">'"$EN_TETE"'</span>' \
-    --title="Fichiers 📑" \
-    --ok-label="Sélectionner" \
-    --cancel-label="Quitter" \
-    --hide-column 1 --column "" --column "" --column "" --column ""  --column "" \
-    1 "    1" "$SPACE_PUSH$GP" "$SPACE_FILES_SYMBOL" "📤"\
-    0 "" "" "" ""\
-    2 "    2" "$SPACE_COMMIT_RESET$GCR" "$SPACE_FILES_SYMBOL" "❌"\
-    3 "    3" "$SPACE_CHANGE_WIDTH$CW" "$SPACE_FILES_SYMBOL" "📏" 2>/dev/null ;
+	if [ $fichiersDisplay -eq 1 ];then
+		commandsHeight=250
+		dialogFilesHeight=$(($commandsHeight + $linesHeight))
+		zenity --list --width=$filesDialogWidth --height=$dialogFilesHeight --text='<span font-family=\"Arial\">'"$EN_TETE"'</span>' \
+		--title="Fichiers 📑" \
+		--ok-label="Sélectionner" \
+		--cancel-label="Quitter" \
+		--hide-column 1 --column "" --column "" --column "" --column ""  --column "" \
+		1 "    1" "$SPACE_PUSH$GP" "$SPACE_FILES_SYMBOL" "📤"\
+		0 "" "" "" ""\
+		2 "    2" "$SPACE_COMMIT_RESET$GCR" "$SPACE_FILES_SYMBOL" "❌"\
+		3 "    3" "$SPACE_DISPLAY$AFF" "$SPACE_FILES_SYMBOL" "💻" 2>/dev/null;
+	else
+		commandsHeight=250
+		dialogFilesHeight=$(($commandsHeight + $linesHeight))
+		zenity --list --width=$filesDialogWidth --height=$dialogFilesHeight --text='<span font-family=\"Arial\">'"$EN_TETE"'</span>' \
+		--title="Fichiers 📑" \
+		--ok-label="Sélectionner" \
+		--cancel-label="Quitter" \
+		--hide-column 1 --column "" --column "" --column "" --column ""  --column "" \
+		1 "    1" "$SPACE_PUSH$GP" "$SPACE_FILES_SYMBOL" "📤"\
+		0 "" "" "" ""\
+		2 "    2" "$SPACE_COMMIT_RESET$GCR" "$SPACE_FILES_SYMBOL" "❌"\
+		3 "    3" "$SPACE_DISPLAY$AFF" "$SPACE_FILES_SYMBOL" "📟" 2>/dev/null;
+	fi
+	
 
 
 
 
 else
-commandsHeight=405
-dialogFilesHeight=$(($commandsHeight + $linesHeight))
-zenity --list --width=$filesDialogWidth --height=$dialogFilesHeight --text='<span font-family=\"Arial\">'"$EN_TETE"'</span>' \
-    --title="Fichiers 📑" \
-    --ok-label="Sélectionner" \
-    --cancel-label="Quitter" \
-    --hide-column 1 --column "" --column "" --column "" --column ""  --column "" \
-    1 "    1" "$SPACE_ADD$GA" "$SPACE_FILES_SYMBOL" "➕"\
-    2 "    2" "$SPACE_ADD_S$GAS" "$SPACE_FILES_SYMBOL" "➕"\
-    3 "    3" "$SPACE_COMMIT$GC" "$SPACE_FILES_SYMBOL" "📝"\
-    0 "" "" "" ""\
-    4 "    4" "$SPACE_ADD_ALL$GAA" "$SPACE_FILES_SYMBOL" "➕"\
-    5 "    5" "$SPACE_RESET$GRT" "$SPACE_FILES_SYMBOL" "➖"\
-    6 "    6" "$SPACE_RESET_ALL$GRA" "$SPACE_FILES_SYMBOL" "➖"\
-    7 "    7" "$SPACE_REMOVE$GRM" "$SPACE_FILES_SYMBOL" "❌"\
-	8 "    8" "$SPACE_COMMIT_RESET$GCR" "$SPACE_FILES_SYMBOL" "❌"\
-    9 "    9" "$SPACE_CHANGE_WIDTH$CW" "$SPACE_FILES_SYMBOL" "📏" 2>/dev/null ;
-
-
+	if [ $fichiersDisplay -eq 1 ];then
+		commandsHeight=405
+		dialogFilesHeight=$(($commandsHeight + $linesHeight))
+		zenity --list --width=$filesDialogWidth --height=$dialogFilesHeight --text='<span font-family=\"Arial\">'"$EN_TETE"'</span>' \
+			--title="Fichiers 📑" \
+			--ok-label="Sélectionner" \
+			--cancel-label="Quitter" \
+			--hide-column 1 --column "" --column "" --column "" --column ""  --column "" \
+			1 "    1" "$SPACE_ADD$GA" "$SPACE_FILES_SYMBOL" "➕"\
+			2 "    2" "$SPACE_ADD_S$GAS" "$SPACE_FILES_SYMBOL" "➕"\
+			3 "    3" "$SPACE_COMMIT$GC" "$SPACE_FILES_SYMBOL" "📝"\
+			0 "" "" "" ""\
+			4 "    4" "$SPACE_ADD_ALL$GAA" "$SPACE_FILES_SYMBOL" "➕"\
+			5 "    5" "$SPACE_RESET$GRT" "$SPACE_FILES_SYMBOL" "➖"\
+			6 "    6" "$SPACE_RESET_ALL$GRA" "$SPACE_FILES_SYMBOL" "➖"\
+			7 "    7" "$SPACE_RESET$GE" "$SPACE_FILES_SYMBOL" "❌"\
+			8 "    8" "$SPACE_DISPLAY$AFF" "$SPACE_FILES_SYMBOL" "💻"\
+			9 "    9" "$SPACE_CHANGE_WIDTH$CW" "$SPACE_FILES_SYMBOL" "📏" 2>/dev/null;
+	else
+		commandsHeight=405
+		dialogFilesHeight=$(($commandsHeight + $linesHeight))
+		zenity --list --width=$filesDialogWidth --height=$dialogFilesHeight --text='<span font-family=\"Arial\">'"$EN_TETE"'</span>' \
+			--title="Fichiers 📑" \
+			--ok-label="Sélectionner" \
+			--cancel-label="Quitter" \
+			--hide-column 1 --column "" --column "" --column "" --column ""  --column "" \
+			1 "    1" "$SPACE_ADD$GA" "$SPACE_FILES_SYMBOL" "➕"\
+			2 "    2" "$SPACE_ADD_S$GAS" "$SPACE_FILES_SYMBOL" "➕"\
+			3 "    3" "$SPACE_COMMIT$GC" "$SPACE_FILES_SYMBOL" "📝"\
+			0 "" "" "" ""\
+			4 "    4" "$SPACE_ADD_ALL$GAA" "$SPACE_FILES_SYMBOL" "➕"\
+			5 "    5" "$SPACE_RESET$GRT" "$SPACE_FILES_SYMBOL" "➖"\
+			6 "    6" "$SPACE_RESET_ALL$GRA" "$SPACE_FILES_SYMBOL" "➖"\
+			7 "    7" "$SPACE_RESET$GE" "$SPACE_FILES_SYMBOL" "❌"\
+			8 "    8" "$SPACE_DISPLAY$AFF" "$SPACE_FILES_SYMBOL" "📟"\
+			9 "    9" "$SPACE_CHANGE_WIDTH$CW" "$SPACE_FILES_SYMBOL" "📏" 2>/dev/null;
+	fi
 
 fi
 }
@@ -1517,7 +1656,7 @@ frm_fichiers_parser(){
 		#		quitter=1"
 		#       _quitter
 			2) git_commit_reset ;;
-			3) change_width ;;
+			3) switch_display ;;
 			*) fonction_git ;;
 		esac
 	else
@@ -1528,8 +1667,8 @@ frm_fichiers_parser(){
 			4) git_add_all ;;
 			5) git_reset ;;
 			6) git_reset_all ;;
-			7) git_remove ;;
-			8) git_commit_reset ;;
+			7) git_erase ;;
+			8) switch_display ;;
 			9) change_width ;;
 			*) fonction_git ;;
 			esac
