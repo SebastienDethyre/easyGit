@@ -1337,7 +1337,7 @@ $GIT
 $BRANCH_DISPLAY
 
 $COMMIT_LABEL_DISPLAY
-<span><b><i>$TEXT_COMMIT</i></b></span>\n
+<span><b><i>$TEXT_COMMIT</i></b></span>
 
 $COMMITTED_LABEL_DISPLAY
 <i>$filesCommitted</i>
@@ -1460,20 +1460,11 @@ else
 EN_TETE="
 $GIT
 $TMP_SCREEN
+
 "
 fi
 
-#TESTS#######################################################################
-size=`echo "${#TOTAL_LINE}"`
-EN_TETES="
-$GIT
-$SIMPLE_LINE
-$TOTAL_LINE
-$TMP_SCREEN
-"
 
-nbColumn=${#EN_TETES}
-#############################################################################
 
 # vertical responsiveness
 nbLines=`echo -n "$EN_TETE" | grep -c '^'`
@@ -1483,9 +1474,9 @@ linesHeight=$(($oneLineHeight * $nbLines))
 
 if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ]; then
 	if [ $fichiersDisplay -eq 1 ]; then
-	bLines=`echo -n "$EN_TETE" | grep -c '^'`
-oneLineHeight=17
-linesHeight=$(($oneLineHeight * $nbLines))
+		bLines=`echo -n "$EN_TETE" | grep -c '^'`
+		oneLineHeight=17
+		linesHeight=$(($oneLineHeight * $nbLines))
 		commandsHeight=240
 		dialogFilesHeight=$(($commandsHeight + $linesHeight))
 		zenity --list --width=$filesDialogWidth --height=$dialogFilesHeight --text='<span font-family=\"Arial\">'"$EN_TETE"'</span>' \
@@ -1498,10 +1489,10 @@ linesHeight=$(($oneLineHeight * $nbLines))
 		2 "    2" "$SPACE_COMMIT_RESET$GCR" "$SPACE_FILES_SYMBOL" "❌" \
 		3 "    3" "$SPACE_DISPLAY$AFF" "$SPACE_FILES_SYMBOL" "💻" 2>/dev/null;
 	else
-	bLines=`echo -n "$EN_TETE" | grep -c '^'`
-oneLineHeight=17
-linesHeight=$(($oneLineHeight * $nbLines))
-		commandsHeight=225
+		bLines=`echo -n "$EN_TETE" | grep -c '^'`
+		oneLineHeight=17
+		linesHeight=$(($oneLineHeight * $nbLines))
+		commandsHeight=235
 		dialogFilesHeight=$(($commandsHeight + $linesHeight))
 		zenity --list --width=$filesDialogWidth --height=$dialogFilesHeight --text='<span font-family=\"Arial\">'"$EN_TETE"'</span>' \
 		--title="Fichiers 📑" \
@@ -1516,9 +1507,9 @@ linesHeight=$(($oneLineHeight * $nbLines))
 else
 	if [ $fichiersDisplay -eq 1 ]; then
 		bLines=`echo -n "$EN_TETE" | grep -c '^'`
-oneLineHeight=17
-linesHeight=$(($oneLineHeight * $nbLines))
-		commandsHeight=395
+		oneLineHeight=17
+		linesHeight=$(($oneLineHeight * $nbLines))
+		commandsHeight=385
 		dialogFilesHeight=$(($commandsHeight + $linesHeight))
 		zenity --list --width=$filesDialogWidth --height=$dialogFilesHeight --text='<span font-family=\"Arial\">'"$EN_TETE"'</span>' \
 			--title="Fichiers 📑" \
@@ -1536,10 +1527,10 @@ linesHeight=$(($oneLineHeight * $nbLines))
 			8 "    8" "$SPACE_DISPLAY$AFF" "$SPACE_FILES_SYMBOL" "💻" \
 			9 "    9" "$SPACE_CHANGE_WIDTH$CW" "$SPACE_FILES_SYMBOL" "📏" 2>/dev/null;
 	else
-	bLines=`echo -n "$EN_TETE" | grep -c '^'`
-oneLineHeight=17
-linesHeight=$(($oneLineHeight * $nbLines))
-		commandsHeight=385
+		bLines=`echo -n "$EN_TETE" | grep -c '^'`
+		oneLineHeight=17
+		linesHeight=$(($oneLineHeight * $nbLines))
+		commandsHeight=380
 		dialogFilesHeight=$(($commandsHeight + $linesHeight))
 		zenity --list --width=$filesDialogWidth --height=$dialogFilesHeight --text='<span font-family=\"Arial\">'"$EN_TETE"'</span>' \
 			--title="Fichiers 📑" \
