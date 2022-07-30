@@ -304,7 +304,7 @@ $SPACE_GIT$git6
 	spaceChangeWidthSize="$(($spaceAddSize - $four))"
 
 	spaceCommitPendingSize="$(($totalLineNumber - $seventeen))"
-	spaceFilesSymbols="$(($spaceAddSize - $fifteen))"
+	spaceFilesSymbols="$(($spaceAddSize - $sixteen))"
 
 	SPACE_ADD=`printf %$spaceAddSize\s |tr " " " "`
 	SPACE_ADD_S=`printf %$spaceAddSSize\s |tr " " " "`
@@ -315,7 +315,7 @@ $SPACE_GIT$git6
 	SPACE_RESET_ALL=`printf %$spaceResetAllSize\s |tr " " " "`
 	SPACE_COMMIT_RESET=`printf %$spaceCommitResetSize\s |tr " " " "`
 	SPACE_STATUS=`printf %$spaceStatusSize\s |tr " " " "`
-SPACE_REMOVE=`printf %$spaceRemove\s |tr " " " "`
+	SPACE_REMOVE=`printf %$spaceRemove\s |tr " " " "`
 	SPACE_CHANGE_WIDTH=`printf %$spaceChangeWidthSize\s |tr " " " "`
 
 	SPACE_COMMIT_PENDING=`printf %$spaceCommitPendingSize\s |tr " " " "`
@@ -855,6 +855,41 @@ git_remove_simple(){
 				notification "Fichier retiré du dépot (cached) :
 \t$titre"
 				unset titre
+				git_remove_simple
+			else
+				echo "Pas de fichier retiré du dépot"
+		fi
+		2>/dev/null
+	fi
+}
+
+git_remove_simple_single(){
+	filesChangedAndUnfollowed=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUnfollowed`
+	checkFilesChanged
+	if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ];then
+		echo "Commit en cours"
+		notification "Commit en cours 🔏"
+	elif [ "$filesChangedAndUnfollowed" = "" ];then
+		echo "Aucun fichier à retirer du dépot"
+		notification "Aucun fichier à retirer du dépot"
+	else
+		if file=`zenity --list --title="Remove Simple ❌" --text="Git rm ..."  --column="Fichiers changés et non-suivis"  $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUnfollowed)`
+		then
+			titre=$file
+			if [ "$titre" = "" ]
+			then
+				echo "Pas de fichier retiré du dépot"
+		fi
+		else
+				echo "Annulation"
+		fi
+		if ([ -n "$titre" ])
+			then
+				git rm $titre && echo "fichier" $titre "retiré du dépot (cached)"
+				checkFilesChanged
+				notification "Fichier retiré du dépot (cached) :
+\t$titre"
+				unset titre
 			else
 				echo "Pas de fichier retiré du dépot"
 		fi
@@ -931,7 +966,7 @@ git_remove_forced(){
 }
 
 git_remove(){
-if file=`zenity --list --title="Type de Remove ❌" --text="Git rm ..."  --column="Type de Git Remove"  "Simple" "Cached" "Forced"`
+if file=`zenity --list --title="Type de Remove ❌" --height=200 --text="Git rm ..."  --column="Type de Git Remove"  "Simple" "Simple One" "Cached" "Forced"`
 then
 			titre=$file
 			if [ "$titre" = "" ]
@@ -945,6 +980,8 @@ then
 			then
 				if [ "$titre" = "Simple" ];then
 					git_remove_simple
+				elif [ "$titre" = "Simple One" ];then
+					git_remove_simple_single
 				elif [ "$titre" = "Cached" ];then
 					git_remove_cached
 				elif [ "$titre" = "Forced" ];then
@@ -962,14 +999,29 @@ then
 git_commit_reset(){
 	if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ];
 	then
+		
 		git reset HEAD^
 		rm ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending
 		rmdir ~/bin/easyGit/currentCommits/$HASH_COMMIT
 		echo "Commit annulé"
 		notification "Commit annulé"
 	else
-		echo "Opération impossible"
-		notification "Impossible de reset plus que le commit courant."
+		zenity --question \
+			   --title "Commit Reset  ❌" \
+			   --width=470 \
+			   --height=40 \
+			   --text "Aucun Commit en cours, souhaitez-vous vraiment continuer ?"
+		if [ $? = 0 ]
+		then
+			git reset HEAD^
+			rm ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending
+			rmdir ~/bin/easyGit/currentCommits/$HASH_COMMIT
+			echo "Commit annulé"
+			notification "Commit annulé"
+		else
+			echo "Opération de Reset du Commit annulée"
+			notification "Opération de Reset du Commit annulée"
+		fi
 	fi
 }
 
@@ -1427,14 +1479,14 @@ zenity --list --width=$filesDialogWidth --height=$dialogFilesHeight --text='<spa
     --hide-column 1 --column "" --column "" --column "" --column ""  --column "" \
     1 "    1" "$SPACE_PUSH$GP" "$SPACE_FILES_SYMBOL" "📤"\
     0 "" "" "" ""\
-    2 "    2" "$SPACE_COMMIT_RESET$GCR" "$SPACE_FILES_SYMBOL" "➖"\
+    2 "    2" "$SPACE_COMMIT_RESET$GCR" "$SPACE_FILES_SYMBOL" "❌"\
     3 "    3" "$SPACE_CHANGE_WIDTH$CW" "$SPACE_FILES_SYMBOL" "📏" 2>/dev/null ;
 
 
 
 
 else
-commandsHeight=365
+commandsHeight=405
 dialogFilesHeight=$(($commandsHeight + $linesHeight))
 zenity --list --width=$filesDialogWidth --height=$dialogFilesHeight --text='<span font-family=\"Arial\">'"$EN_TETE"'</span>' \
     --title="Fichiers 📑" \
@@ -1449,7 +1501,8 @@ zenity --list --width=$filesDialogWidth --height=$dialogFilesHeight --text='<spa
     5 "    5" "$SPACE_RESET$GRT" "$SPACE_FILES_SYMBOL" "➖"\
     6 "    6" "$SPACE_RESET_ALL$GRA" "$SPACE_FILES_SYMBOL" "➖"\
     7 "    7" "$SPACE_REMOVE$GRM" "$SPACE_FILES_SYMBOL" "❌"\
-    8 "    8" "$SPACE_CHANGE_WIDTH$CW" "$SPACE_FILES_SYMBOL" "📏" 2>/dev/null ;
+	8 "    8" "$SPACE_COMMIT_RESET$GCR" "$SPACE_FILES_SYMBOL" "❌"\
+    9 "    9" "$SPACE_CHANGE_WIDTH$CW" "$SPACE_FILES_SYMBOL" "📏" 2>/dev/null ;
 
 
 
@@ -1476,7 +1529,8 @@ frm_fichiers_parser(){
 			5) git_reset ;;
 			6) git_reset_all ;;
 			7) git_remove ;;
-			8) change_width ;;
+			8) git_commit_reset ;;
+			9) change_width ;;
 			*) fonction_git ;;
 			esac
 fi
