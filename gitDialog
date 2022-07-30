@@ -548,7 +548,15 @@ git_status(){
 	
 }
 
-git_cherry_pick(){
+git_cherry_pick_skip(){
+	git cherry-pick --skip
+}
+
+git_cherry_pick_abort(){
+	git cherry-pick --abort
+}
+
+git_cherry_pick_operation(){
 	actualBranch=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/actualBranch`
 	
 	if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ]; then
@@ -590,6 +598,31 @@ git_cherry_pick(){
 		fi
 		2>/dev/null
 	fi
+}
+
+git_cherry_pick(){
+	if file=`zenity --list --title="Cherry Pick  🍒" --height=205 --text=""  --column=""  "		   Picking 	    🍒" "		Confirmer 	    ✅" "		  Annuler 	    ❌"`
+		then
+			titre=$file
+			if [ "$titre" = "" ]; then
+				echo "Pas de choix effectué"
+			fi
+		else
+			fonction_fichiers
+			echo "Annulation"
+		fi
+		if ([ -n "$titre" ]); then
+			if [ "$titre" = "		   Picking 	    🍒" ]; then
+				git_cherry_pick_operation
+			elif [ "$titre" = "		Confirmer 	    ✅" ]; then
+				git_cherry_pick_skip
+			elif [ "$titre" = "		  Annuler 	    ❌" ]; then
+				git_cherry_pick_abort
+			fi
+		else
+			echo "Pas de choix effectué"
+	fi
+	
 }
 
 git_log_terminal(){
