@@ -1459,7 +1459,8 @@ $STAGED_LABEL_DISPLAY
 else
 EN_TETE="
 $GIT
-$TMP_SCREEN"
+$TMP_SCREEN
+"
 fi
 
 #TESTS#######################################################################
