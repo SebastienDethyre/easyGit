@@ -564,12 +564,27 @@ git_cherry_pick(){
 			echo "Annulation"
 	   	fi
 		if ([ -n "$titre" ]); then
-			git cherry-pick $titre
-			echo "Cherry-Pick sur la branche $actualBranch du commit : $titre"
-			checkFilesChanged
-			notification "Cherry-Pick sur la branche $actualBranch du commit :
+			git cherry-pick $titre &> ~/bin/easyGit/gitTemp
+			FILE=`dirname $0`/gitTemp
+			zenity --text-info \
+			--title="Rebase" \
+			--width=650 \
+			--height=550 \
+			--filename=$FILE 
+
+			case $? in
+				0)
+					echo "Cherry-Pick sur la branche $actualBranch du commit : $titre"
+					checkFilesChanged
+					notification "Cherry-Pick sur la branche $actualBranch du commit :
 \t$titre"
-			unset titre
+					unset titre 
+					;;
+				1)
+					echo "Git Rebase quitté" ;;
+				-1)
+					echo "An unexpected error has occurred." ;;
+			esac
 		else
 			echo "Pas de Cherry-Pick effectué"
 		fi
@@ -679,8 +694,8 @@ git_branch(){
 	FILE=`dirname $0`/gitTemp
 	zenity --text-info \
        --title="Branch" \
-	   --width=300 \
-	   --height=200 \
+	   --width=400 \
+	   --height=350 \
        --filename=$FILE 
 
 	case $? in
