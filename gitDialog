@@ -130,10 +130,10 @@ checkFilesChanged(){
 open_repo(){
 	xdg-open $REPO_ADRESS
 }
-
+#############################################################################################################################################################################
 if([ -d .git ] ); then
 	git for-each-ref --format='%(refname:short)' refs/heads/ > ~/bin/easyGit/branchesList
-	git log --pretty=format:"%H" > ~/bin/easyGit/allCommitsHashes
+	git log --pretty=format:"%H			%s" > ~/bin/easyGit/ashesTexts
 	cat .git/HEAD | cut -c 17- > ~/bin/easyGit/actualBranch
 	actualBranch=`cat .git/HEAD | cut -c 17-`
 	checkFilesChanged
@@ -142,6 +142,7 @@ else
 	echo "Le répertoire courant n'est pas un dépot Git."
 	exit 0
 fi
+#############################################################################################################################################################################
 
 LOGO_FULL_400="
 \t\t<span color=\"#A10101\">      ███████╗  ██╗████████╗</span>
@@ -428,12 +429,14 @@ git_cherry_pick_abort(){
 
 git_cherry_pick_operation(){
 	actualBranch=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/actualBranch`
-	
+	readarray -t textHashArray < ~/bin/easyGit/ashesTexts
+
 	if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ]; then
 		echo "Commit en cours"
 		notification "Commit en cours 🔏"
-	else
-		if file=`zenity --list --title="Cherry Pick  🍒" --width=370 --height=900 --text="Cherry pick depuis $actualBranch" --column="Hashs"  $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/allCommitsHashes)`; then
+	else																			
+		if file=`zenity --list --title="Cherry Pick  🍒" --width=750 --height=900 --text="Cherry pick depuis $actualBranch" --column="Hashs" "${textHashArray[@]}"`; then
+			file=`echo $file | head -c 40`
 			titre=$file
 			if [ "$titre" = "" ]; then
 				echo "Pas de Cherry-Pick effectué"
