@@ -110,7 +110,7 @@ switch_display(){
 }
 
 switch_display2(){
-	if file=`zenity --list --title="Affichage ❌" --height=200 --text=""  --column=""  "		  Fichiers" "		 Terminal" "		  Largeur"`; then
+	if file=`zenity --list --title="Affichage ❌" --height=200 --text="" --column=""  "		  Fichiers" "		 Terminal" "		  Largeur"`; then
 		titre=$file
 		if [ "$titre" = "" ]; then
 			echo "Pas de choix effectué"
@@ -133,7 +133,7 @@ switch_display2(){
 }
 
 change_wrapping(){
-	if ret=`zenity --list --title=Type --text="Choisir le type"  --column="Types disponibles"  $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/resultOptions)`; then
+	if ret=`zenity --list --title=Type --text="Choisir le type" --column="Types disponibles"  $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/resultOptions)`; then
 		titre=$ret
 		if [ "$titre" = "" ]; then
 			echo "Il faut un type"
@@ -143,7 +143,7 @@ change_wrapping(){
 	fi
 	if ([ -n "$titre" ]); then
 		if [ "$titre" = "texte" ]; then
-			if ret=`zenity --list --title=Nombre --text="Choisir le nombre"  --column="Nombres"  $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/resultNumbers)`; then
+			if ret=`zenity --list --title=Nombre --text="Choisir le nombre" --column="Nombres"  $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/resultNumbers)`; then
 				titre=$ret
 				if [ "$titre" = "" ]; then
 					echo "Il faut un nombre"
@@ -161,7 +161,7 @@ change_wrapping(){
 			fi
 			2>/dev/null
 		else
-			if ret=`zenity --list --title=Nombre --text="Choisir le nombre"  --column="Nombres"  $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/resultNumbers)`; then
+			if ret=`zenity --list --title=Nombre --text="Choisir le nombre" --column="Nombres"  $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/resultNumbers)`; then
 				titre=$ret
 				if [ "$titre" = "" ]; then
 					echo "Il faut un nombre"
@@ -186,11 +186,11 @@ change_wrapping(){
 }
 
 checkFilesChanged(){
-    git diff --name-only > ~/bin/easyGit/filesChanged
-    git ls-files --other --exclude-standard > ~/bin/easyGit/filesUnfollowed
+	git diff --name-only > ~/bin/easyGit/filesChanged
+	git ls-files --other --exclude-standard > ~/bin/easyGit/filesUnfollowed
 	git diff --name-only > ~/bin/easyGit/filesChangedAndUnfollowed
-    git ls-files --other --exclude-standard >> ~/bin/easyGit/filesChangedAndUnfollowed
-    git diff --name-only --cached > ~/bin/easyGit/filesStaged
+	git ls-files --other --exclude-standard >> ~/bin/easyGit/filesChangedAndUnfollowed
+	git diff --name-only --cached > ~/bin/easyGit/filesStaged
 	HASH_COMMIT=`git rev-parse HEAD`
 	git diff-tree --no-commit-id --name-only -r $HASH_COMMIT > ~/bin/easyGit/filesCommitted
 #	TEXT_COMMIT=`git log --format=%B -n 1 | xargs -n $nbWordsByCommit echo -e '\t'`
@@ -461,7 +461,7 @@ git_clone_any(){
 }
 
 git_clone(){
-	if ret=`zenity --list --title="Clone   📚" --text=""  --column="Que désirez-vous ?"  "Cloner ce dépot" "Cloner un autre dépot"`; then
+	if ret=`zenity --list --title="Clone   📚" --text="" --column="Que désirez-vous ?" "Cloner ce dépot" "Cloner un autre dépot"`; then
 		titre=$ret
 		if [ "$titre" = "" ]; then
 			echo "Aucun choix effectué"
@@ -592,7 +592,7 @@ git_cherry_pick_operation(){
 }
 
 git_cherry_pick(){
-	if file=`zenity --list --title="Cherry Pick  🍒" --height=205 --text=""  --column=""  "		   Picking 	    🍒" "		Confirmer 	    ✅" "		  Annuler 	    ❌"`
+	if file=`zenity --list --title="Cherry Pick  🍒" --height=205 --text="" --column="" "		   Picking 	    🍒" "		Confirmer 	    ✅" "		  Annuler 	    ❌"`
 		then
 			titre=$file
 			if [ "$titre" = "" ]; then
@@ -640,7 +640,7 @@ git_log_simple(){
 }
 
 git_log(){
-	if file=`zenity --list --title="Log " --height=200 --text=""  --column="Type de Log"  "Simple" "Terminal (couleurs)"`
+	if file=`zenity --list --title="Log " --height=200 --text="" --column="Type de Log" "Simple" "Terminal (couleurs)"`
 	 then
 		titre=$file
 		if [ "$titre" = "" ]; then
@@ -719,7 +719,7 @@ git_branch(){
 }
 
 git_checkout(){
-	if ret=`zenity --list --title="Checkout  ⎇" --text="Git checkout ..."  --column="Branches disponibles"  $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/branchesList)`; then
+	if ret=`zenity --list --title="Checkout  ⎇" --text="Git checkout ..." --column="Branches disponibles" $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/branchesList)`; then
 		titre=$ret
 		if [ "$titre" = "" ]; then
 			echo "Il faut une branche"
@@ -770,7 +770,7 @@ git_add(){
 		echo "Aucun fichier à ajouter"
 		notification "Aucun fichier à ajouter"
         else
-		if file=`zenity --list --title="Add  ＋" --text="Git add ..."  --column="Fichiers modifiés"  $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUnfollowed)`; then
+		if file=`zenity --list --title="Add  ＋" --text="Git add ..." --column="Fichiers modifiés" $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUnfollowed)`; then
 			titre=$file
 			if [ "$titre" = "" ]; then
 				echo "Pas de fichier ajouté"
@@ -802,7 +802,7 @@ git_add_single(){
 		echo "Aucun fichier à ajouter"
 		notification "Aucun fichier à ajouter"
 	else
-		if file=`zenity --list --title="Add  ＋" --text="Git add ..."  --column="Fichiers modifiés"  $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUnfollowed)`;	then
+		if file=`zenity --list --title="Add  ＋" --text="Git add ..." --column="Fichiers modifiés" $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUnfollowed)`;	then
 			titre=$file
 			if [ "$titre" = "" ]; then
 					echo "Pas de fichier ajouté"
@@ -852,7 +852,7 @@ git_reset(){
 		echo "Aucun fichier à retirer"
 		notification "Aucun fichier à retirer"
 	else
-		if file=`zenity --list --title="Reset  −" --text="Git reset ..."  --column="Fichiers ajoutés"  $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesStaged)`; then
+		if file=`zenity --list --title="Reset  −" --text="Git reset ..." --column="Fichiers ajoutés" $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesStaged)`; then
 			titre=$file
 			if [ "$titre" = "" ]; then
 				echo "Pas de fichier supprimé"
@@ -884,7 +884,7 @@ git_remove_simple(){
 		echo "Aucun fichier à retirer du dépot"
 		notification "Aucun fichier à retirer du dépot"
 	else
-		if file=`zenity --list --title="Remove Simple ❌" --text="Git rm ..."  --column="Fichiers changés et non-suivis"  $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUnfollowed)`; then
+		if file=`zenity --list --title="Remove Simple ❌" --text="Git rm ..." --column="Fichiers changés et non-suivis" $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUnfollowed)`; then
 			titre=$file
 			if [ "$titre" = "" ]; then
 				echo "Pas de fichier retiré du dépot"
@@ -916,7 +916,7 @@ git_remove_simple_single(){
 		echo "Aucun fichier à retirer du dépot"
 		notification "Aucun fichier à retirer du dépot"
 	else
-		if file=`zenity --list --title="Remove Simple ❌" --text="Git rm ..."  --column="Fichiers changés et non-suivis"  $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUnfollowed)`; then
+		if file=`zenity --list --title="Remove Simple ❌" --text="Git rm ..." --column="Fichiers changés et non-suivis" $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUnfollowed)`; then
 			titre=$file
 			if [ "$titre" = "" ]; then
 				echo "Pas de fichier retiré du dépot"
@@ -947,7 +947,7 @@ git_remove_cached(){
 		echo "Aucun fichier à retirer du dépot"
 		notification "Aucun fichier à retirer du dépot"
 	else
-		if file=`zenity --list --title="Remove Cached ❌" --text="Git rm ..."  --column="Fichiers changés et non-suivis"  $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUnfollowed)`; then
+		if file=`zenity --list --title="Remove Cached ❌" --text="Git rm ..." --column="Fichiers changés et non-suivis" $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUnfollowed)`; then
 			titre=$file
 			if [ "$titre" = "" ]; then
 				echo "Pas de fichier retiré du dépot"
@@ -978,7 +978,7 @@ git_remove_forced(){
 		echo "Aucun fichier à retirer du dépot"
 		notification "Aucun fichier à retirer du dépot"
 	else
-		if file=`zenity --list --title="Remove Forced ❌" --text="Git rm ..."  --column="Fichiers changés et non-suivis"  $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUnfollowed)`; then
+		if file=`zenity --list --title="Remove Forced ❌" --text="Git rm ..." --column="Fichiers changés et non-suivis" $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUnfollowed)`; then
 			titre=$file
 			if [ "$titre" = "" ]; then
 				echo "Pas de fichier retiré du dépot"
@@ -1000,7 +1000,7 @@ git_remove_forced(){
 }
 
 git_remove(){
-	if file=`zenity --list --title="Type de Remove ❌" --height=200 --text="Git rm ..."  --column="Type de Git Remove"  "Simple" "Simple One" "Cached" "Forced"`; then
+	if file=`zenity --list --title="Type de Remove ❌" --height=200 --text="Git rm ..." --column="Type de Git Remove" "Simple" "Simple One" "Cached" "Forced"`; then
 		titre=$file
 		if [ "$titre" = "" ]; then
 			echo "Pas de choix effectué"
@@ -1052,7 +1052,7 @@ git_commit_reset(){
 }
 
 git_erase(){
-	if file=`zenity --list --title="Erase ❌" --height=200 --text="Git rm ..."  --column="Type de Git Remove"  "Remove" "Commit Reset"`; then
+	if file=`zenity --list --title="Erase ❌" --height=200 --text="Git rm ..." --column="Type de Git Remove" "Remove" "Commit Reset"`; then
 		titre=$file
 		if [ "$titre" = "" ]; then
 			echo "Pas de choix effectué"
@@ -1125,7 +1125,7 @@ git_push(){
 			git push origin $titre &> ~/bin/easyGit/gitTemp
 			TMP_SCREEN=$(<~/bin/easyGit/gitTemp)
 			lineNumber=$(($totalLineNumber - $three))
-			TMP_SCREEN=`echo "$TMP_SCREEN" | fold -b$(($lineNumber)) -s  | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
+			TMP_SCREEN=`echo "$TMP_SCREEN" | fold -b$(($lineNumber)) -s | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
 			echo "Push sur la branche" $titre "effectué"
 			notification "Push sur la branche :
 \t$titre"
@@ -1148,7 +1148,7 @@ git_push(){
 }
 
 git_merge(){
-	if ret=`zenity --list --title="Merge  📥" --text="Git pull --merge origin ..."  --column="Nom de branche"  $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/branchesList)`; then
+	if ret=`zenity --list --title="Merge  📥" --text="Git pull --merge origin ..." --column="Nom de branche" $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/branchesList)`; then
 		titre=$ret
 		if [ "$titre" = "" ]; then
 			echo "Il faut un dépot distant"
@@ -1183,7 +1183,7 @@ git_merge(){
 }
 
 git_rebase(){
-	if ret=`zenity --list --title="Rebase  📥"--text="Git pull --rebase origin ..."  --column="Nom de branche"  $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/branchesList)`; then
+	if ret=`zenity --list --title="Rebase  📥"--text="Git pull --rebase origin ..." --column="Nom de branche" $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/branchesList)`; then
 		titre=$ret
 			if [ "$titre" = "" ]; then
 				echo "Il faut un dépot distant"
