@@ -163,7 +163,7 @@ add_spaces(){
 	simpleLineNumber=$(($totalLineNumber - $eleven))
 	SIMPLE_LINE=`printf %$simpleLineNumber\s |tr " " "_"`
 	REPO_ADRESS=`git config --get remote.origin.url | fold -b$(($totalLineNumber - $one)) | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
-	
+
 	spaceRawLineSize="$(($totalLineNumber - $simpleLineNumber))"
 	spaceLineSize="$(($spaceRawLineSize - $three))"
 	SPACE_LINE=`printf %$spaceLineSize\s |tr " " " "`
@@ -234,11 +234,11 @@ en_tete_depots(){
 	nbFilesChanged=`wc -l < ~/bin/easyGit/filesChanged`
 	nbFilesUnfollowedSymbol="🧩"
 	nbFilesUnfollowed=`wc -l < ~/bin/easyGit/filesUnfollowed`
-	if [ $nbFilesChanged -eq 0 ]; then 
+	if [ $nbFilesChanged -eq 0 ]; then
 		nbFilesChangedSymbol=""
 		nbFilesChanged=""
 	fi
-	if [ $nbFilesUnfollowed -eq 0 ]; then 
+	if [ $nbFilesUnfollowed -eq 0 ]; then
 		nbFilesUnfollowedSymbol=""
 		nbFilesUnfollowed=""
 	fi
@@ -258,11 +258,11 @@ en_tete(){
 	nbFilesChanged=`wc -l < ~/bin/easyGit/filesChanged`
 	nbFilesUnfollowedSymbol="🧩"
 	nbFilesUnfollowed=`wc -l < ~/bin/easyGit/filesUnfollowed`
-	if [ $nbFilesChanged -eq 0 ]; then 
+	if [ $nbFilesChanged -eq 0 ]; then
 		nbFilesChangedSymbol=""
 		nbFilesChanged=""
 	fi
-	if [ $nbFilesUnfollowed -eq 0 ]; then 
+	if [ $nbFilesUnfollowed -eq 0 ]; then
 		nbFilesUnfollowedSymbol=""
 		nbFilesUnfollowed=""
 	fi
@@ -386,7 +386,7 @@ git_stash_pop(){
 		--title="Stash Pop" \
 		--width=650 \
 		--height=700 \
-		--filename=$FILE 
+		--filename=$FILE
 
 	case $? in
 		0)
@@ -407,7 +407,7 @@ git_status(){
 		--title="Status" \
 		--width=650 \
 		--height=700 \
-		--filename=$FILE 
+		--filename=$FILE
 
 	case $? in
 		0)
@@ -434,8 +434,8 @@ git_cherry_pick_operation(){
 	if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ]; then
 		echo "Commit en cours"
 		notification "Commit en cours 🔏"
-	else																			
-		if file=`zenity --list --title="Cherry Pick  🍒" --width=750 --height=900 --text="Cherry pick depuis $actualBranch" --column="Hashs" "${textHashArray[@]}"`; then
+	else
+		if file=`zenity --list --title="Cherry Pick  🍒" --width=1150 --height=900 --text="Cherry pick depuis $actualBranch" --column="Hashs												   Textes" "${textHashArray[@]}"`; then
 			file=`echo $file | head -c 40`
 			titre=$file
 			if [ "$titre" = "" ]; then
@@ -448,10 +448,10 @@ git_cherry_pick_operation(){
 			git cherry-pick $titre &> ~/bin/easyGit/gitTemp
 			FILE=`dirname $0`/gitTemp
 			zenity --text-info \
-				--title="Rebase" \
+				--title="Cherry-Pick" \
 				--width=650 \
 				--height=550 \
-				--filename=$FILE 
+				--filename=$FILE
 
 			case $? in
 				0)
@@ -459,10 +459,10 @@ git_cherry_pick_operation(){
 					checkFilesChanged
 					notification "Cherry-Pick sur la branche $actualBranch du commit :
 \t$titre"
-					unset titre 
+					unset titre
 					;;
 				1)
-					echo "Git Rebase quitté" ;;
+					echo "Git Cherry-Pick quitté" ;;
 				-1)
 					echo "An unexpected error has occurred." ;;
 			esac
@@ -509,7 +509,7 @@ git_log_simple(){
 		--title="Log" \
 		--width=950 \
 		--height=1050 \
-		--filename=$FILE 
+		--filename=$FILE
 
 	case $? in
 		0)
@@ -550,7 +550,7 @@ git_reflog(){
 		--title="Reflog" \
 		--width=950 \
 		--height=1050 \
-		--filename=$FILE 
+		--filename=$FILE
 
 	case $? in
 		0)
@@ -569,7 +569,7 @@ git_log_cherry(){
        --title="Log pour Cherry-Pick" \
 	   --width=950 \
 	   --height=1050 \
-       --filename=$FILE 
+       --filename=$FILE
 
 	case $? in
 		0)
@@ -588,7 +588,7 @@ git_branch(){
        --title="Branch" \
 	   --width=400 \
 	   --height=350 \
-       --filename=$FILE 
+       --filename=$FILE
 
 	case $? in
 		0)
@@ -693,7 +693,7 @@ git_add_single(){
 			echo "Annulation"
 		fi
 		if ([ -n "$titre" ]); then
-			git add $titre 
+			git add $titre
 			echo "fichier" $titre "ajouté"
 			checkFilesChanged
 			notification "Fichier ajouté au commit :
@@ -908,7 +908,7 @@ git_remove(){
 }
 
 git_commit_reset(){
-	if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ]; then		
+	if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ]; then
 		git reset HEAD^
 		rm ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending
 		rmdir ~/bin/easyGit/currentCommits/$HASH_COMMIT
@@ -985,7 +985,7 @@ git_commit(){
 				touch ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending
 				notification "Commit défini :
 \t$titre"
-				unset titre	                	
+				unset titre
 			else
 				echo "Pas de commit effectué"
 			fi
@@ -1023,7 +1023,7 @@ git_push(){
 			echo "Pas de Push effectué"
 		fi
 		2>/dev/null
-	else 
+	else
 		echo "Aucun commit : push impossible"
 		notification "Aucun commit : push impossible"
 	fi
@@ -1045,13 +1045,13 @@ git_merge(){
 			--title="Merge" \
 			--width=450 \
 			--height=300 \
-			--filename=$FILE 
+			--filename=$FILE
 
 		case $? in
 			0)
 				echo "Git Pull en statégie Merge de la branche $titre"
 				notification "Git Pull en statégie Merge de la branche $titre"
-				unset titre	
+				unset titre
 				;;
 			1)
 				echo "Git Merge quitté" ;;
@@ -1080,19 +1080,19 @@ git_rebase(){
 			--title="Rebase" \
 			--width=450 \
 			--height=300 \
-			--filename=$FILE 
+			--filename=$FILE
 
 		case $? in
 			0)
 				echo "Git Pull en statégie Rebase de la branche $titre"
 				notification "Git Pull en statégie Merge de la branche $titre"
-				unset titre 
+				unset titre
 				;;
 			1)
 				echo "Git Rebase quitté" ;;
 			-1)
 				echo "An unexpected error has occurred." ;;
-		esac	
+		esac
 	else
 		echo "Pas de Pull Rebase effectué"
 	fi
@@ -1268,7 +1268,7 @@ $UNFOLLOWED_LABEL_DISPLAY
 <span color=\"#155162\">$filesUnfollowed</span>
 
 "
-		fi									
+		fi
 	############################## -- Files Added -- ##############################
 	else
 		#=============== no modified and no untracked ===============
@@ -1543,23 +1543,21 @@ zenity --list --width=400 --height=595 --text='<span font-family=\"Arial\">'"$EN
     1 "    1" "				           $GL" "			      " "📓" \
     2 "    2" "				     $GK" "			" "⎇" \
 	0 "" "" "" "" \
-	3 "    3" "				      $GLCP" "		" "🍒" \
+    3 "    3" "			                 $GST" "			      " "🔎" \
     4 "    4" "				   $CP" "		   " "🍒" \
     0 "" "" "" "" \
     5 "    5" "			                 $GLL" "			      " "📃" \
-    6 "    6" "			                 $GST" "			      " "🔎" \
-    7 "    7" "			                 $GB" "			      " "⎇" 2>/dev/null ;
+    6 "    6" "			                 $GB" "			      " "⎇" 2>/dev/null ;
 }
 
 frm_infos_parser(){
     case $1 in
         1) git_log ;;
         2) git_checkout ;;
-		3) git_log_cherry ;;
+        3) git_status ;;
 		4) git_cherry_pick ;;
         5) git_reflog ;;
-        6) git_status ;;
-        7) git_branch ;;
+        6) git_branch ;;
         *) fonction_git ;;
         esac
 }
