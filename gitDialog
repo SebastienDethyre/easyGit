@@ -65,7 +65,7 @@ CW="Largeur"
 ################# GENERAL FUNCTIONS ####################
 
 notification(){
-zenity --notification\
+	zenity --notification\
     --window-icon="info" \
     --text="$1"
 }
@@ -88,11 +88,11 @@ change_width(){
 	width=`zenity --scale --title="Largeur  📏"--text="\t\t        Largeur en pixels" --value=$filesDialogWidth --min-value=450 --max-value=1850 --step 50`
 	case $? in
 			0)
-			filesDialogWidth=$width
-			add_spaces
-			echo $width > ~/bin/easyGit/widthConfig
-			echo "Vous avez choisi $width pixels."
-			fonction_fichiers ;;
+				filesDialogWidth=$width
+				add_spaces
+				echo $width > ~/bin/easyGit/widthConfig
+				echo "Vous avez choisi $width pixels."
+				fonction_fichiers ;;
 			1)
 				echo "Aucune valeur sélectionnée.";;
 			-1)
@@ -151,14 +151,13 @@ change_wrapping(){
 			else
 				echo "Annulation"
 			fi
-			if ([ -n "$titre" ])
-				then
+			if ([ -n "$titre" ]); then
 					nbWordsByCommit=$(($titre))
 					echo $nbWordsByCommit > ~/bin/easyGit/wordsByLinePref
 					echo "$titre mots par ligne"
 					notification "$titre mots par ligne"
 				else
-						echo "Pas de nombre choisi"
+					echo "Pas de nombre choisi"
 			fi
 			2>/dev/null
 		else
