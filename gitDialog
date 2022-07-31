@@ -290,9 +290,11 @@ git_clone_this(){
 		titre=$ret
 		if [ "$titre" = "" ]; then
 			echo "Pas de répertoire choisi"
+			git_clone
 		fi
 	else
 		echo "Annulation"
+		git_clone
 	fi
 	if ([ -n "$titre" ]); then
 		git clone $REPO_ADRESS $titre &> ~/bin/easyGit/gitTemp
@@ -303,6 +305,7 @@ git_clone_this(){
 		notification "Git clone de $REPO_ADRESS dans $titre"
 	else
 		echo "Pas de clone effectué"
+	
 	fi
 }
 
@@ -311,19 +314,23 @@ git_clone_any(){
 		titre=$ret
 		if [ "$titre" = "" ]; then
 			echo "Il faut un dépot pour cloner"
+			git_clone
 		fi
 	else
 		echo "Annulation"
+git_clone
 	fi
 	if ([ -n "$titre" ])
 		then
 			if ret=`zenity  --file-selection --title="Clone  📚" --text="Répertoire de réception" --directory`; then
 				titre2=$ret
 				if [ "$titre2" = "" ]; then
-						echo "Pas de répertoire choisi"
+					echo "Pas de répertoire choisi"
+					git_clone_any
 				fi
 			else
 				echo "Annulation"
+git_clone_any
 			fi
 			if ([ -n "$titre2" ]); then
 				git clone $titre $titre2 &> ~/bin/easyGit/gitTemp
@@ -332,11 +339,14 @@ git_clone_any(){
 				TMP_SCREEN=`echo "$TMP_SCREEN" | fold -b$(($lineNumber)) -s  | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
 				echo "Git clone de $titre dans $titre2"
 				notification "Git clone de $titre dans $titre2"
+				unset titre
 			else
 				echo "Pas de clone effectué"
+git_clone_any
 			fi
 		else
 			echo "Pas de clone effectué"
+			git_clone
 	fi
 }
 
@@ -348,17 +358,19 @@ git_clone(){
 		fi
 	else
 		echo "Annulation"
+		fonction_depots
 	fi
 	if ([ -n "$titre" ]); then
 		if [ "$titre" = "Cloner ce dépot" ]; then
 			unset titre
 			git_clone_this
-		else
+		elif [ "$titre" = "Cloner un autre dépot" ]; then
 			unset titre
 			git_clone_any
 		fi
 	else
 		echo "Aucun clone effectué"
+		fonction_depots
 	fi
 	2>/dev/null
 }
@@ -440,11 +452,13 @@ git_cherry_pick_operation(){
 			titre=$file
 			if [ "$titre" = "" ]; then
 				echo "Pas de Cherry-Pick effectué"
+			git_cherry_pick_operation 
 			fi
 		else
 			echo "Annulation"
 	   	fi
 		if ([ -n "$titre" ]); then
+		echo $titre
 			git cherry-pick $titre &> ~/bin/easyGit/gitTemp
 			FILE=`dirname $0`/gitTemp
 			zenity --text-info \
@@ -460,14 +474,17 @@ git_cherry_pick_operation(){
 					notification "Cherry-Pick sur la branche $actualBranch du commit :
 \t$titre"
 					unset titre
+					
 					;;
 				1)
-					echo "Git Cherry-Pick quitté" ;;
+					echo "Git Cherry-Pick quitté" 
+					;;
 				-1)
 					echo "An unexpected error has occurred." ;;
 			esac
 		else
 			echo "Pas de Cherry-Pick effectué"
+			git_cherry_pick
 		fi
 		2>/dev/null
 	fi
@@ -481,15 +498,18 @@ git_cherry_pick(){
 				echo "Pas de choix effectué"
 			fi
 		else
-			fonction_fichiers
+			fonction_infos
 			echo "Annulation"
 		fi
 		if ([ -n "$titre" ]); then
 			if [ "$titre" = "		   Picking 	    🍒" ]; then
+				unset titre
 				git_cherry_pick_operation
 			elif [ "$titre" = "		Confirmer 	    ✅" ]; then
+				unset titre
 				git_cherry_pick_skip
 			elif [ "$titre" = "		  Annuler 	    ❌" ]; then
+				unset titre
 				git_cherry_pick_abort
 			fi
 		else
@@ -762,14 +782,17 @@ git_remove_simple(){
 	if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ]; then
 		echo "Commit en cours"
 		notification "Commit en cours 🔏"
+		git_remove
 	elif [ "$filesChangedAndUnfollowed" = "" ]; then
 		echo "Aucun fichier à retirer du dépot"
 		notification "Aucun fichier à retirer du dépot"
+		git_remove
 	else
 		if file=`zenity --list --title="Remove Simple ❌" --text="Git rm ..." --column="Fichiers changés et non-suivis" $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUnfollowed)`; then
 			titre=$file
 			if [ "$titre" = "" ]; then
 				echo "Pas de fichier retiré du dépot"
+				git_remove
 			fi
 		else
 			echo "Annulation"
@@ -782,6 +805,7 @@ git_remove_simple(){
 			unset titre
 			git_remove_simple
 		else
+			git_remove
 			echo "Pas de fichier retiré du dépot"
 		fi
 		2>/dev/null
@@ -794,9 +818,11 @@ git_remove_simple_single(){
 	if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ]; then
 		echo "Commit en cours"
 		notification "Commit en cours 🔏"
+		git_remove
 	elif [ "$filesChangedAndUnfollowed" = "" ]; then
 		echo "Aucun fichier à retirer du dépot"
 		notification "Aucun fichier à retirer du dépot"
+		git_remove
 	else
 		if file=`zenity --list --title="Remove Simple ❌" --text="Git rm ..." --column="Fichiers changés et non-suivis" $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUnfollowed)`; then
 			titre=$file
@@ -814,6 +840,7 @@ git_remove_simple_single(){
 			unset titre
 		else
 			echo "Pas de fichier retiré du dépot"
+			git_remove
 		fi
 		2>/dev/null
 	fi
@@ -825,9 +852,11 @@ git_remove_cached(){
 	if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ]; then
 		echo "Commit en cours"
 		notification "Commit en cours 🔏"
+		git_remove
 	elif [ "$filesChangedAndUnfollowed" = "" ]; then
 		echo "Aucun fichier à retirer du dépot"
 		notification "Aucun fichier à retirer du dépot"
+		git_remove
 	else
 		if file=`zenity --list --title="Remove Cached ❌" --text="Git rm ..." --column="Fichiers changés et non-suivis" $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUnfollowed)`; then
 			titre=$file
@@ -844,6 +873,7 @@ git_remove_cached(){
 \t$titre"
 			unset titre
 		else
+			git_remove
 			echo "Pas de fichier retiré du dépot"
 		fi
 		2>/dev/null
@@ -856,9 +886,11 @@ git_remove_forced(){
 	if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ]; then
 		echo "Commit en cours"
 		notification "Commit en cours 🔏"
+		git_remove
 	elif [ "$filesChangedAndUnfollowed" = "" ]; then
 		echo "Aucun fichier à retirer du dépot"
 		notification "Aucun fichier à retirer du dépot"
+		git_remove
 	else
 		if file=`zenity --list --title="Remove Forced ❌" --text="Git rm ..." --column="Fichiers changés et non-suivis" $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUnfollowed)`; then
 			titre=$file
@@ -876,6 +908,7 @@ git_remove_forced(){
 			unset titre
 		else
 			echo "Pas de fichier retiré du dépot"
+			git_remove
 		fi
 		2>/dev/null
 	fi
@@ -893,12 +926,16 @@ git_remove(){
 		fi
 		if ([ -n "$titre" ]); then
 			if [ "$titre" = "Simple" ]; then
+				unset titre
 				git_remove_simple
 			elif [ "$titre" = "Simple One" ]; then
+				unset titre
 				git_remove_simple_single
 			elif [ "$titre" = "Cached" ]; then
+				unset titre
 				git_remove_cached
 			elif [ "$titre" = "Forced" ]; then
+				unset titre
 				git_remove_forced
 			fi
 		else
@@ -929,6 +966,7 @@ git_commit_reset(){
 		else
 			echo "Opération de Reset du Commit annulée"
 			notification "Opération de Reset du Commit annulée"
+			git_erase
 		fi
 	fi
 }
