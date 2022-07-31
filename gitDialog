@@ -109,82 +109,6 @@ switch_display(){
 	fi
 }
 
-switch_display2(){
-	if file=`zenity --list --title="Affichage ❌" --height=200 --text="" --column=""  "		  Fichiers" "		 Terminal" "		  Largeur"`; then
-		titre=$file
-		if [ "$titre" = "" ]; then
-			echo "Pas de choix effectué"
-		fi
-	else
-		echo "Annulation"
-	fi
-	if ([ -n "$titre" ]); then
-		if [ "$titre" = "		  Fichiers" ]; then
-			fichiersDisplay=1
-		elif [ "$titre" = "		 Terminal" ]; then
-			fichiersDisplay=0					
-		elif [ "$titre" = "		  Largeur" ]; then
-			change_width
-		fi
-	else
-		echo "Pas de choix effectué"
-	fi
-2>/dev/null	
-}
-
-change_wrapping(){
-	if ret=`zenity --list --title=Type --text="Choisir le type" --column="Types disponibles"  $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/resultOptions)`; then
-		titre=$ret
-		if [ "$titre" = "" ]; then
-			echo "Il faut un type"
-		fi
-	else
-		echo "Annulation"
-	fi
-	if ([ -n "$titre" ]); then
-		if [ "$titre" = "texte" ]; then
-			if ret=`zenity --list --title=Nombre --text="Choisir le nombre" --column="Nombres"  $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/resultNumbers)`; then
-				titre=$ret
-				if [ "$titre" = "" ]; then
-					echo "Il faut un nombre"
-				fi
-			else
-				echo "Annulation"
-			fi
-			if ([ -n "$titre" ]); then
-					nbWordsByCommit=$(($titre))
-					echo $nbWordsByCommit > ~/bin/easyGit/wordsByLinePref
-					echo "$titre mots par ligne"
-					notification "$titre mots par ligne"
-				else
-					echo "Pas de nombre choisi"
-			fi
-			2>/dev/null
-		else
-			if ret=`zenity --list --title=Nombre --text="Choisir le nombre" --column="Nombres"  $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/resultNumbers)`; then
-				titre=$ret
-				if [ "$titre" = "" ]; then
-					echo "Il faut un nombre"
-				fi
-			else
-					echo "Annulation"
-			fi
-			if ([ -n "$titre" ]); then
-				nbFilesByLine=$(($titre))
-				echo $nbFilesByLine > ~/bin/easyGit/filesByLinePref
-				echo "$titre fichiers par ligne"
-				notification "$titre fichiers par ligne"
-			else
-				echo "Pas de nombre choisi"
-			fi
-				2>/dev/null
-		fi
-	else
-		echo "Pas de type choisi"
-	fi
-	2>/dev/null
-}
-
 checkFilesChanged(){
 	git diff --name-only > ~/bin/easyGit/filesChanged
 	git ls-files --other --exclude-standard > ~/bin/easyGit/filesUnfollowed
@@ -231,53 +155,12 @@ LOGO_FULL_400="
 \t<span color=\"blue\">$CURRENT_DIR</span>
 "
 
-LOGO_FULL_500="
-\t\t\t\t<span color=\"#A10101\">   ███████╗  ██╗████████╗</span>
-\t\t\t\t<span color=\"#AE0404\">  ██╔ ════╝  ██║╚  ═██╔   ═╝</span>
-\t\t\t\t<span color=\"#C60606\">  ██║  ████╗ ██║       ██║   </span>
-\t\t\t\t<span color=\"#D11E1E\">  ██║      ██ ║ ██║       ██║   </span>
-\t\t\t\t<span color=\"#F54B4B\">   ██████ ╔╝ ██║       ██║   </span>
-\t\t\t\t<span color=\"#F65151\">    ╚═════╝    ╚  ╝       ╚═╝   </span>
-
-\t<span color=\"darkblue\">$REPO_ADRESS</span>
-\t<span color=\"blue\">$CURRENT_DIR</span>
-"
-
-LOGO_400="
-\t\t\t\t<span color=\"red\">╔═══╗░░░╔╗░</span>
-\t\t\t\t<span color=\"red\">║╔═╗║░░╔╝╚╗</span>
-\t\t\t\t<span color=\"red\">║║░╚╝╔╗╚╗╔╝</span>
-\t\t\t\t<span color=\"red\">║║╔═╗╠╣░║║░</span>
-\t\t\t\t<span color=\"red\">║╚╩═║║║░║╚╗</span>
-\t\t\t\t<span color=\"red\">╚═══╝╚╝░╚═╝</span>\n
-\t<span color=\"darkblue\">$REPO_ADRESS</span>
-\t<span color=\"blue\">$CURRENT_DIR</span>\n"
-
-LOGO_500="
-\t\t\t\t\t     <span color=\"red\">╔═══╗░░░╔╗░</span>
-\t\t\t\t\t     <span color=\"red\">║╔═╗║░░╔╝╚╗</span>
-\t\t\t\t\t     <span color=\"red\">║║░╚╝╔╗╚╗╔╝</span>
-\t\t\t\t\t     <span color=\"red\">║║╔═╗╠╣░║║░</span>
-\t\t\t\t\t     <span color=\"red\">║╚╩═║║║░║╚╗</span>
-\t\t\t\t\t     <span color=\"red\">╚═══╝╚╝░╚═╝</span>\n
-\t<span color=\"darkblue\">$REPO_ADRESS</span>
-\t<span color=\"blue\">$CURRENT_DIR</span>\n"
-
-ELEMENT_COMMIT="\t<span color=\"gray\">Dernier commit</span>
-\t<span><b><i>$TEXT_COMMIT</i></b></span>\n
-\t<i>$(sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesCommitted)</i>"
-
-ELEMENT_FILE_WAIT="\t<span color=\"gray\">En attente</span>
-\t<span color=\"green\">$(sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesChanged)</span>"
-
 add_spaces(){
 	totalLineNumberFloat=`echo $filesDialogWidth / 8 | bc -l`
 	totalLineNumber=${totalLineNumberFloat%.*}
 	TOTAL_LINE=`printf %$totalLineNumber\s |tr " " "_"`
-
 	simpleLineNumber=$(($totalLineNumber - $eleven))
 	SIMPLE_LINE=`printf %$simpleLineNumber\s |tr " " "_"`
-
 	REPO_ADRESS=`git config --get remote.origin.url | fold -b$(($totalLineNumber - $one)) | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
 	
 	spaceRawLineSize="$(($totalLineNumber - $simpleLineNumber))"
@@ -295,7 +178,6 @@ add_spaces(){
 	trueGitLength="$(( ${#git1} - $decorum ))"
 	spaceGitSize="$(($totalLineNumber - $trueGitLength - $three ))"
 	SPACE_GIT=`printf %$spaceGitSize\s |tr " " " "`
-
 	GIT="$SPACE_GIT$git1
 $SPACE_GIT$git2
 $SPACE_GIT$git3
@@ -323,7 +205,6 @@ $SPACE_GIT$git6
 	spaceRemove="$(($spaceAddSize - $four))"
 	spaceDisplay="$(($spaceAddSize - $six))"
 	spaceChangeWidthSize="$(($spaceAddSize - $four))"
-
 	spaceCommitPendingSize="$(($totalLineNumber - $seventeen))"
 	spaceFilesSymbols="$(($spaceAddSize - $sixteen))"
 
@@ -338,9 +219,7 @@ $SPACE_GIT$git6
 	SPACE_STATUS=`printf %$spaceStatusSize\s |tr " " " "`
 	SPACE_REMOVE=`printf %$spaceRemove\s |tr " " " "`
 	SPACE_DISPLAY=`printf %$spaceDisplay\s |tr " " " "`
-
 	SPACE_CHANGE_WIDTH=`printf %$spaceChangeWidthSize\s |tr " " " "`
-
 	SPACE_COMMIT_PENDING=`printf %$spaceCommitPendingSize\s |tr " " " "`
 	SPACE_FILES_SYMBOL=`printf %$spaceFilesSymbols\s |tr " " " "`
 }
@@ -503,10 +382,10 @@ git_stash_pop(){
 	git stash pop &> ~/bin/easyGit/gitTemp
 	FILE=`dirname $0`/gitTemp
 	zenity --text-info \
-	--title="Stash Pop" \
-	--width=650 \
-	--height=700 \
-	--filename=$FILE 
+		--title="Stash Pop" \
+		--width=650 \
+		--height=700 \
+		--filename=$FILE 
 
 	case $? in
 		0)
@@ -524,10 +403,10 @@ git_status(){
     git status > ~/bin/easyGit/gitTemp
 	FILE=`dirname $0`/gitTemp
 	zenity --text-info \
-	--title="Status" \
-	--width=650 \
-	--height=700 \
-	--filename=$FILE 
+		--title="Status" \
+		--width=650 \
+		--height=700 \
+		--filename=$FILE 
 
 	case $? in
 		0)
@@ -566,10 +445,10 @@ git_cherry_pick_operation(){
 			git cherry-pick $titre &> ~/bin/easyGit/gitTemp
 			FILE=`dirname $0`/gitTemp
 			zenity --text-info \
-			--title="Rebase" \
-			--width=650 \
-			--height=550 \
-			--filename=$FILE 
+				--title="Rebase" \
+				--width=650 \
+				--height=550 \
+				--filename=$FILE 
 
 			case $? in
 				0)
@@ -624,10 +503,10 @@ git_log_simple(){
 	git log --graph --summary > ~/bin/easyGit/gitTemp
 	FILE=`dirname $0`/gitTemp
 	zenity --text-info \
-	--title="Log" \
-	--width=950 \
-	--height=1050 \
-	--filename=$FILE 
+		--title="Log" \
+		--width=950 \
+		--height=1050 \
+		--filename=$FILE 
 
 	case $? in
 		0)
@@ -665,10 +544,10 @@ git_reflog(){
 	git reflog --summary > ~/bin/easyGit/gitTemp
 	FILE=`dirname $0`/gitTemp
 	zenity --text-info \
-	--title="Reflog" \
-	--width=950 \
-	--height=1050 \
-	--filename=$FILE 
+		--title="Reflog" \
+		--width=950 \
+		--height=1050 \
+		--filename=$FILE 
 
 	case $? in
 		0)
@@ -1034,10 +913,10 @@ git_commit_reset(){
 		notification "Commit annulé"
 	else
 		zenity --question \
-		--title "Commit Reset  ❌" \
-		--width=470 \
-		--height=40 \
-		--text "Aucun Commit en cours, souhaitez-vous vraiment continuer ?"
+			--title "Commit Reset  ❌" \
+			--width=470 \
+			--height=40 \
+			--text "Aucun Commit en cours, souhaitez-vous vraiment continuer ?"
 		if [ $? = 0 ]; then
 			git reset HEAD^
 			rm ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending
@@ -1160,10 +1039,10 @@ git_merge(){
 		git merge origin $titre &> ~/bin/easyGit/gitTemp
 		FILE=`dirname $0`/gitTemp
 		zenity --text-info \
-		--title="Merge" \
-		--width=450 \
-		--height=300 \
-		--filename=$FILE 
+			--title="Merge" \
+			--width=450 \
+			--height=300 \
+			--filename=$FILE 
 
 		case $? in
 			0)
@@ -1195,10 +1074,10 @@ git_rebase(){
 		git pull --rebase origin $titre &> ~/bin/easyGit/gitTemp
 		FILE=`dirname $0`/gitTemp
 		zenity --text-info \
-		--title="Rebase" \
-		--width=450 \
-		--height=300 \
-		--filename=$FILE 
+			--title="Rebase" \
+			--width=450 \
+			--height=300 \
+			--filename=$FILE 
 
 		case $? in
 			0)
@@ -1497,14 +1376,14 @@ if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ]; then
 		commandsHeight=240
 		dialogFilesHeight=$(($commandsHeight + $linesHeight))
 		zenity --list --width=$filesDialogWidth --height=$dialogFilesHeight --text='<span font-family=\"Arial\">'"$EN_TETE"'</span>' \
-		--title="Fichiers 📑" \
-		--ok-label="Sélectionner" \
-		--cancel-label="Quitter" \
-		--hide-column 1 --column "" --column "" --column "" --column ""  --column "" \
-		1 "    1" "$SPACE_PUSH$GP" "$SPACE_FILES_SYMBOL" "📤" \
-		0 "" "" "" ""\
-		2 "    2" "$SPACE_COMMIT_RESET$GCR" "$SPACE_FILES_SYMBOL" "❌" \
-		3 "    3" "$SPACE_DISPLAY$AFF" "$SPACE_FILES_SYMBOL" "💻" 2>/dev/null;
+			--title="Fichiers 📑" \
+			--ok-label="Sélectionner" \
+			--cancel-label="Quitter" \
+			--hide-column 1 --column "" --column "" --column "" --column ""  --column "" \
+			1 "    1" "$SPACE_PUSH$GP" "$SPACE_FILES_SYMBOL" "📤" \
+			0 "" "" "" ""\
+			2 "    2" "$SPACE_COMMIT_RESET$GCR" "$SPACE_FILES_SYMBOL" "❌" \
+			3 "    3" "$SPACE_DISPLAY$AFF" "$SPACE_FILES_SYMBOL" "💻" 2>/dev/null;
 	else
 		bLines=`echo -n "$EN_TETE" | grep -c '^'`
 		oneLineHeight=17
@@ -1512,14 +1391,14 @@ if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ]; then
 		commandsHeight=235
 		dialogFilesHeight=$(($commandsHeight + $linesHeight))
 		zenity --list --width=$filesDialogWidth --height=$dialogFilesHeight --text='<span font-family=\"Arial\">'"$EN_TETE"'</span>' \
-		--title="Fichiers 📑" \
-		--ok-label="Sélectionner" \
-		--cancel-label="Quitter" \
-		--hide-column 1 --column "" --column "" --column "" --column ""  --column "" \
-		1 "    1" "$SPACE_PUSH$GP" "$SPACE_FILES_SYMBOL" "📤" \
-		0 "" "" "" ""\
-		2 "    2" "$SPACE_COMMIT_RESET$GCR" "$SPACE_FILES_SYMBOL" "❌" \
-		3 "    3" "$SPACE_DISPLAY$AFF" "$SPACE_FILES_SYMBOL" "📟" 2>/dev/null;
+			--title="Fichiers 📑" \
+			--ok-label="Sélectionner" \
+			--cancel-label="Quitter" \
+			--hide-column 1 --column "" --column "" --column "" --column ""  --column "" \
+			1 "    1" "$SPACE_PUSH$GP" "$SPACE_FILES_SYMBOL" "📤" \
+			0 "" "" "" ""\
+			2 "    2" "$SPACE_COMMIT_RESET$GCR" "$SPACE_FILES_SYMBOL" "❌" \
+			3 "    3" "$SPACE_DISPLAY$AFF" "$SPACE_FILES_SYMBOL" "📟" 2>/dev/null;
 	fi
 else
 	if [ $fichiersDisplay -eq 1 ]; then
