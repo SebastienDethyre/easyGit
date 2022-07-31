@@ -529,7 +529,7 @@ git_log(){
 			echo "Pas de choix effectué"
 		fi
 	else
-		fonction_fichiers
+		fonction_infos
 		echo "Annulation"
 	fi
 	if ([ -n "$titre" ]); then
