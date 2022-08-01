@@ -272,6 +272,28 @@ en_tete(){
 \t<span color=\"green\">$nbFilesChangedSymbol  $nbFilesChanged</span>    <span color=\"#155162\">$nbFilesUnfollowedSymbol  $nbFilesUnfollowed</span>
 "
 }
+en_tete_infos(){
+	checkFilesChanged
+	actualBranch=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/actualBranch`
+	nbFilesChangedSymbol="🔧"
+	nbFilesChanged=`wc -l < ~/bin/easyGit/filesChanged`
+	nbFilesUnfollowedSymbol="🧩"
+	nbFilesUnfollowed=`wc -l < ~/bin/easyGit/filesUnfollowed`
+	if [ $nbFilesChanged -eq 0 ]; then
+		nbFilesChangedSymbol=""
+		nbFilesChanged=""
+	fi
+	if [ $nbFilesUnfollowed -eq 0 ]; then
+		nbFilesUnfollowedSymbol=""
+		nbFilesUnfollowed=""
+	fi
+	EN_TETE="$LOGO_FULL_400
+\t⎇\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>
+
+\t<span color=\"green\">$nbFilesChangedSymbol  $nbFilesChanged</span>    <span color=\"#155162\">$nbFilesUnfollowedSymbol  $nbFilesUnfollowed</span>
+$TMP_SCREEN
+"
+}
 
 notification(){
 	zenity --notification\
@@ -432,11 +454,17 @@ git_status(){
 }
 
 git_cherry_pick_skip(){
-	git cherry-pick --skip
+	git cherry-pick --skip &> ~/bin/easyGit/gitTemp
+	TMP_SCREEN=$(<~/bin/easyGit/gitTemp)
+	lineNumber=52
+	TMP_SCREEN=`echo "$TMP_SCREEN" | fold -b$(($lineNumber)) -s  | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
 }
 
 git_cherry_pick_abort(){
-	git cherry-pick --abort
+	git cherry-pick --abort &> ~/bin/easyGit/gitTemp
+	TMP_SCREEN=$(<~/bin/easyGit/gitTemp)
+	lineNumber=52
+	TMP_SCREEN=`echo "$TMP_SCREEN" | fold -b$(($lineNumber)) -s  | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
 }
 
 git_cherry_pick_operation(){
@@ -1572,7 +1600,7 @@ fonction_depots(){
 ############### INFOS DIALOG ####################
 
 frm_infos(){
-en_tete
+en_tete_infos
 zenity --list --width=400 --height=595 --text='<span font-family=\"Arial\">'"$EN_TETE"'</span>' \
     --title="Infos 📋" \
     --ok-label="Sélectionner" \
@@ -1611,6 +1639,7 @@ fonction_infos(){
 ############### GENERAL DIALOG ####################
 
 frm_git(){
+	TMP_SCREEN=""
 	en_tete
 	zenity --list --width=400 --height=500 --text='<span font-family=\"Arial\">'"$EN_TETE"'</span>' \
     	--title="Git" \
