@@ -130,6 +130,7 @@ checkFilesChanged(){
 open_repo(){
 	xdg-open $REPO_ADRESS
 }
+
 #############################################################################################################################################################################
 if([ -d .git ] ); then
 	git for-each-ref --format='%(refname:short)' refs/heads/ > ~/bin/easyGit/branchesList
@@ -144,7 +145,7 @@ else
 fi
 #############################################################################################################################################################################
 
-LOGO_FULL_400="
+LOGO_400="
 \t\t<span color=\"#A10101\">      ███████╗  ██╗████████╗</span>
 \t\t<span color=\"#AE0404\">     ██╔ ════╝  ██║╚  ═██╔   ═╝</span>
 \t\t<span color=\"#C60606\">     ██║  ████╗ ██║       ██║   </span>
@@ -207,7 +208,7 @@ $SPACE_GIT$git6
 	spaceDisplay="$(($spaceAddSize - $six))"
 	spaceChangeWidthSize="$(($spaceAddSize - $four))"
 	spaceCommitPendingSize="$(($totalLineNumber - $seventeen))"
-	spaceFilesSymbols="$(($spaceAddSize - $sixteen))"
+	spaceFilesSymbols="$(($spaceAddSize - $fourteen))"
 
 	SPACE_ADD=`printf %$spaceAddSize\s |tr " " " "`
 	SPACE_ADD_S=`printf %$spaceAddSSize\s |tr " " " "`
@@ -227,7 +228,7 @@ $SPACE_GIT$git6
 
 add_spaces
 
-en_tete_depots(){
+header_repo(){
 	checkFilesChanged
 	actualBranch=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/actualBranch`
 	nbFilesChangedSymbol="🔧"
@@ -242,7 +243,7 @@ en_tete_depots(){
 		nbFilesUnfollowedSymbol=""
 		nbFilesUnfollowed=""
 	fi
-	EN_TETE="$LOGO_FULL_400
+	HEADER="$LOGO_400
 \t⎇\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>
 
 \t<span color=\"green\">$nbFilesChangedSymbol  $nbFilesChanged</span>    <span color=\"#155162\">$nbFilesUnfollowedSymbol  $nbFilesUnfollowed</span>
@@ -250,7 +251,7 @@ $TMP_SCREEN
 "
 }
 
-en_tete(){
+header_general(){
 	checkFilesChanged
 	actualBranch=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/actualBranch`
 	nbFilesChangedSymbol="🔧"
@@ -265,13 +266,13 @@ en_tete(){
 		nbFilesUnfollowedSymbol=""
 		nbFilesUnfollowed=""
 	fi
-	EN_TETE="$LOGO_FULL_400
+	HEADER="$LOGO_400
 \t⎇\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>
 
 \t<span color=\"green\">$nbFilesChangedSymbol  $nbFilesChanged</span>    <span color=\"#155162\">$nbFilesUnfollowedSymbol  $nbFilesUnfollowed</span>
 "
 }
-en_tete_infos(){
+header_infos(){
 	checkFilesChanged
 	actualBranch=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/actualBranch`
 	nbFilesChangedSymbol="🔧"
@@ -286,7 +287,7 @@ en_tete_infos(){
 		nbFilesUnfollowedSymbol=""
 		nbFilesUnfollowed=""
 	fi
-	EN_TETE="$LOGO_FULL_400
+	HEADER="$LOGO_400
 \t⎇\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>
 
 \t<span color=\"green\">$nbFilesChangedSymbol  $nbFilesChanged</span>    <span color=\"#155162\">$nbFilesUnfollowedSymbol  $nbFilesUnfollowed</span>
@@ -305,6 +306,10 @@ _quitter(){
 }
 
 ############### GIT FUNCTIONS ####################
+fix_process_already_launched(){
+	rm -f .git/index.lock
+	echo "Fix process already launched applied"
+}
 
 git_clone_this(){
 	if ret=`zenity  --file-selection --title="Clone  📚" --text="Répertoire de réception" --directory`; then
@@ -351,7 +356,7 @@ git_clone
 				fi
 			else
 				echo "Annulation"
-git_clone_any
+				git_clone_any
 			fi
 			if ([ -n "$titre2" ]); then
 				git clone $titre $titre2 &> ~/bin/easyGit/gitTemp
@@ -363,7 +368,7 @@ git_clone_any
 				unset titre
 			else
 				echo "Pas de clone effectué"
-git_clone_any
+				git_clone_any
 			fi
 		else
 			echo "Pas de clone effectué"
@@ -479,7 +484,7 @@ git_cherry_pick_operation(){
 			titre=$file
 			if [ "$titre" = "" ]; then
 				echo "Pas de Cherry-Pick effectué"
-			git_cherry_pick_operation 
+				git_cherry_pick_operation 
 			fi
 		else
 			echo "Annulation"
@@ -501,11 +506,9 @@ git_cherry_pick_operation(){
 					notification "Cherry-Pick sur la branche $actualBranch du commit :
 \t$titre"
 					unset titre
-					
 					;;
 				1)
-					echo "Git Cherry-Pick quitté" 
-					;;
+					echo "Git Cherry-Pick quitté" ;;
 				-1)
 					echo "An unexpected error has occurred." ;;
 			esac
@@ -715,7 +718,7 @@ git_add_single(){
 		if file=`zenity --list --title="Add  ＋" --text="Git add ..." --column="Fichiers modifiés" $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUnfollowed)`;	then
 			titre=$file
 			if [ "$titre" = "" ]; then
-					echo "Pas de fichier ajouté"
+				echo "Pas de fichier ajouté"
 			fi
 		else
 			echo "Annulation"
@@ -1170,7 +1173,7 @@ if [ "$fichiersDisplay" -eq 1 ]; then
 	if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ]; then
 		#=============== no modified and no untracked ===============
 		if [ "$filesChangedAndUnfollowed" = "" ]; then
-            EN_TETE="
+            HEADER_FILES="
 $GIT
 $BRANCH_DISPLAY
 $SPACE_LINE$SIMPLE_LINE
@@ -1185,7 +1188,7 @@ $COMMITTED_LABEL_DISPLAY
 "
 		#=============== some modified and no untracked ===============
 		elif [[ "$filesUnfollowed" == "" ]] && [[ "$filesChanged" != "" ]] ; then
-			EN_TETE="
+			HEADER_FILES="
 $GIT
 $BRANCH_DISPLAY
 
@@ -1204,7 +1207,7 @@ $COMMITTED_LABEL_DISPLAY
 "
 		#=============== no modified but some untracked ===============
 		elif [[ "$filesChanged" == "" ]] && [[ "$filesUnfollowed" != "" ]]; then
-			EN_TETE="
+			HEADER_FILES="
 $GIT
 $BRANCH_DISPLAY
 
@@ -1222,7 +1225,7 @@ $COMMITTED_LABEL_DISPLAY
 "
 		#=============== by default ===============
 		else
-			EN_TETE="
+			HEADER_FILES="
 $GIT
 $BRANCH_DISPLAY
 
@@ -1248,7 +1251,7 @@ $COMMITTED_LABEL_DISPLAY
 	elif [ "$filesStaged" = "" ]; then
 		#=============== no modified and no untracked ===============
 		if [ "$filesChangedAndUnfollowed" = "" ]; then
-			EN_TETE="
+			HEADER_FILES="
 $GIT
 $BRANCH_DISPLAY
 
@@ -1262,7 +1265,7 @@ $COMMITTED_LABEL_DISPLAY
 "
 		#=============== some modified and no untracked ===============
 		elif [[ "$filesUnfollowed" == "" ]] && [[ "$filesChanged" != "" ]] ; then
-			EN_TETE="
+			HEADER_FILES="
 $GIT
 $BRANCH_DISPLAY
 
@@ -1279,7 +1282,7 @@ $CHANGED_LABEL_DISPLAY
 "
 		#=============== no modified but some untracked ===============
 		elif [[ "$filesChanged" == "" ]] && [[ "$filesUnfollowed" != "" ]]; then
-			EN_TETE="
+			HEADER_FILES="
 $GIT
 $BRANCH_DISPLAY
 
@@ -1296,7 +1299,7 @@ $UNFOLLOWED_LABEL_DISPLAY
 "
 		#=============== by default ===============
 		else
-			EN_TETE="
+			HEADER_FILES="
 $GIT
 $BRANCH_DISPLAY
 
@@ -1319,7 +1322,7 @@ $UNFOLLOWED_LABEL_DISPLAY
 	else
 		#=============== no modified and no untracked ===============
 		if [ "$filesChangedAndUnfollowed" = "" ]; then
-			EN_TETE="
+			HEADER_FILES="
 $GIT
 $BRANCH_DISPLAY
 
@@ -1337,7 +1340,7 @@ $STAGED_LABEL_DISPLAY
 "
 		#=============== some modified and no untracked ===============
 		elif [[ "$filesUnfollowed" == "" ]] && [[ "$filesChanged" != "" ]] ; then
-			EN_TETE="
+			HEADER_FILES="
 $GIT
 $BRANCH_DISPLAY
 
@@ -1358,7 +1361,7 @@ $STAGED_LABEL_DISPLAY
 "
 		#=============== no modified and some untracked ===============
 		elif [[ "$filesChanged" == "" ]] && [[ "$filesUnfollowed" != "" ]]; then
-			EN_TETE="
+			HEADER_FILES="
 $GIT
 $BRANCH_DISPLAY
 
@@ -1379,7 +1382,7 @@ $STAGED_LABEL_DISPLAY
 "
 		#=============== by default ===============
 		else
-			EN_TETE="
+			HEADER_FILES="
 $GIT
 $BRANCH_DISPLAY
 
@@ -1404,26 +1407,26 @@ $STAGED_LABEL_DISPLAY
 		fi
 	fi
 else
-EN_TETE="
+HEADER_FILES="
 $GIT
 $TMP_SCREEN
 "
 fi
 
 # vertical responsiveness example
-nbLines=`echo -n "$EN_TETE" | grep -c '^'`
+nbLines=`echo -n "$HEADER_FILES" | grep -c '^'`
 oneLineHeight=17
 linesHeight=$(($oneLineHeight * $nbLines))
 2>/dev/null # bug zenity
 
 if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ]; then
 	if [ $fichiersDisplay -eq 1 ]; then
-		bLines=`echo -n "$EN_TETE" | grep -c '^'`
+		bLines=`echo -n "$HEADER_FILES" | grep -c '^'`
 		oneLineHeight=17
 		linesHeight=$(($oneLineHeight * $nbLines))
 		commandsHeight=240
 		dialogFilesHeight=$(($commandsHeight + $linesHeight))
-		zenity --list --width=$filesDialogWidth --height=$dialogFilesHeight --text='<span font-family=\"Arial\">'"$EN_TETE"'</span>' \
+		zenity --list --width=$filesDialogWidth --height=$dialogFilesHeight --text='<span font-family=\"Arial\">'"$HEADER_FILES"'</span>' \
 			--title="Fichiers 📑" \
 			--ok-label="Sélectionner" \
 			--cancel-label="Quitter" \
@@ -1433,12 +1436,12 @@ if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ]; then
 			2 "    2" "$SPACE_COMMIT_RESET$GCR" "$SPACE_FILES_SYMBOL" "❌" \
 			3 "    3" "$SPACE_DISPLAY$AFF" "$SPACE_FILES_SYMBOL" "💻" 2>/dev/null;
 	else
-		bLines=`echo -n "$EN_TETE" | grep -c '^'`
+		bLines=`echo -n "$HEADER_FILES" | grep -c '^'`
 		oneLineHeight=17
 		linesHeight=$(($oneLineHeight * $nbLines))
 		commandsHeight=235
 		dialogFilesHeight=$(($commandsHeight + $linesHeight))
-		zenity --list --width=$filesDialogWidth --height=$dialogFilesHeight --text='<span font-family=\"Arial\">'"$EN_TETE"'</span>' \
+		zenity --list --width=$filesDialogWidth --height=$dialogFilesHeight --text='<span font-family=\"Arial\">'"$HEADER_FILES"'</span>' \
 			--title="Fichiers 📑" \
 			--ok-label="Sélectionner" \
 			--cancel-label="Quitter" \
@@ -1450,12 +1453,12 @@ if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ]; then
 	fi
 else
 	if [ $fichiersDisplay -eq 1 ]; then
-		bLines=`echo -n "$EN_TETE" | grep -c '^'`
+		nbLines=`echo -n "$HEADER_FILES" | grep -c '^'`
 		oneLineHeight=17
 		linesHeight=$(($oneLineHeight * $nbLines))
 		commandsHeight=385
 		dialogFilesHeight=$(($commandsHeight + $linesHeight))
-		zenity --list --width=$filesDialogWidth --height=$dialogFilesHeight --text='<span font-family=\"Arial\">'"$EN_TETE"'</span>' \
+		zenity --list --width=$filesDialogWidth --height=$dialogFilesHeight --text='<span font-family=\"Arial\">'"$HEADER_FILES"'</span>' \
 			--title="Fichiers 📑" \
 			--ok-label="Sélectionner" \
 			--cancel-label="Quitter" \
@@ -1471,12 +1474,12 @@ else
 			8 "    8" "$SPACE_DISPLAY$AFF" "$SPACE_FILES_SYMBOL" "💻" \
 			9 "    9" "$SPACE_CHANGE_WIDTH$CW" "$SPACE_FILES_SYMBOL" "📏" 2>/dev/null;
 	else
-		bLines=`echo -n "$EN_TETE" | grep -c '^'`
+		nbLines=`echo -n "$HEADER_FILES" | grep -c '^'`
 		oneLineHeight=17
 		linesHeight=$(($oneLineHeight * $nbLines))
 		commandsHeight=380
 		dialogFilesHeight=$(($commandsHeight + $linesHeight))
-		zenity --list --width=$filesDialogWidth --height=$dialogFilesHeight --text='<span font-family=\"Arial\">'"$EN_TETE"'</span>' \
+		zenity --list --width=$filesDialogWidth --height=$dialogFilesHeight --text='<span font-family=\"Arial\">'"$HEADER_FILES"'</span>' \
 			--title="Fichiers 📑" \
 			--ok-label="Sélectionner" \
 			--cancel-label="Quitter" \
@@ -1532,13 +1535,13 @@ fonction_fichiers(){
 ############### REPOS DIALOG ####################
 
 frm_depots(){
-en_tete_depots
-nbLines=`echo -n "$EN_TETE" | grep -c '^'`
+header_repo
+nbLines=`echo -n "$HEADER" | grep -c '^'`
 commandsHeight=350
 oneLineHeight=17
 linesHeight=$(($oneLineHeight * $nbLines))
 dialogRepoHeight=$(($commandsHeight + $linesHeight))
-zenity --list --width=400 --height=$dialogRepoHeight --text='<span font-family=\"Arial\">'"$EN_TETE"'</span>' \
+zenity --list --width=400 --height=$dialogRepoHeight --text='<span font-family=\"Arial\">'"$HEADER"'</span>' \
     --title="Dépot 🗃" \
     --ok-label="Sélectionner" \
     --cancel-label="Quitter" \
@@ -1579,8 +1582,8 @@ fonction_depots(){
 ############### INFOS DIALOG ####################
 
 frm_infos(){
-en_tete_infos
-zenity --list --width=400 --height=595 --text='<span font-family=\"Arial\">'"$EN_TETE"'</span>' \
+header_infos
+zenity --list --width=400 --height=595 --text='<span font-family=\"Arial\">'"$HEADER"'</span>' \
     --title="Infos 📋" \
     --ok-label="Sélectionner" \
     --cancel-label="Quitter" \
@@ -1619,8 +1622,8 @@ fonction_infos(){
 
 frm_git(){
 	TMP_SCREEN=""
-	en_tete
-	zenity --list --width=400 --height=500 --text='<span font-family=\"Arial\">'"$EN_TETE"'</span>' \
+	header_general
+	zenity --list --width=400 --height=500 --text='<span font-family=\"Arial\">'"$HEADER"'</span>' \
     	--title="Git" \
     	--ok-label="Sélectionner" \
     	--cancel-label="Quitter" \
