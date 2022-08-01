@@ -118,8 +118,8 @@ checkFilesChanged(){
 	HASH_COMMIT=`git rev-parse HEAD`
 	git diff-tree --no-commit-id --name-only -r $HASH_COMMIT > ~/bin/easyGit/filesCommitted
 #	TEXT_COMMIT=`git log --format=%B -n 1 | xargs -n $nbWordsByCommit echo -e '\t'`
-	TEXT_COMMIT=`git log --format=%B -n 1`
-	TEXT_COMMIT=`echo "$TEXT_COMMIT" | fold -b$(($totalLineNumber - $two)) -s  | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
+	TEXT_COMMIT_RAW=`git log --format=%B -n 1`
+	TEXT_COMMIT=`echo "$TEXT_COMMIT_RAW" | fold -b$(($totalLineNumber - $two)) -s  | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
 	LAST_COMMIT_DATE_RAW=`git log -1 --format=%cd`
 	LAST_COMMIT_DATE=${LAST_COMMIT_DATE_RAW::-6}
 	REPO_ADRESS=`git config --get remote.origin.url`
@@ -246,7 +246,6 @@ en_tete_depots(){
 \t⎇\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>
 
 \t<span color=\"green\">$nbFilesChangedSymbol  $nbFilesChanged</span>    <span color=\"#155162\">$nbFilesUnfollowedSymbol  $nbFilesUnfollowed</span>
-
 $TMP_SCREEN
 "
 }
@@ -605,25 +604,6 @@ git_reflog(){
 			echo "Git Reflog" ;;
 		1)
 			echo "Git Reflog quitté" ;;
-		-1)
-			echo "An unexpected error has occurred." ;;
-	esac
-}
-
-git_log_cherry(){
-	git log --pretty=format:"%h %s" --graph > ~/bin/easyGit/gitTemp
-	FILE=`dirname $0`/gitTemp
-	zenity --text-info \
-       --title="Log pour Cherry-Pick" \
-	   --width=950 \
-	   --height=1050 \
-       --filename=$FILE
-
-	case $? in
-		0)
-			echo "Log pour Cherry-Pick" ;;
-		1)
-			echo "Log pour Cherry-Pick quitté" ;;
 		-1)
 			echo "An unexpected error has occurred." ;;
 	esac
@@ -1427,7 +1407,6 @@ else
 EN_TETE="
 $GIT
 $TMP_SCREEN
-
 "
 fi
 
@@ -1660,8 +1639,8 @@ frm_git_parser(){
 		3) fonction_infos ;;
 		4) clear_screen ;;
         *)
-            quitter="1"
-            _quitter ;;
+           quitter="1"
+           _quitter ;;
     esac
 }
 
