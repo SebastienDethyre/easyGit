@@ -272,6 +272,7 @@ header_general(){
 \t<span color=\"green\">$nbFilesChangedSymbol  $nbFilesChanged</span>    <span color=\"#155162\">$nbFilesUnfollowedSymbol  $nbFilesUnfollowed</span>
 "
 }
+
 header_infos(){
 	checkFilesChanged
 	actualBranch=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/actualBranch`
@@ -673,7 +674,7 @@ $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesStaged)"
 	fi
 }
 
-git_add(){
+git_add_some(){
 	checkFilesChanged
 	filesChangedAndUnfollowed=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUnfollowed`
 	if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ]; then
@@ -697,9 +698,10 @@ git_add(){
 			notification "Fichier ajouté au commit :
 \t$titre"
 			unset titre
-			git_add
+			git_add_some
 		else
 			echo "Pas de fichier ajouté"
+			git_add
 		fi
 	2>/dev/null
 	fi
@@ -732,9 +734,38 @@ git_add_single(){
 			unset titre
 		else
 			echo "Pas de fichier ajouté"
+			git_add
 		fi
 		2>/dev/null
 	fi
+}
+
+git_add(){
+	if ret=`zenity --list --title="Add   ＋" --width=250 --height=200 --text="" --column="Que désirez-vous ?" "			Add			 *" "			Add			⁂" "			Add			 ∞"`; then
+		titre=$ret
+		if [ "$titre" = "" ]; then
+			echo "Aucun choix effectué"
+		fi
+	else
+		echo "Annulation"
+		fonction_fichiers
+	fi
+	if ([ -n "$titre" ]); then
+		if [ "$titre" = "			Add			 *" ]; then
+			unset titre
+			git_add_single
+		elif [ "$titre" = "			Add			⁂" ]; then
+			unset titre
+			git_add_some
+		elif [ "$titre" = "			Add			 ∞" ]; then
+			unset titre
+			git_add_all
+		fi
+	else
+		echo "Aucun clone effectué"
+		fonction_fichiers
+	fi
+	2>/dev/null
 }
 
 git_reset_all(){
@@ -746,7 +777,7 @@ git_reset_all(){
 		echo "Aucun fichier à retirer"
 		notification "Aucun fichier à retirer"
 	else
-		git reset
+	git reset HEAD
 		checkFilesChanged
 		echo "Fichiers non suivis :
 $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUnfollowed)"
@@ -755,7 +786,42 @@ $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUnfollowed)"
 	fi
 }
 
-git_reset(){
+git_reset_some(){
+	filesStaged=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesStaged`
+	checkFilesChanged
+	if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ]; then
+		echo "Commit en cours"
+		notification "Commit en cours 🔏"
+		git_reset
+	elif [ "$filesStaged" = "" ]; then
+		echo "Aucun fichier à retirer"
+		notification "Aucun fichier à retirer"
+		git_reset
+	else
+		if file=`zenity --list --title="Reset  −" --text="Git reset ..." --column="Fichiers ajoutés" $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesStaged)`; then
+			titre=$file
+			if [ "$titre" = "" ]; then
+				echo "Pas de fichier supprimé"
+			fi
+		else
+			echo "Annulation"
+		fi
+		if ([ -n "$titre" ]); then
+			git reset $titre && echo "fichier" $titre "supprimé"
+			checkFilesChanged
+			notification "Fichier retiré :
+\t$titre"
+			unset titre
+			git_reset_some
+		else
+			echo "Pas de fichier supprimé"
+			git_reset
+		fi
+		2>/dev/null
+	fi
+}
+
+git_reset_one(){
 	filesStaged=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesStaged`
 	checkFilesChanged
 	if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ]; then
@@ -779,13 +845,77 @@ git_reset(){
 			notification "Fichier retiré :
 \t$titre"
 			unset titre
-			git_reset
+			
 		else
 			echo "Pas de fichier supprimé"
+			git_reset
 		fi
 		2>/dev/null
 	fi
 }
+
+git_reset_hard(){
+
+if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ]; then
+		
+		echo "Commit en cours - Hard Reset annulé"
+		notification "Commit en cours - Hard Reset annulé"
+	else
+		zenity --question \
+			--title "Hard Reset  ❌" \
+			--width=470 \
+			--height=40 \
+			--text "Hard Reset, souhaitez-vous vraiment continuer ?"
+		if [ $? = 0 ]; then
+			git reset --hard HEAD
+			echo "Hard Reset effectué"
+			notification "Hard Reset effectué"
+		else
+			echo "Opération de Hard Reset annulée"
+			notification "Opération de Hard Reset annulée"
+			git_reset
+		fi
+	fi	
+}
+
+git_reset(){
+	if ret=`zenity --list --title="Reset  −" --width=250 --height=260 --text="" --column="Que désirez-vous ?" "			Reset			   *" "			Reset			  ⁂" "			Reset			   ∞" "	        Commit Reset		 ❌" "		       Remove			 ❌" "		   Hard Reset		 ❌"`; then
+		titre=$ret
+		if [ "$titre" = "" ]; then
+			echo "Aucun choix effectué"
+		fi
+	else
+		echo "Annulation"
+		fonction_fichiers
+	fi
+	if ([ -n "$titre" ]); then
+		if [ "$titre" = "			Reset			   *" ]; then
+			unset titre
+			git_reset_one
+		elif [ "$titre" = "			Reset			  ⁂" ]; then
+			unset titre
+			git_reset_some
+		elif [ "$titre" = "			Reset			   ∞" ]; then
+			unset titre
+			git_reset_all
+		elif [ "$titre" = "	        Commit Reset		 ❌" ]; then
+			unset titre
+			git_commit_reset
+		elif [ "$titre" = "		       Remove			 ❌" ]; then
+			unset titre
+			git_remove
+		elif [ "$titre" = "		   Hard Reset		 ❌" ]; then
+			unset titre
+			git_reset_hard
+		fi
+	else
+		echo "Aucun clone effectué"
+		fonction_fichiers
+	fi
+	2>/dev/null
+}
+
+
 
 git_remove_simple(){
 	filesChangedAndUnfollowed=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUnfollowed`
@@ -933,7 +1063,7 @@ git_remove(){
 		fi
 		else
 			echo "Annulation"
-			git_erase
+			git_reset
 		fi
 		if ([ -n "$titre" ]); then
 			if [ "$titre" = "Simple" ]; then
@@ -977,7 +1107,7 @@ git_commit_reset(){
 		else
 			echo "Opération de Reset du Commit annulée"
 			notification "Opération de Reset du Commit annulée"
-			git_erase
+			git_reset
 		fi
 	fi
 }
@@ -1456,7 +1586,7 @@ else
 		nbLines=`echo -n "$HEADER_FILES" | grep -c '^'`
 		oneLineHeight=17
 		linesHeight=$(($oneLineHeight * $nbLines))
-		commandsHeight=385
+		commandsHeight=300
 		dialogFilesHeight=$(($commandsHeight + $linesHeight))
 		zenity --list --width=$filesDialogWidth --height=$dialogFilesHeight --text='<span font-family=\"Arial\">'"$HEADER_FILES"'</span>' \
 			--title="Fichiers 📑" \
@@ -1464,20 +1594,16 @@ else
 			--cancel-label="Quitter" \
 			--hide-column 1 --column "" --column "" --column "" --column ""  --column "" \
 			1 "    1" "$SPACE_ADD$GA" "$SPACE_FILES_SYMBOL" "➕" \
-			2 "    2" "$SPACE_ADD_S$GAS" "$SPACE_FILES_SYMBOL" "➕" \
-			3 "    3" "$SPACE_COMMIT$GC" "$SPACE_FILES_SYMBOL" "📝" \
+			2 "    2" "$SPACE_COMMIT$GC" "$SPACE_FILES_SYMBOL" "📝" \
 			0 "" "" "" ""\
-			4 "    4" "$SPACE_ADD_ALL$GAA" "$SPACE_FILES_SYMBOL" "➕"\
-			5 "    5" "$SPACE_RESET$GRT" "$SPACE_FILES_SYMBOL" "➖"\
-			6 "    6" "$SPACE_RESET_ALL$GRA" "$SPACE_FILES_SYMBOL" "➖" \
-			7 "    7" "$SPACE_RESET$GE" "$SPACE_FILES_SYMBOL" "❌" \
-			8 "    8" "$SPACE_DISPLAY$AFF" "$SPACE_FILES_SYMBOL" "💻" \
-			9 "    9" "$SPACE_CHANGE_WIDTH$CW" "$SPACE_FILES_SYMBOL" "📏" 2>/dev/null;
+			3 "    3" "$SPACE_RESET$GRT" "$SPACE_FILES_SYMBOL" "➖"\
+			4 "    4" "$SPACE_DISPLAY$AFF" "$SPACE_FILES_SYMBOL" "💻" \
+			5 "    5" "$SPACE_CHANGE_WIDTH$CW" "$SPACE_FILES_SYMBOL" "📏" 2>/dev/null;
 	else
 		nbLines=`echo -n "$HEADER_FILES" | grep -c '^'`
 		oneLineHeight=17
 		linesHeight=$(($oneLineHeight * $nbLines))
-		commandsHeight=380
+		commandsHeight=300
 		dialogFilesHeight=$(($commandsHeight + $linesHeight))
 		zenity --list --width=$filesDialogWidth --height=$dialogFilesHeight --text='<span font-family=\"Arial\">'"$HEADER_FILES"'</span>' \
 			--title="Fichiers 📑" \
@@ -1485,15 +1611,11 @@ else
 			--cancel-label="Quitter" \
 			--hide-column 1 --column "" --column "" --column "" --column ""  --column "" \
 			1 "    1" "$SPACE_ADD$GA" "$SPACE_FILES_SYMBOL" "➕" \
-			2 "    2" "$SPACE_ADD_S$GAS" "$SPACE_FILES_SYMBOL" "➕" \
-			3 "    3" "$SPACE_COMMIT$GC" "$SPACE_FILES_SYMBOL" "📝" \
+			2 "    2" "$SPACE_COMMIT$GC" "$SPACE_FILES_SYMBOL" "📝" \
 			0 "" "" "" ""\
-			4 "    4" "$SPACE_ADD_ALL$GAA" "$SPACE_FILES_SYMBOL" "➕" \
-			5 "    5" "$SPACE_RESET$GRT" "$SPACE_FILES_SYMBOL" "➖" \
-			6 "    6" "$SPACE_RESET_ALL$GRA" "$SPACE_FILES_SYMBOL" "➖" \
-			7 "    7" "$SPACE_RESET$GE" "$SPACE_FILES_SYMBOL" "❌" \
-			8 "    8" "$SPACE_DISPLAY$AFF" "$SPACE_FILES_SYMBOL" "📟" \
-			9 "    9" "$SPACE_CHANGE_WIDTH$CW" "$SPACE_FILES_SYMBOL" "📏" 2>/dev/null;
+			3 "    3" "$SPACE_RESET$GRT" "$SPACE_FILES_SYMBOL" "➖" \
+			4 "    4" "$SPACE_DISPLAY$AFF" "$SPACE_FILES_SYMBOL" "📟" \
+			5 "    5" "$SPACE_CHANGE_WIDTH$CW" "$SPACE_FILES_SYMBOL" "📏" 2>/dev/null;
 	fi
 fi
 }
@@ -1511,14 +1633,10 @@ frm_fichiers_parser(){
 	else
 		case $1 in
 			1) git_add ;;
-			2) git_add_single ;;
-			3) git_commit ;;
-			4) git_add_all ;;
-			5) git_reset ;;
-			6) git_reset_all ;;
-			7) git_erase ;;
-			8) switch_display ;;
-			9) change_width ;;
+			2) git_commit ;;
+			3) git_reset ;;
+			4) switch_display ;;
+			5) change_width ;;
 			*) fonction_git ;;
 			esac
 	fi
