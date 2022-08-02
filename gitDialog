@@ -36,6 +36,7 @@ GCR="Commit Reset"
 
 GF="Fetch"
 GS="Stash"
+GPL="Pull"
 GR="Rebase"
 GSP="Stash Pop"
 GM="Merge"
@@ -378,7 +379,7 @@ git_clone
 }
 
 git_clone(){
-	if ret=`zenity --list --title="Clone   📚" --text="" --column="Que désirez-vous ?" "Cloner ce dépot" "Cloner un autre dépot"`; then
+	if ret=`zenity --list --title="Clone   📚" --width=250 --height=180 --text="" --column="" "		Cloner ce dépot" "	  Cloner un autre dépot"`; then
 		titre=$ret
 		if [ "$titre" = "" ]; then
 			echo "Aucun choix effectué"
@@ -388,10 +389,10 @@ git_clone(){
 		fonction_depots
 	fi
 	if ([ -n "$titre" ]); then
-		if [ "$titre" = "Cloner ce dépot" ]; then
+		if [ "$titre" = "		Cloner ce dépot" ]; then
 			unset titre
 			git_clone_this
-		elif [ "$titre" = "Cloner un autre dépot" ]; then
+		elif [ "$titre" = "	  Cloner un autre dépot" ]; then
 			unset titre
 			git_clone_any
 		fi
@@ -409,7 +410,7 @@ git_fetch(){
 	notification "Git Fetch du dépot $REPO_ADRESS"
 }
 
-git_stash(){
+git_stash_do(){
 	git stash &> ~/bin/easyGit/gitTemp
 	TMP_SCREEN=$(<~/bin/easyGit/gitTemp)
 	lineNumber=52
@@ -437,6 +438,28 @@ git_stash_pop(){
 		-1)
 			echo "An unexpected error has occurred." ;;
 	esac
+}
+
+git_stash(){
+if file=`zenity --list --title="Stash ❌" --width=250 --height=180 --text="" --column="" "			Stash			 🔁" "		     Stash Pop		 🔂"`; then
+		titre=$file
+		if [ "$titre" = "" ]; then
+			echo "Pas de choix effectué"
+		fi
+	else
+		fonction_depots
+		echo "Annulation"
+	fi
+	if ([ -n "$titre" ]); then
+		if [ "$titre" = "			Stash			 🔁" ]; then
+			git_stash_do
+		elif [ "$titre" = "		     Stash Pop		 🔂" ]; then
+			git_stash_pop
+		fi
+	else
+		echo "Pas de choix effectué"
+	fi
+	2>/dev/null
 }
 
 git_status(){
@@ -741,7 +764,7 @@ git_add_single(){
 }
 
 git_add(){
-	if ret=`zenity --list --title="Add   ＋" --width=250 --height=200 --text="" --column="Que désirez-vous ?" "			Add			 *" "			Add			⁂" "			Add			 ∞"`; then
+	if ret=`zenity --list --title="Add   ＋" --width=250 --height=200 --text="" --column="" "			Add			 *" "			Add			⁂" "			Add			 ∞"`; then
 		titre=$ret
 		if [ "$titre" = "" ]; then
 			echo "Aucun choix effectué"
@@ -879,7 +902,7 @@ if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ]; then
 }
 
 git_reset(){
-	if ret=`zenity --list --title="Reset  −" --width=250 --height=260 --text="" --column="Que désirez-vous ?" "			Reset			   *" "			Reset			  ⁂" "			Reset			   ∞" "	        Commit Reset		 ❌" "		       Remove			 ❌" "		   Hard Reset		 ❌"`; then
+	if ret=`zenity --list --title="Reset  −" --width=250 --height=275 --text="" --column="" "			Reset			   *" "			Reset			  ⁂" "			Reset			   ∞" "	        Commit Reset		 ❌" "		       Remove			 ❌" "		   Hard Reset		 ❌"`; then
 		titre=$ret
 		if [ "$titre" = "" ]; then
 			echo "Aucun choix effectué"
@@ -1278,6 +1301,29 @@ git_rebase(){
 	2>/dev/null
 }
 
+git_pull(){
+if file=`zenity --list --title="Stash ❌" --width=250 --height=180 --text="" --column="" "		         Rebase		          📥" "		       	 Merge		          📥"`; then
+		titre=$file
+		if [ "$titre" = "" ]; then
+			echo "Pas de choix effectué"
+		fi
+	else
+		fonction_depots
+		echo "Annulation"
+	fi
+	if ([ -n "$titre" ]); then
+		if [ "$titre" = "		         Rebase		          📥" ]; then
+			git_rebase
+		elif [ "$titre" = "		       	 Merge		          📥" ]; then
+			git_merge
+		fi
+	else
+		echo "Pas de choix effectué"
+	fi
+	2>/dev/null
+
+}
+
 ############### FILES DIALOG ####################
 
 frm_fichiers(){
@@ -1655,7 +1701,7 @@ fonction_fichiers(){
 frm_depots(){
 header_repo
 nbLines=`echo -n "$HEADER" | grep -c '^'`
-commandsHeight=350
+commandsHeight=280
 oneLineHeight=17
 linesHeight=$(($oneLineHeight * $nbLines))
 dialogRepoHeight=$(($commandsHeight + $linesHeight))
@@ -1666,24 +1712,19 @@ zenity --list --width=400 --height=$dialogRepoHeight --text='<span font-family=\
     --hide-column 1 --column "" --column "" --column "" --column "" --column "" \
     1 "    1" "				         $GF" "			    " "📩" \
     2 "    2" "				         $GS" "			    " "🔁" \
-    3 "    3" "		                      $GSP" "			    " "🔂" \
+    3 "    3" "				           $GPL" "			    " "📥" \
     0 "" "" "" "" \
-    4 "    4" "				       $GR" "			    " "📥" \
-    5 "    5" "				        $GM" "			    " "📥" \
-    0 "" "" "" "" \
-    6 "    6" "				 $OR" "			    " "🌍" \
-    7 "    7" "				        $GCL" "			     " "📚" 2>/dev/null ;
+    4 "    4" "				 $OR" "			    " "🌍" \
+    5 "    5" "				        $GCL" "			     " "📚" 2>/dev/null ;
 }
 
 frm_depots_parser(){
     case $1 in
         1) git_fetch ;;
         2) git_stash ;;
-        3) git_stash_pop ;;
-        4) git_rebase ;;
-        5) git_merge ;;
-        6) open_repo ;;
-        7) git_clone ;;
+        3) git_pull ;;
+        4) open_repo ;;
+        5) git_clone ;;
         *) TMP_SCREEN=""
 			fonction_git ;;
 	esac
