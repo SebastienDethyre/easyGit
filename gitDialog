@@ -497,7 +497,7 @@ git_cherry_pick_operation(){
 	currentBranch=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/config/currentBranch`
 	readarray -t textHashArray < ~/bin/easyGit/config/ashesTexts
 
-	if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ]; then
+	if [ -e ~/bin/easyGit/config/currentCommits/$HASH_COMMIT/isCommitPending ]; then
 		echo "Commit en cours"
 		notification "Commit en cours 🔏"
 	else
@@ -689,7 +689,7 @@ $currentBranch"
 
 git_add_all(){
 	filesChangedAndUntracked=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/files/filesChangedAndUntracked`
-	if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ]; then
+	if [ -e ~/bin/easyGit/config/currentCommits/$HASH_COMMIT/isCommitPending ]; then
 		echo "Commit en cours"
 		notification "Commit en cours 🔏"
 	elif [ "$filesChangedAndUntracked" = "" ]; then
@@ -708,7 +708,7 @@ $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/files/filesStaged)"
 git_add_some(){
 	checkFilesChanged
 	filesChangedAndUntracked=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/files/filesChangedAndUntracked`
-	if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ]; then
+	if [ -e ~/bin/easyGit/config/currentCommits/$HASH_COMMIT/isCommitPending ]; then
 		echo "Commit en cours"
 		notification "Commit en cours 🔏"
 	elif [ "$filesChangedAndUntracked" = "" ]; then
@@ -741,7 +741,7 @@ git_add_some(){
 git_add_single(){
 	checkFilesChanged
 	filesChangedAndUntracked=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/files/filesChangedAndUntracked`
-	if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ]; then
+	if [ -e ~/bin/easyGit/config/currentCommits/$HASH_COMMIT/isCommitPending ]; then
 		echo "Commit en cours"
 		notification "Commit en cours 🔏"
 	elif [ "$filesChangedAndUntracked" = "" ]; then
@@ -801,7 +801,7 @@ git_add(){
 
 git_reset_all(){
 	filesStaged=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/files/filesStaged`
-	if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ]; then
+	if [ -e ~/bin/easyGit/config/currentCommits/$HASH_COMMIT/isCommitPending ]; then
 		echo "Commit en cours"
 		notification "Commit en cours 🔏"
 	elif [ "$filesStaged" = "" ]; then
@@ -820,7 +820,7 @@ $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/files/filesChangedAndUntracked)"
 git_reset_some(){
 	filesStaged=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/files/filesStaged`
 	checkFilesChanged
-	if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ]; then
+	if [ -e ~/bin/easyGit/config/currentCommits/$HASH_COMMIT/isCommitPending ]; then
 		echo "Commit en cours"
 		notification "Commit en cours 🔏"
 		git_reset
@@ -855,7 +855,7 @@ git_reset_some(){
 git_reset_one(){
 	filesStaged=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/files/filesStaged`
 	checkFilesChanged
-	if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ]; then
+	if [ -e ~/bin/easyGit/config/currentCommits/$HASH_COMMIT/isCommitPending ]; then
 		echo "Commit en cours"
 		notification "Commit en cours 🔏"
 	elif [ "$filesStaged" = "" ]; then
@@ -887,7 +887,7 @@ git_reset_one(){
 
 git_reset_hard(){
 
-if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ]; then
+if [ -e ~/bin/easyGit/config/currentCommits/$HASH_COMMIT/isCommitPending ]; then
 		
 		echo "Commit en cours - Hard Reset annulé"
 		notification "Commit en cours - Hard Reset annulé"
@@ -951,7 +951,7 @@ git_reset(){
 git_remove_simple(){
 	filesChangedAndUntracked=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/files/filesChangedAndUntracked`
 	checkFilesChanged
-	if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ]; then
+	if [ -e ~/bin/easyGit/config/currentCommits/$HASH_COMMIT/isCommitPending ]; then
 		echo "Commit en cours"
 		notification "Commit en cours 🔏"
 		git_remove
@@ -987,7 +987,7 @@ git_remove_simple(){
 git_remove_simple_single(){
 	filesChangedAndUntracked=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/files/filesChangedAndUntracked`
 	checkFilesChanged
-	if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ]; then
+	if [ -e ~/bin/easyGit/config/currentCommits/$HASH_COMMIT/isCommitPending ]; then
 		echo "Commit en cours"
 		notification "Commit en cours 🔏"
 		git_remove
@@ -1021,7 +1021,7 @@ git_remove_simple_single(){
 git_remove_cached(){
 	filesChangedAndUntracked=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/files/filesChangedAndUntracked`
 	checkFilesChanged
-	if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ]; then
+	if [ -e ~/bin/easyGit/config/currentCommits/$HASH_COMMIT/isCommitPending ]; then
 		echo "Commit en cours"
 		notification "Commit en cours 🔏"
 		git_remove
@@ -1055,7 +1055,7 @@ git_remove_cached(){
 git_remove_forced(){
 	filesChangedAndUntracked=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/files/filesChangedAndUntracked`
 	checkFilesChanged
-	if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ]; then
+	if [ -e ~/bin/easyGit/config/currentCommits/$HASH_COMMIT/isCommitPending ]; then
 		echo "Commit en cours"
 		notification "Commit en cours 🔏"
 		git_remove
@@ -1117,10 +1117,10 @@ git_remove(){
 }
 
 git_commit_reset(){
-	if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ]; then
+	if [ -e ~/bin/easyGit/config/currentCommits/$HASH_COMMIT/isCommitPending ]; then
 		git reset HEAD^
-		rm ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending
-		rmdir ~/bin/easyGit/currentCommits/$HASH_COMMIT
+		rm ~/bin/easyGit/config/currentCommits/$HASH_COMMIT/isCommitPending
+		rmdir ~/bin/easyGit/config/currentCommits/$HASH_COMMIT
 		echo "Commit annulé"
 		notification "Commit annulé"
 	else
@@ -1131,8 +1131,8 @@ git_commit_reset(){
 			--text "Aucun Commit en cours, souhaitez-vous vraiment continuer ?"
 		if [ $? = 0 ]; then
 			git reset HEAD^
-			rm ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending
-			rmdir ~/bin/easyGit/currentCommits/$HASH_COMMIT
+			rm ~/bin/easyGit/config/currentCommits/$HASH_COMMIT/isCommitPending
+			rmdir ~/bin/easyGit/config/currentCommits/$HASH_COMMIT
 			echo "Commit annulé"
 			notification "Commit annulé"
 		else
@@ -1167,7 +1167,7 @@ git_erase(){
 
 git_commit(){
 	filesStaged=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/files/filesStaged`
- 	if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ]; then
+ 	if [ -e ~/bin/easyGit/config/currentCommits/$HASH_COMMIT/isCommitPending ]; then
 		echo "Commit déjà en cours"
 		notification "Commit déjà en cours 🔏"
 	else
@@ -1191,8 +1191,8 @@ git_commit(){
 				echo "Commit effectué :" $titre
 				TEXT_COMMIT=$titre
 				HASH_COMMIT=`git rev-parse HEAD`
-				mkdir ~/bin/easyGit/currentCommits/$HASH_COMMIT
-				touch ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending
+				mkdir ~/bin/easyGit/config/currentCommits/$HASH_COMMIT
+				touch ~/bin/easyGit/config/currentCommits/$HASH_COMMIT/isCommitPending
 				notification "Commit défini :
 \t$titre"
 				unset titre
@@ -1204,7 +1204,7 @@ git_commit(){
 }
 
 git_push(){
-	if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ]; then
+	if [ -e ~/bin/easyGit/config/currentCommits/$HASH_COMMIT/isCommitPending ]; then
 		if ret=`zenity --list --title="Push  📤" --text="Git push origin ..." --column="Branche actuelle" $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/config/currentBranch)`; then
 			titre=$ret
 			if [ "$titre" = "" ]; then
@@ -1222,8 +1222,8 @@ git_push(){
 			notification "Push sur la branche :
 \t$titre"
 			unset titre
-			rm ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending
-			rmdir ~/bin/easyGit/currentCommits/$HASH_COMMIT
+			rm ~/bin/easyGit/config/currentCommits/$HASH_COMMIT/isCommitPending
+			rmdir ~/bin/easyGit/config/currentCommits/$HASH_COMMIT
 
 			if [ "$?" = -1 ]; then
 				zenity --error \
@@ -1354,7 +1354,7 @@ STAGED_LABEL_DISPLAY="\t<span color=\"gray\">➕\tAjoutés</span>"
 
 if [ "$filesDisplay" -eq 1 ]; then
 	############################## -- Commit Pending -- ##############################
-	if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ]; then
+	if [ -e ~/bin/easyGit/config/currentCommits/$HASH_COMMIT/isCommitPending ]; then
 		#=============== no modified and no untracked ===============
 		if [ "$filesChangedAndUntracked" = "" ]; then
             HEADER_FILES="
@@ -1603,7 +1603,7 @@ oneLineHeight=17
 linesHeight=$(($oneLineHeight * $nbLines))
 2>/dev/null # bug zenity
 
-if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ]; then
+if [ -e ~/bin/easyGit/config/currentCommits/$HASH_COMMIT/isCommitPending ]; then
 	if [ $filesDisplay -eq 1 ]; then
 		bLines=`echo -n "$HEADER_FILES" | grep -c '^'`
 		oneLineHeight=17
@@ -1675,7 +1675,7 @@ fi
 }
 
 frm_files_parser(){
-	if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ]; then
+	if [ -e ~/bin/easyGit/config/currentCommits/$HASH_COMMIT/isCommitPending ]; then
 		case $1 in
 			1) git_push ;;
 		#		quit=1"
