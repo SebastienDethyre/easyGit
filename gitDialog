@@ -1,8 +1,6 @@
 #!/bin/bash
 
-nbFilesByLine=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesByLinePref`
-nbWordsByCommit=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/wordsByLinePref`
-filesDialogWidth=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/widthConfig`
+filesDialogWidth=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/config/widthConfig`
 CURRENT_DIR=`pwd`
 
 factor=3
@@ -91,7 +89,7 @@ change_width(){
 			0)
 				filesDialogWidth=$width
 				add_spaces
-				echo $width > ~/bin/easyGit/widthConfig
+				echo $width > ~/bin/easyGit/config/widthConfig
 				echo "Vous avez choisi $width pixels."
 				function_files ;;
 			1)
@@ -111,21 +109,21 @@ switch_display(){
 }
 
 checkFilesChanged(){
-	git diff --name-only > ~/bin/easyGit/filesChanged
-	git ls-files --other --exclude-standard > ~/bin/easyGit/filesUntracked
-	git diff --name-only > ~/bin/easyGit/filesChangedAndUntracked
-	git ls-files --other --exclude-standard >> ~/bin/easyGit/filesChangedAndUntracked
-	git diff --name-only --cached > ~/bin/easyGit/filesStaged
+	git diff --name-only > ~/bin/easyGit/files/filesChanged
+	git ls-files --other --exclude-standard > ~/bin/easyGit/files/filesUntracked
+	git diff --name-only > ~/bin/easyGit/files/filesChangedAndUntracked
+	git ls-files --other --exclude-standard >> ~/bin/easyGit/files/filesChangedAndUntracked
+	git diff --name-only --cached > ~/bin/easyGit/files/filesStaged
 	HASH_COMMIT=`git rev-parse HEAD`
-	git diff-tree --no-commit-id --name-only -r $HASH_COMMIT > ~/bin/easyGit/filesCommitted
+	git diff-tree --no-commit-id --name-only -r $HASH_COMMIT > ~/bin/easyGit/files/filesCommitted
 #	TEXT_COMMIT=`git log --format=%B -n 1 | xargs -n $nbWordsByCommit echo -e '\t'`
 	TEXT_COMMIT_RAW=`git log --format=%B -n 1`
 	TEXT_COMMIT=`echo "$TEXT_COMMIT_RAW" | fold -b$(($totalLineNumber - $two)) -s  | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
 	LAST_COMMIT_DATE_RAW=`git log -1 --format=%cd`
 	LAST_COMMIT_DATE=${LAST_COMMIT_DATE_RAW::-6}
 	REPO_ADRESS=`git config --get remote.origin.url`
-	actualBranch=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/actualBranch`
-	actualBranch=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/actualBranch`
+	currentBranch=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/config/currentBranch`
+	currentBranch=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/config/currentBranch`
 }
 
 open_repo(){
@@ -134,10 +132,10 @@ open_repo(){
 
 #############################################################################################################################################################################
 if([ -d .git ] ); then
-	git for-each-ref --format='%(refname:short)' refs/heads/ > ~/bin/easyGit/branchesList
-	git log --pretty=format:"%H			%s" > ~/bin/easyGit/ashesTexts
-	cat .git/HEAD | cut -c 17- > ~/bin/easyGit/actualBranch
-	actualBranch=`cat .git/HEAD | cut -c 17-`
+	git for-each-ref --format='%(refname:short)' refs/heads/ > ~/bin/easyGit/config/branchesList
+	git log --pretty=format:"%H			%s" > ~/bin/easyGit/config/ashesTexts
+	cat .git/HEAD | cut -c 17- > ~/bin/easyGit/config/currentBranch
+	currentBranch=`cat .git/HEAD | cut -c 17-`
 	checkFilesChanged
 	echo $REPO_ADRESS | xclip
 else
@@ -231,11 +229,11 @@ add_spaces
 
 header_repo(){
 	checkFilesChanged
-	actualBranch=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/actualBranch`
+	currentBranch=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/config/currentBranch`
 	nbFilesChangedSymbol="🔧"
-	nbFilesChanged=`wc -l < ~/bin/easyGit/filesChanged`
+	nbFilesChanged=`wc -l < ~/bin/easyGit/files/filesChanged`
 	nbFilesUntrackedSymbol="🧩"
-	nbFilesUntracked=`wc -l < ~/bin/easyGit/filesUntracked`
+	nbFilesUntracked=`wc -l < ~/bin/easyGit/files/filesUntracked`
 	if [ $nbFilesChanged -eq 0 ]; then
 		nbFilesChangedSymbol=""
 		nbFilesChanged=""
@@ -245,7 +243,7 @@ header_repo(){
 		nbFilesUntracked=""
 	fi
 	HEADER="$LOGO_400
-\t⎇\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>
+\t⎇\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$currentBranch]</i></b></span>
 
 \t<span color=\"green\">$nbFilesChangedSymbol  $nbFilesChanged</span>    <span color=\"#155162\">$nbFilesUntrackedSymbol  $nbFilesUntracked</span>
 $TMP_SCREEN
@@ -254,11 +252,11 @@ $TMP_SCREEN
 
 header_general(){
 	checkFilesChanged
-	actualBranch=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/actualBranch`
+	currentBranch=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/config/currentBranch`
 	nbFilesChangedSymbol="🔧"
-	nbFilesChanged=`wc -l < ~/bin/easyGit/filesChanged`
+	nbFilesChanged=`wc -l < ~/bin/easyGit/files/filesChanged`
 	nbFilesUntrackedSymbol="🧩"
-	nbFilesUntracked=`wc -l < ~/bin/easyGit/filesUntracked`
+	nbFilesUntracked=`wc -l < ~/bin/easyGit/files/filesUntracked`
 	if [ $nbFilesChanged -eq 0 ]; then
 		nbFilesChangedSymbol=""
 		nbFilesChanged=""
@@ -268,7 +266,7 @@ header_general(){
 		nbFilesUntracked=""
 	fi
 	HEADER="$LOGO_400
-\t⎇\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>
+\t⎇\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$currentBranch]</i></b></span>
 
 \t<span color=\"green\">$nbFilesChangedSymbol  $nbFilesChanged</span>    <span color=\"#155162\">$nbFilesUntrackedSymbol  $nbFilesUntracked</span>
 "
@@ -276,11 +274,11 @@ header_general(){
 
 header_infos(){
 	checkFilesChanged
-	actualBranch=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/actualBranch`
+	currentBranch=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/config/currentBranch`
 	nbFilesChangedSymbol="🔧"
-	nbFilesChanged=`wc -l < ~/bin/easyGit/filesChanged`
+	nbFilesChanged=`wc -l < ~/bin/easyGit/files/filesChanged`
 	nbFilesUntrackedSymbol="🧩"
-	nbFilesUntracked=`wc -l < ~/bin/easyGit/filesUntracked`
+	nbFilesUntracked=`wc -l < ~/bin/easyGit/files/filesUntracked`
 	if [ $nbFilesChanged -eq 0 ]; then
 		nbFilesChangedSymbol=""
 		nbFilesChanged=""
@@ -290,7 +288,7 @@ header_infos(){
 		nbFilesUntracked=""
 	fi
 	HEADER="$LOGO_400
-\t⎇\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>
+\t⎇\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$currentBranch]</i></b></span>
 
 \t<span color=\"green\">$nbFilesChangedSymbol  $nbFilesChanged</span>    <span color=\"#155162\">$nbFilesUntrackedSymbol  $nbFilesUntracked</span>
 $TMP_SCREEN
@@ -496,14 +494,14 @@ git_cherry_pick_abort(){
 }
 
 git_cherry_pick_operation(){
-	actualBranch=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/actualBranch`
-	readarray -t textHashArray < ~/bin/easyGit/ashesTexts
+	currentBranch=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/config/currentBranch`
+	readarray -t textHashArray < ~/bin/easyGit/config/ashesTexts
 
 	if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ]; then
 		echo "Commit en cours"
 		notification "Commit en cours 🔏"
 	else
-		if file=`zenity --list --title="Cherry Pick  🍒" --width=1150 --height=900 --text="Cherry pick depuis $actualBranch" --column="Hashs												   Textes" "${textHashArray[@]}"`; then
+		if file=`zenity --list --title="Cherry Pick  🍒" --width=1150 --height=900 --text="Cherry pick depuis $currentBranch" --column="Hashs												   Textes" "${textHashArray[@]}"`; then
 			file=`echo $file | head -c 40`
 			titre=$file
 			if [ "$titre" = "" ]; then
@@ -525,9 +523,9 @@ git_cherry_pick_operation(){
 
 			case $? in
 				0)
-					echo "Cherry-Pick sur la branche $actualBranch du commit : $titre"
+					echo "Cherry-Pick sur la branche $currentBranch du commit : $titre"
 					checkFilesChanged
-					notification "Cherry-Pick sur la branche $actualBranch du commit :
+					notification "Cherry-Pick sur la branche $currentBranch du commit :
 \t$titre"
 					unset titre
 					;;
@@ -666,7 +664,7 @@ git_branch(){
 }
 
 git_checkout(){
-	if ret=`zenity --list --title="Checkout  ⎇" --text="Git checkout ..." --column="Branches disponibles" $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/branchesList)`; then
+	if ret=`zenity --list --title="Checkout  ⎇" --text="Git checkout ..." --column="Branches disponibles" $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/config/branchesList)`; then
 		titre=$ret
 		if [ "$titre" = "" ]; then
 			echo "Il faut une branche"
@@ -676,13 +674,13 @@ git_checkout(){
 	fi
 	if ([ -n "$titre" ]); then
 		git checkout $titre
-		actualBranch=`cat .git/HEAD | cut -c 17-`
-		cat .git/HEAD | cut -c 17- > ~/bin/easyGit/actualBranch
+		currentBranch=`cat .git/HEAD | cut -c 17-`
+		cat .git/HEAD | cut -c 17- > ~/bin/easyGit/config/currentBranch
 		unset titre
 		echo "Basculement sur la branche :
-$actualBranch"
+$currentBranch"
 		notification "Basculement sur la branche :
-\t<b>$actualBranch</b>"
+\t<b>$currentBranch</b>"
 	else
 		echo "Pas de branche choisie"
 	fi
@@ -690,7 +688,7 @@ $actualBranch"
 }
 
 git_add_all(){
-	filesChangedAndUntracked=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUntracked`
+	filesChangedAndUntracked=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/files/filesChangedAndUntracked`
 	if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ]; then
 		echo "Commit en cours"
 		notification "Commit en cours 🔏"
@@ -701,15 +699,15 @@ git_add_all(){
 		git add -A
 		checkFilesChanged
 		echo "Fichiers ajoutés au commit :
-$(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesStaged)"
+$(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/files/filesStaged)"
 		notification "Fichiers ajoutés au commit :
-$(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesStaged)"
+$(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/files/filesStaged)"
 	fi
 }
 
 git_add_some(){
 	checkFilesChanged
-	filesChangedAndUntracked=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUntracked`
+	filesChangedAndUntracked=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/files/filesChangedAndUntracked`
 	if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ]; then
 		echo "Commit en cours"
 		notification "Commit en cours 🔏"
@@ -717,7 +715,7 @@ git_add_some(){
 		echo "Aucun fichier à ajouter"
 		notification "Aucun fichier à ajouter"
         else
-		if file=`zenity --list --title="Add  ＋" --text="Git add ..." --column="Fichiers modifiés" $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUntracked)`; then
+		if file=`zenity --list --title="Add  ＋" --text="Git add ..." --column="Fichiers modifiés" $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/files/filesChangedAndUntracked)`; then
 			titre=$file
 			if [ "$titre" = "" ]; then
 				echo "Pas de fichier ajouté"
@@ -742,7 +740,7 @@ git_add_some(){
 
 git_add_single(){
 	checkFilesChanged
-	filesChangedAndUntracked=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUntracked`
+	filesChangedAndUntracked=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/files/filesChangedAndUntracked`
 	if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ]; then
 		echo "Commit en cours"
 		notification "Commit en cours 🔏"
@@ -750,7 +748,7 @@ git_add_single(){
 		echo "Aucun fichier à ajouter"
 		notification "Aucun fichier à ajouter"
 	else
-		if file=`zenity --list --title="Add  ＋" --text="Git add ..." --column="Fichiers modifiés" $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUntracked)`;	then
+		if file=`zenity --list --title="Add  ＋" --text="Git add ..." --column="Fichiers modifiés" $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/files/filesChangedAndUntracked)`;	then
 			titre=$file
 			if [ "$titre" = "" ]; then
 				echo "Pas de fichier ajouté"
@@ -802,7 +800,7 @@ git_add(){
 }
 
 git_reset_all(){
-	filesStaged=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesStaged`
+	filesStaged=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/files/filesStaged`
 	if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ]; then
 		echo "Commit en cours"
 		notification "Commit en cours 🔏"
@@ -813,14 +811,14 @@ git_reset_all(){
 	git reset HEAD
 		checkFilesChanged
 		echo "Fichiers non suivis :
-$(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUntracked)"
+$(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/files/filesChangedAndUntracked)"
 		notification "Fichiers non suivis :
-$(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUntracked)"
+$(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/files/filesChangedAndUntracked)"
 	fi
 }
 
 git_reset_some(){
-	filesStaged=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesStaged`
+	filesStaged=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/files/filesStaged`
 	checkFilesChanged
 	if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ]; then
 		echo "Commit en cours"
@@ -831,7 +829,7 @@ git_reset_some(){
 		notification "Aucun fichier à retirer"
 		git_reset
 	else
-		if file=`zenity --list --title="Reset  −" --text="Git reset ..." --column="Fichiers ajoutés" $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesStaged)`; then
+		if file=`zenity --list --title="Reset  −" --text="Git reset ..." --column="Fichiers ajoutés" $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/files/filesStaged)`; then
 			titre=$file
 			if [ "$titre" = "" ]; then
 				echo "Pas de fichier supprimé"
@@ -855,7 +853,7 @@ git_reset_some(){
 }
 
 git_reset_one(){
-	filesStaged=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesStaged`
+	filesStaged=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/files/filesStaged`
 	checkFilesChanged
 	if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ]; then
 		echo "Commit en cours"
@@ -864,7 +862,7 @@ git_reset_one(){
 		echo "Aucun fichier à retirer"
 		notification "Aucun fichier à retirer"
 	else
-		if file=`zenity --list --title="Reset  −" --text="Git reset ..." --column="Fichiers ajoutés" $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesStaged)`; then
+		if file=`zenity --list --title="Reset  −" --text="Git reset ..." --column="Fichiers ajoutés" $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/files/filesStaged)`; then
 			titre=$file
 			if [ "$titre" = "" ]; then
 				echo "Pas de fichier supprimé"
@@ -951,7 +949,7 @@ git_reset(){
 
 
 git_remove_simple(){
-	filesChangedAndUntracked=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUntracked`
+	filesChangedAndUntracked=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/files/filesChangedAndUntracked`
 	checkFilesChanged
 	if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ]; then
 		echo "Commit en cours"
@@ -962,7 +960,7 @@ git_remove_simple(){
 		notification "Aucun fichier à retirer du dépot"
 		git_remove
 	else
-		if file=`zenity --list --title="Remove Simple ❌" --text="Git rm ..." --column="Fichiers changés et non-suivis" $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUntracked)`; then
+		if file=`zenity --list --title="Remove Simple ❌" --text="Git rm ..." --column="Fichiers changés et non-suivis" $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/files/filesChangedAndUntracked)`; then
 			titre=$file
 			if [ "$titre" = "" ]; then
 				echo "Pas de fichier retiré du dépot"
@@ -987,7 +985,7 @@ git_remove_simple(){
 }
 
 git_remove_simple_single(){
-	filesChangedAndUntracked=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUntracked`
+	filesChangedAndUntracked=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/files/filesChangedAndUntracked`
 	checkFilesChanged
 	if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ]; then
 		echo "Commit en cours"
@@ -998,7 +996,7 @@ git_remove_simple_single(){
 		notification "Aucun fichier à retirer du dépot"
 		git_remove
 	else
-		if file=`zenity --list --title="Remove Simple ❌" --text="Git rm ..." --column="Fichiers changés et non-suivis" $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUntracked)`; then
+		if file=`zenity --list --title="Remove Simple ❌" --text="Git rm ..." --column="Fichiers changés et non-suivis" $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/files/filesChangedAndUntracked)`; then
 			titre=$file
 			if [ "$titre" = "" ]; then
 				echo "Pas de fichier retiré du dépot"
@@ -1021,7 +1019,7 @@ git_remove_simple_single(){
 }
 
 git_remove_cached(){
-	filesChangedAndUntracked=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUntracked`
+	filesChangedAndUntracked=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/files/filesChangedAndUntracked`
 	checkFilesChanged
 	if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ]; then
 		echo "Commit en cours"
@@ -1032,7 +1030,7 @@ git_remove_cached(){
 		notification "Aucun fichier à retirer du dépot"
 		git_remove
 	else
-		if file=`zenity --list --title="Remove Cached ❌" --text="Git rm ..." --column="Fichiers changés et non-suivis" $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUntracked)`; then
+		if file=`zenity --list --title="Remove Cached ❌" --text="Git rm ..." --column="Fichiers changés et non-suivis" $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/files/filesChangedAndUntracked)`; then
 			titre=$file
 			if [ "$titre" = "" ]; then
 				echo "Pas de fichier retiré du dépot"
@@ -1055,7 +1053,7 @@ git_remove_cached(){
 }
 
 git_remove_forced(){
-	filesChangedAndUntracked=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUntracked`
+	filesChangedAndUntracked=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/files/filesChangedAndUntracked`
 	checkFilesChanged
 	if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ]; then
 		echo "Commit en cours"
@@ -1066,7 +1064,7 @@ git_remove_forced(){
 		notification "Aucun fichier à retirer du dépot"
 		git_remove
 	else
-		if file=`zenity --list --title="Remove Forced ❌" --text="Git rm ..." --column="Fichiers changés et non-suivis" $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUntracked)`; then
+		if file=`zenity --list --title="Remove Forced ❌" --text="Git rm ..." --column="Fichiers changés et non-suivis" $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/files/filesChangedAndUntracked)`; then
 			titre=$file
 			if [ "$titre" = "" ]; then
 				echo "Pas de fichier retiré du dépot"
@@ -1168,7 +1166,7 @@ git_erase(){
 }
 
 git_commit(){
-	filesStaged=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesStaged`
+	filesStaged=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/files/filesStaged`
  	if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ]; then
 		echo "Commit déjà en cours"
 		notification "Commit déjà en cours 🔏"
@@ -1207,7 +1205,7 @@ git_commit(){
 
 git_push(){
 	if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ]; then
-		if ret=`zenity --list --title="Push  📤" --text="Git push origin ..." --column="Branche actuelle" $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/actualBranch)`; then
+		if ret=`zenity --list --title="Push  📤" --text="Git push origin ..." --column="Branche actuelle" $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/config/currentBranch)`; then
 			titre=$ret
 			if [ "$titre" = "" ]; then
 				echo "Il faut une destination"
@@ -1242,7 +1240,7 @@ git_push(){
 }
 
 git_merge(){
-	if ret=`zenity --list --title="Merge  📥" --text="Git pull --merge origin ..." --column="Nom de branche" $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/branchesList)`; then
+	if ret=`zenity --list --title="Merge  📥" --text="Git pull --merge origin ..." --column="Nom de branche" $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/config/branchesList)`; then
 		titre=$ret
 		if [ "$titre" = "" ]; then
 			echo "Il faut un dépot distant"
@@ -1277,7 +1275,7 @@ git_merge(){
 }
 
 git_rebase(){
-	if ret=`zenity --list --title="Rebase  📥"--text="Git pull --rebase origin ..." --column="Nom de branche" $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/branchesList)`; then
+	if ret=`zenity --list --title="Rebase  📥"--text="Git pull --rebase origin ..." --column="Nom de branche" $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/config/branchesList)`; then
 		titre=$ret
 			if [ "$titre" = "" ]; then
 				echo "Il faut un dépot distant"
@@ -1337,15 +1335,15 @@ if file=`zenity --list --title="Stash ❌" --width=250 --height=180 --text="" --
 ############### FILES DIALOG ####################
 
 frm_files(){
-actualBranch=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/actualBranch`
+currentBranch=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/config/currentBranch`
 checkFilesChanged
-filesChanged=`sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesChanged | fold -b$(($totalLineNumber + $fifteen)) -s  | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
-filesUntracked=`sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesUntracked | fold -b$(($totalLineNumber + $fifteen)) -s  | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
-filesStaged=`sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesStaged | fold -b$(($totalLineNumber + $fifteen)) -s  | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
-filesCommitted=`sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesCommitted | fold -b$(($totalLineNumber + $fifteen)) -s  | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
-filesChangedAndUntracked=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUntracked`
+filesChanged=`sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/files/filesChanged | fold -b$(($totalLineNumber + $fifteen)) -s  | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
+filesUntracked=`sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/files/filesUntracked | fold -b$(($totalLineNumber + $fifteen)) -s  | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
+filesStaged=`sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/files/filesStaged | fold -b$(($totalLineNumber + $fifteen)) -s  | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
+filesCommitted=`sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/files/filesCommitted | fold -b$(($totalLineNumber + $fifteen)) -s  | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
+filesChangedAndUntracked=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/files/filesChangedAndUntracked`
 
-BRANCH_DISPLAY="\t⎇\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>"
+BRANCH_DISPLAY="\t⎇\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$currentBranch]</i></b></span>"
 COMMIT_PENDING_SIGN_DISPLAY="<span color=\"grey\">Commit </span><span color=\"red\"><i>en cours</i></span>"
 COMMIT_PENDING_LABEL_DISPLAY="\t<span color=\"gray\">📝\tContenu</span>"
 COMMIT_LABEL_DISPLAY="\t<span color=\"gray\">📝\tDernier commit du <i>$LAST_COMMIT_DATE</i></span>"

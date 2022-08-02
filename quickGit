@@ -71,9 +71,9 @@ change_width(){
 
 checkFilesChanged(){
 	git diff --name-only > ~/bin/easyGit/filesChanged
-	git ls-files --other --exclude-standard > ~/bin/easyGit/filesUnfollowed
-	git diff --name-only > ~/bin/easyGit/filesChangedAndUnfollowed
-	git ls-files --other --exclude-standard >> ~/bin/easyGit/filesChangedAndUnfollowed
+	git ls-files --other --exclude-standard > ~/bin/easyGit/filesUntracked
+	git diff --name-only > ~/bin/easyGit/filesChangedAndUntracked
+	git ls-files --other --exclude-standard >> ~/bin/easyGit/filesChangedAndUntracked
 	git diff --name-only --cached > ~/bin/easyGit/filesStaged
 	HASH_COMMIT=`git rev-parse HEAD`
 	git diff-tree --no-commit-id --name-only -r $HASH_COMMIT > ~/bin/easyGit/filesCommitted
@@ -248,11 +248,11 @@ $actualBranch"
 }
 
 git_add_all(){
-	filesChangedAndUnfollowed=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUnfollowed`
+	filesChangedAndUntracked=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUntracked`
 	if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ]; then
 		echo "Commit en cours"
 		notification "Commit en cours 🔏"
-	elif [ "$filesChangedAndUnfollowed" = "" ]; then
+	elif [ "$filesChangedAndUntracked" = "" ]; then
 		echo "Aucun fichier à ajouter"
 		notification "Aucun fichier à ajouter"
 	else
@@ -267,15 +267,15 @@ $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesStaged)"
 
 git_add(){
 	checkFilesChanged
-	filesChangedAndUnfollowed=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUnfollowed`
+	filesChangedAndUntracked=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUntracked`
 	if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ]; then
 		echo "Commit en cours"
 		notification "Commit en cours 🔏"
-	elif [ "$filesChangedAndUnfollowed" = "" ]; then
+	elif [ "$filesChangedAndUntracked" = "" ]; then
 		echo "Aucun fichier à ajouter"
 		notification "Aucun fichier à ajouter"
         else
-		if file=`zenity --list --title="Add  ＋" --text="Git add ..." --column="Fichiers modifiés" $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUnfollowed)`; then
+		if file=`zenity --list --title="Add  ＋" --text="Git add ..." --column="Fichiers modifiés" $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUntracked)`; then
 			titre=$file
 			if [ "$titre" = "" ]; then
 				echo "Pas de fichier ajouté"
@@ -299,15 +299,15 @@ git_add(){
 
 git_add_single(){
 	checkFilesChanged
-	filesChangedAndUnfollowed=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUnfollowed`
+	filesChangedAndUntracked=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUntracked`
 	if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ]; then
 		echo "Commit en cours"
 		notification "Commit en cours 🔏"
-	elif [ "$filesChangedAndUnfollowed" = "" ]; then
+	elif [ "$filesChangedAndUntracked" = "" ]; then
 		echo "Aucun fichier à ajouter"
 		notification "Aucun fichier à ajouter"
 	else
-		if file=`zenity --list --title="Add  ＋" --text="Git add ..." --column="Fichiers modifiés" $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUnfollowed)`;	then
+		if file=`zenity --list --title="Add  ＋" --text="Git add ..." --column="Fichiers modifiés" $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUntracked)`;	then
 			titre=$file
 			if [ "$titre" = "" ]; then
 				echo "Pas de fichier ajouté"
@@ -341,9 +341,9 @@ git_reset_all(){
 		git reset
 		checkFilesChanged
 		echo "Fichiers non suivis :
-$(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUnfollowed)"
+$(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUntracked)"
 		notification "Fichiers non suivis :
-$(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUnfollowed)"
+$(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUntracked)"
 	fi
 }
 
@@ -556,10 +556,10 @@ git_rebase(){
 frm_git(){
 actualBranch=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/actualBranch`
 filesChanged=`sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesChanged | fold -b$(($totalLineNumber + $fifteen)) -s  | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
-filesUnfollowed=`sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesUnfollowed | fold -b$(($totalLineNumber + $fifteen)) -s  | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
+filesUntracked=`sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesUntracked | fold -b$(($totalLineNumber + $fifteen)) -s  | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
 filesStaged=`sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesStaged | fold -b$(($totalLineNumber + $fifteen)) -s  | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
 filesCommitted=`sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/filesCommitted | fold -b$(($totalLineNumber + $fifteen)) -s  | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
-filesChangedAndUnfollowed=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUnfollowed`
+filesChangedAndUntracked=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/filesChangedAndUntracked`
 
 BRANCH_DISPLAY="\t⎇\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$actualBranch]</i></b></span>"
 COMMIT_PENDING_SIGN_DISPLAY="<span color=\"grey\">Commit </span><span color=\"red\"><i>en cours</i></span>"
@@ -567,13 +567,13 @@ COMMIT_PENDING_LABEL_DISPLAY="\t<span color=\"gray\">📝\tContenu</span>"
 COMMIT_LABEL_DISPLAY="\t<span color=\"gray\">📝\tDernier commit du <i>$LqAST_COMMIT_DATE</i></span>"
 COMMITTED_LABEL_DISPLAY="\t<span color=\"gray\">🗒\tCommités</span>"
 CHANGED_LABEL_DISPLAY="\t<span color=\"gray\">🔧\tModifiés</span>"
-UNFOLLOWED_LABEL_DISPLAY="\t<span color=\"gray\">🧩\tNon suivis</span>"
+UNTRACKED_LABEL_DISPLAY="\t<span color=\"gray\">🧩\tNon suivis</span>"
 STAGED_LABEL_DISPLAY="\t<span color=\"gray\">➕\tAjoutés</span>"
 
 ############################## -- Commit Pending -- ##############################
 if [ -e ~/bin/easyGit/currentCommits/$HASH_COMMIT/isCommitPending ]; then
 	#=============== no modified and no untracked ===============
-	if [ "$filesChangedAndUnfollowed" = "" ]; then
+	if [ "$filesChangedAndUntracked" = "" ]; then
 		HEADER_FILES="
 $GIT
 $BRANCH_DISPLAY
@@ -588,7 +588,7 @@ $COMMITTED_LABEL_DISPLAY
 
 "
 	#=============== some modified and no untracked ===============
-	elif [[ "$filesUnfollowed" == "" ]] && [[ "$filesChanged" != "" ]] ; then
+	elif [[ "$filesUntracked" == "" ]] && [[ "$filesChanged" != "" ]] ; then
 		HEADER_FILES="
 $GIT
 $BRANCH_DISPLAY
@@ -607,13 +607,13 @@ $COMMITTED_LABEL_DISPLAY
 
 "
 	#=============== no modified but some untracked ===============
-	elif [[ "$filesChanged" == "" ]] && [[ "$filesUnfollowed" != "" ]]; then
+	elif [[ "$filesChanged" == "" ]] && [[ "$filesUntracked" != "" ]]; then
 		HEADER_FILES="
 $GIT
 $BRANCH_DISPLAY
 
-$UNFOLLOWED_LABEL_DISPLAY
-<span color=\"#155162\">$filesUnfollowed</span>
+$UNTRACKED_LABEL_DISPLAY
+<span color=\"#155162\">$filesUntracked</span>
 $SPACE_LINE$SIMPLE_LINE
 
 $SPACE_COMMIT_PENDING$COMMIT_PENDING_SIGN_DISPLAY
@@ -633,8 +633,8 @@ $BRANCH_DISPLAY
 $CHANGED_LABEL_DISPLAY
 <span color=\"green\">$filesChanged</span>
 
-$UNFOLLOWED_LABEL_DISPLAY
-<span color=\"#155162\">$filesUnfollowed</span>
+$UNTRACKED_LABEL_DISPLAY
+<span color=\"#155162\">$filesUntracked</span>
 $SPACE_LINE$SIMPLE_LINE
 
 $SPACE_COMMIT_PENDING$COMMIT_PENDING_SIGN_DISPLAY
@@ -651,7 +651,7 @@ $COMMITTED_LABEL_DISPLAY
 
 elif [ "$filesStaged" = "" ]; then
 	#=============== no modified and no untracked ===============
-	if [ "$filesChangedAndUnfollowed" = "" ]; then
+	if [ "$filesChangedAndUntracked" = "" ]; then
 		HEADER_FILES="
 $GIT
 $BRANCH_DISPLAY
@@ -665,7 +665,7 @@ $COMMITTED_LABEL_DISPLAY
 
 "
 	#=============== some modified and no untracked ===============
-	elif [[ "$filesUnfollowed" == "" ]] && [[ "$filesChanged" != "" ]] ; then
+	elif [[ "$filesUntracked" == "" ]] && [[ "$filesChanged" != "" ]] ; then
 		HEADER_FILES="
 $GIT
 $BRANCH_DISPLAY
@@ -682,7 +682,7 @@ $CHANGED_LABEL_DISPLAY
 
 "
 	#=============== no modified but some untracked ===============
-	elif [[ "$filesChanged" == "" ]] && [[ "$filesUnfollowed" != "" ]]; then
+	elif [[ "$filesChanged" == "" ]] && [[ "$filesUntracked" != "" ]]; then
 		HEADER_FILES="
 $GIT
 $BRANCH_DISPLAY
@@ -694,8 +694,8 @@ $COMMITTED_LABEL_DISPLAY
 <i>$filesCommitted</i>
 $SPACE_LINE$SIMPLE_LINE
 
-$UNFOLLOWED_LABEL_DISPLAY
-<span color=\"#155162\">$filesUnfollowed</span>
+$UNTRACKED_LABEL_DISPLAY
+<span color=\"#155162\">$filesUntracked</span>
 
 "
 	#=============== by default ===============
@@ -714,15 +714,15 @@ $SPACE_LINE$SIMPLE_LINE
 $CHANGED_LABEL_DISPLAY
 <span color=\"green\">$filesChanged</span>
 
-$UNFOLLOWED_LABEL_DISPLAY
-<span color=\"#155162\">$filesUnfollowed</span>
+$UNTRACKED_LABEL_DISPLAY
+<span color=\"#155162\">$filesUntracked</span>
 
 "
 	fi
 ############################## -- Files Added -- ##############################
 else
 	#=============== no modified and no untracked ===============
-	if [ "$filesChangedAndUnfollowed" = "" ]; then
+	if [ "$filesChangedAndUntracked" = "" ]; then
 		HEADER_FILES="
 $GIT
 $BRANCH_DISPLAY
@@ -740,7 +740,7 @@ $STAGED_LABEL_DISPLAY
 
 "
 	#=============== some modified and no untracked ===============
-	elif [[ "$filesUnfollowed" == "" ]] && [[ "$filesChanged" != "" ]] ; then
+	elif [[ "$filesUntracked" == "" ]] && [[ "$filesChanged" != "" ]] ; then
 		HEADER_FILES="
 $GIT
 $BRANCH_DISPLAY
@@ -761,7 +761,7 @@ $STAGED_LABEL_DISPLAY
 
 "
 	#=============== no modified and some untracked ===============
-	elif [[ "$filesChanged" == "" ]] && [[ "$filesUnfollowed" != "" ]]; then
+	elif [[ "$filesChanged" == "" ]] && [[ "$filesUntracked" != "" ]]; then
 		HEADER_FILES="
 $GIT
 $BRANCH_DISPLAY
@@ -773,8 +773,8 @@ $COMMITTED_LABEL_DISPLAY
 <i>$filesCommitted</i>
 $SPACE_LINE$SIMPLE_LINE
 
-$UNFOLLOWED_LABEL_DISPLAY
-<span color=\"#155162\">$filesUnfollowed</span>
+$UNTRACKED_LABEL_DISPLAY
+<span color=\"#155162\">$filesUntracked</span>
 
 
 $STAGED_LABEL_DISPLAY
@@ -797,8 +797,8 @@ $SPACE_LINE$SIMPLE_LINE
 $CHANGED_LABEL_DISPLAY
 <span color=\"green\">$filesChanged</span>
 
-$UNFOLLOWED_LABEL_DISPLAY
-<span color=\"#155162\">$filesUnfollowed</span>
+$UNTRACKED_LABEL_DISPLAY
+<span color=\"#155162\">$filesUntracked</span>
 
 
 $STAGED_LABEL_DISPLAY
