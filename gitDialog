@@ -109,21 +109,38 @@ switch_display(){
 }
 
 checkFilesChanged(){
-	git diff --name-only > ~/bin/easyGit/files/filesChanged
-	git ls-files --other --exclude-standard > ~/bin/easyGit/files/filesUntracked
-	git diff --name-only > ~/bin/easyGit/files/filesChangedAndUntracked
-	git ls-files --other --exclude-standard >> ~/bin/easyGit/files/filesChangedAndUntracked
-	git diff --name-only --cached > ~/bin/easyGit/files/filesStaged
-	HASH_COMMIT=`git rev-parse HEAD`
-	git diff-tree --no-commit-id --name-only -r $HASH_COMMIT > ~/bin/easyGit/files/filesCommitted
-#	TEXT_COMMIT=`git log --format=%B -n 1 | xargs -n $nbWordsByCommit echo -e '\t'`
-	TEXT_COMMIT_RAW=`git log --format=%B -n 1`
-	TEXT_COMMIT=`echo "$TEXT_COMMIT_RAW" | fold -b$(($totalLineNumber - $two)) -s  | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
-	LAST_COMMIT_DATE_RAW=`git log -1 --format=%cd`
-	LAST_COMMIT_DATE=${LAST_COMMIT_DATE_RAW::-6}
-	REPO_ADRESS=`git config --get remote.origin.url`
-	currentBranch=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/config/currentBranch`
-	currentBranch=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/config/currentBranch`
+	if([ -d .git ] ); then
+		git diff --name-only > ~/bin/easyGit/files/filesChanged
+		git ls-files --other --exclude-standard > ~/bin/easyGit/files/filesUntracked
+		git diff --name-only > ~/bin/easyGit/files/filesChangedAndUntracked
+		git ls-files --other --exclude-standard >> ~/bin/easyGit/files/filesChangedAndUntracked
+		git diff --name-only --cached > ~/bin/easyGit/files/filesStaged
+		HASH_COMMIT=`git rev-parse HEAD`
+		git diff-tree --no-commit-id --name-only -r $HASH_COMMIT > ~/bin/easyGit/files/filesCommitted
+	#	TEXT_COMMIT=`git log --format=%B -n 1 | xargs -n $nbWordsByCommit echo -e '\t'`
+		TEXT_COMMIT_RAW=`git log --format=%B -n 1`
+		TEXT_COMMIT=`echo "$TEXT_COMMIT_RAW" | fold -b$(($totalLineNumber - $two)) -s  | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
+		LAST_COMMIT_DATE_RAW=`git log -1 --format=%cd`
+		LAST_COMMIT_DATE=${LAST_COMMIT_DATE_RAW::-6}
+		REPO_ADRESS=`git config --get remote.origin.url`
+		currentBranch=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/config/currentBranch`
+	else
+		echo "" > ~/bin/easyGit/files/filesChanged
+		echo "" > ~/bin/easyGit/files/filesUntracked
+		echo "" > ~/bin/easyGit/files/filesChangedAndUntracked
+		echo "" >> ~/bin/easyGit/files/filesChangedAndUntracked
+		echo "" > ~/bin/easyGit/files/filesStaged
+		HASH_COMMIT=""
+		echo "" > ~/bin/easyGit/files/filesCommitted
+	#	TEXT_COMMIT=`git log --format=%B -n 1 | xargs -n $nbWordsByCommit echo -e '\t'`
+		TEXT_COMMIT_RAW=""
+		TEXT_COMMIT=""
+		LAST_COMMIT_DATE_RAW=""
+		LAST_COMMIT_DATE=""
+		REPO_ADRESS=""
+		currentBranch=""
+		
+	fi
 }
 
 open_repo(){
@@ -140,7 +157,11 @@ if([ -d .git ] ); then
 	echo $REPO_ADRESS | xclip
 else
 	echo "Le répertoire courant n'est pas un dépot Git."
-	exit 0
+	echo "" > ~/bin/easyGit/config/branchesList
+	echo "" > ~/bin/easyGit/config/ashesTexts
+	echo "" > ~/bin/easyGit/config/currentBranch
+	LAST_COMMIT_DATE_RAW=""
+	currentBranch=""
 fi
 #############################################################################################################################################################################
 
@@ -571,7 +592,8 @@ git_cherry_pick(){
 
 git_log_terminal(){
 	git config --global alias.tree "log --oneline --decorate --all --graph"
-	git tree
+	xterm -e git tree
+	
 	git_log
 }
 
@@ -597,7 +619,7 @@ git_log_simple(){
 }
 
 git_log(){
-	if file=`zenity --list --title="Log 📓" --width=250 --height=230 --text="" --column="" "			 Simple			 📄" "	       Terminal Couleurs	 📺" "			 Reflog 			 📒" "			 Branch			 🌵"`
+	if file=`zenity --list --title="Log 📓" --width=250 --height=230 --text="" --column="" "		         Détaillé		 📄" "	       	        Couleurs		 📺" "			 Reflog 			 📒" "			 Branch			 🌵"`
 	 then
 		titre=$file
 		if [ "$titre" = "" ]; then
@@ -608,9 +630,9 @@ git_log(){
 		echo "Annulation"
 	fi
 	if ([ -n "$titre" ]); then
-		if [ "$titre" = "			 Simple			 📄" ]; then
+		if [ "$titre" = "		         Détaillé		 📄" ]; then
 			git_log_simple
-		elif [ "$titre" = "	       Terminal Couleurs	 📺" ]; then
+		elif [ "$titre" = "	       	        Couleurs		 📺" ]; then
 			git_log_terminal
 		elif [ "$titre" = "			 Reflog 			 📒" ]; then
 			git_reflog
@@ -642,6 +664,10 @@ git_reflog(){
 			echo "An unexpected error has occurred." ;;
 	esac
 }
+
+
+
+
 
 git_branch(){
 	git branch > ~/bin/easyGit/gitTemp
