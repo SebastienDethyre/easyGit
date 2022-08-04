@@ -24,7 +24,7 @@ fifteen=15
 sixteen=16
 seventeen=17
 twenty=20
-
+thirty=30
 GA="Add"
 GAS="Add One"
 GC="Commit"
@@ -592,6 +592,22 @@ git_cherry_pick(){
 
 git_log_terminal(){
 	git config --global alias.tree "log --oneline --decorate --all --graph"
+	
+	git tree > ~/bin/easyGit/gitTemp
+	nbLineTemp=`wc -l < ~/bin/easyGit/gitTemp`
+	if (( $nbLineTemp < $ten )); then
+		sed -i '6s/.*/XTerm*geometry: 170x8/' ~/.Xresources
+		xrdb -merge ~/.Xresources
+	elif (( $nbLineTemp < $twenty )); then
+		sed -i '6s/.*/XTerm*geometry: 170x18/' ~/.Xresources
+		xrdb -merge ~/.Xresources
+	elif (( $nbLineTemp < $thirty )); then
+		sed -i '6s/.*/XTerm*geometry: 170x28/' ~/.Xresources
+		xrdb -merge ~/.Xresources
+	else
+		sed -i '6s/.*/XTerm*geometry: 150x40/' ~/.Xresources
+		xrdb -merge ~/.Xresources
+	fi
 	xterm -e git tree
 	
 	git_log
