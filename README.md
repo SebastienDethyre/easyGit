@@ -10,3 +10,5 @@ Optional : To avoid having to use Tab to confirm the width of the Files Manager 
 especially to avoid using both hands, you'd probably want to modify the ***/usr/locale/zenity.ui*** file, 
 around line 49 and before ```</object>```, add this one :
     ```<property name="has_default">True</property>```
+
+  - Also requires xTerm to display colored branches in a dedicated window : ```sudo apt-get install xterm```
