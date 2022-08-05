@@ -154,7 +154,7 @@ if([ -d .git ] ); then
 	git log --pretty=format:"%H			%s" > ~/bin/easyGit/config/ashesTexts
 	cat .git/HEAD | cut -c 17- > ~/bin/easyGit/config/currentBranch
 	currentBranch=`cat .git/HEAD | cut -c 17-`
-	
+	REPO_ADRESS=`git config --get remote.origin.url`
 	echo $REPO_ADRESS | xclip
 else
 	echo "Le répertoire courant n'est pas un dépot Git."
