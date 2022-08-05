@@ -123,13 +123,11 @@ checkFilesChanged(){
 		git diff --name-only --cached > ~/bin/easyGit/files/filesStaged
 		HASH_COMMIT=`git rev-parse HEAD`
 		git diff-tree --no-commit-id --name-only -r $HASH_COMMIT > ~/bin/easyGit/files/filesCommitted
-	#	TEXT_COMMIT=`git log --format=%B -n 1 | xargs -n $nbWordsByCommit echo -e '\t'`
 		TEXT_COMMIT_RAW=`git log --format=%B -n 1`
 		TEXT_COMMIT=`echo "$TEXT_COMMIT_RAW" | fold -b$(($totalLineNumber - $two)) -s  | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
 		LAST_COMMIT_DATE_RAW=`git log -1 --format=%cd`
 		LAST_COMMIT_DATE=${LAST_COMMIT_DATE_RAW::-6}
 		REPO_ADRESS=`git config --get remote.origin.url`
-		currentBranch=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/config/currentBranch`
 	else
 		echo "" > ~/bin/easyGit/files/filesChanged
 		echo "" > ~/bin/easyGit/files/filesUntracked
@@ -138,14 +136,11 @@ checkFilesChanged(){
 		echo "" > ~/bin/easyGit/files/filesStaged
 		HASH_COMMIT=""
 		echo "" > ~/bin/easyGit/files/filesCommitted
-	#	TEXT_COMMIT=`git log --format=%B -n 1 | xargs -n $nbWordsByCommit echo -e '\t'`
 		TEXT_COMMIT_RAW=""
 		TEXT_COMMIT=""
 		LAST_COMMIT_DATE_RAW=""
 		LAST_COMMIT_DATE=""
 		REPO_ADRESS=""
-		currentBranch=""
-		
 	fi
 }
 
@@ -159,7 +154,7 @@ if([ -d .git ] ); then
 	git log --pretty=format:"%H			%s" > ~/bin/easyGit/config/ashesTexts
 	cat .git/HEAD | cut -c 17- > ~/bin/easyGit/config/currentBranch
 	currentBranch=`cat .git/HEAD | cut -c 17-`
-	checkFilesChanged
+	
 	echo $REPO_ADRESS | xclip
 else
 	echo "Le répertoire courant n'est pas un dépot Git."
@@ -598,8 +593,6 @@ git_cherry_pick(){
 	fi
 }
 
-
-
 git_log_simple(){
 	git log --graph --summary > ~/bin/easyGit/gitTemp
 	FILE=`dirname $0`/gitTemp
@@ -639,7 +632,7 @@ rgb2hex(){
 
 git_log_terminal_police_size_text(){
 	textSizeLogTerm=`sed '8q;d' ~/bin/easyGit/config/generalConfig`
-	size=`zenity --scale --title="Taille du texte  📏"--text="\t\t        Hauteur en pixels" --value=$textSizeLogTerm --min-value=5 --max-value=20 --step 1`
+	size=`zenity --scale --title="Taille du texte  📏"--text="\t\t        Hauteur en pixels" --value=$textSizeLogTerm --min-value=5 --max-value=30 --step 1`
 	case $? in
 			0)
 
@@ -702,7 +695,7 @@ git_log_terminal_color_background(){
 }
 
 git_config_log_terminal(){
-	if file=`zenity --list --title="Config Log Config 📺" --width=250 --height=200 --text="" --column="" "		   Couleur texte		  📄" "		     Taille texte		  📄" "	       	   Fond d'écran		  📺"`
+	if file=`zenity --list --title="Config Log Couleurs 📺" --width=250 --height=200 --text="" --column="" "		   Couleur texte		  📄" "		     Taille texte		  📄" "	       	   Fond d'écran		  📺"`
 	 then
 		titre=$file
 		if [ "$titre" = "" ]; then
@@ -746,7 +739,7 @@ git_log_terminal(){
 }
 
 git_log(){
-	if file=`zenity --list --title="Log 📓" --width=250 --height=250 --text="" --column="" "		         Détaillé		 📄" "	       	        Couleurs		 📺" "	         Config Couleurs		 📺" "			 Reflog 			 📒" "			 Branch			 🌵"`
+	if file=`zenity --list --title="Log 📓" --width=250 --height=250 --text="" --column="" "		         Détaillé		 📄" "	       	        Couleurs		 📺" "	       	          Config			 📺" "			 Reflog 			 📒" "			 Branch			 🌵"`
 	 then
 		titre=$file
 		if [ "$titre" = "" ]; then
@@ -763,7 +756,7 @@ git_log(){
 		elif [ "$titre" = "	       	        Couleurs		 📺" ]; then
 			git_log_terminal
 			unset titre
-		elif [ "$titre" = "	         Config Couleurs		 📺" ]; then
+		elif [ "$titre" = "	       	          Config			 📺" ]; then
 			git_config_log_terminal
 			unset titre	
 		elif [ "$titre" = "			 Reflog 			 📒" ]; then
@@ -1495,8 +1488,8 @@ if file=`zenity --list --title="Stash ❌" --width=250 --height=180 --text="" --
 ############### FILES DIALOG ####################
 
 frm_files(){
-currentBranch=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/config/currentBranch`
 checkFilesChanged
+currentBranch=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/config/currentBranch`
 filesChanged=`sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/files/filesChanged | fold -b$(($totalLineNumber + $fifteen)) -s  | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
 filesUntracked=`sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/files/filesUntracked | fold -b$(($totalLineNumber + $fifteen)) -s  | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
 filesStaged=`sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/files/filesStaged | fold -b$(($totalLineNumber + $fifteen)) -s  | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
