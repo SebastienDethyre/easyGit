@@ -1,14 +1,15 @@
 #!/bin/bash
 
-filesDialogWidth=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/config/widthConfig`
 CURRENT_DIR=`pwd`
-
 factor=3
 totalLineNumber=60
 filesDisplay=1
 
-textColorLogTerm="#204a87"
-backGroundColorLogTerm="#d3d7cf"
+filesDialogWidth=`sed '2q;d' ~/bin/easyGit/config/generalConfig`
+
+textColorLogTerm=`sed '4q;d' ~/bin/easyGit/config/generalConfig`
+backGroundColorLogTerm=`sed '6q;d' ~/bin/easyGit/config/generalConfig`
+textSizeLogTerm=`sed '8q;d' ~/bin/easyGit/config/generalConfig`
 
 one=1
 two=2
@@ -29,6 +30,7 @@ seventeen=17
 twenty=20
 thirty=30
 forty=40
+
 GA="Add"
 GAS="Add One"
 GC="Commit"
@@ -93,7 +95,7 @@ change_width(){
 			0)
 				filesDialogWidth=$width
 				add_spaces
-				echo $width > ~/bin/easyGit/config/widthConfig
+				sed -i '2s/.*/'$width'/' ~/bin/easyGit/config/generalConfig
 				echo "Vous avez choisi $width pixels."
 				function_files ;;
 			1)
@@ -596,25 +598,7 @@ git_cherry_pick(){
 	fi
 }
 
-git_log_terminal(){
-	sed -i '4s/.*/XTerm*foreground: '$textColorLogTerm'/' ~/.Xresources
-	sed -i '5s/.*/XTerm*background: '$backGroundColorLogTerm'/' ~/.Xresources
-	xrdb -merge ~/.Xresources
-	git config --global alias.tree "log --oneline --decorate --all --graph"
-	
-	git tree > ~/bin/easyGit/gitTemp
-	nbLineTemp=`wc -l < ~/bin/easyGit/gitTemp`
-	if (( $nbLineTemp > $forty )); then
-		sed -i '6s/.*/XTerm*geometry: 150x40/' ~/.Xresources
-		xrdb -merge ~/.Xresources	
-	else		
-		sed -i '6s/.*/XTerm*geometry: 170x'$nbLineTemp'/' ~/.Xresources
-		xrdb -merge ~/.Xresources
-	fi
 
-	xterm -e git tree
-	git_log
-}
 
 git_log_simple(){
 	git log --graph --summary > ~/bin/easyGit/gitTemp
@@ -653,6 +637,25 @@ rgb2hex(){
 
 }
 
+git_log_terminal_police_size_text(){
+	textSizeLogTerm=`sed '8q;d' ~/bin/easyGit/config/generalConfig`
+	size=`zenity --scale --title="Taille du texte  📏"--text="\t\t        Hauteur en pixels" --value=$textSizeLogTerm --min-value=5 --max-value=20 --step 1`
+	case $? in
+			0)
+
+				echo "Vous avez choisi $size pixels."
+				sed -i '8s/.*/'$size'/' ~/bin/easyGit/config/generalConfig
+				sed -i '2s/.*/xterm*faceSize: '$size'/' ~/.Xresources
+				xrdb -merge ~/.Xresources
+				;;
+			1)
+				echo "Aucune valeur sélectionnée.";;
+			-1)
+				echo "Une erreur inattendue est survenue.";;
+	esac
+	2>/dev/null
+	git_config_log_terminal
+}
 
 
 git_log_terminal_color_text(){
@@ -670,6 +673,9 @@ git_log_terminal_color_text(){
 	colorRGBRaw=${colorRGBRaw:4}
 	rgb2hex $colorRGBRaw
 	textColorLogTerm=$result
+	sed -i '4s/.*/'$textColorLogTerm'/' ~/bin/easyGit/config/generalConfig
+	sed -i '3s/.*/XTerm*foreground: '$textColorLogTerm'/' ~/.Xresources
+	xrdb -merge ~/.Xresources
 	git_config_log_terminal
 }
 
@@ -689,11 +695,14 @@ git_log_terminal_color_background(){
 	colorRGBRaw=${colorRGBRaw:4}
 	rgb2hex $colorRGBRaw
 	backGroundColorLogTerm=$result
+	sed -i '6s/.*/'$backGroundColorLogTerm'/' ~/bin/easyGit/config/generalConfig
+	sed -i '4s/.*/XTerm*background: '$backGroundColorLogTerm'/' ~/.Xresources
+	xrdb -merge ~/.Xresources
 	git_config_log_terminal
 }
 
 git_config_log_terminal(){
-	if file=`zenity --list --title="Config Log Couleur 📺" --width=250 --height=180 --text="" --column="" "		         Texte		 	 📄" "	       	 Fond d'écran		 📺"`
+	if file=`zenity --list --title="Config Log Config 📺" --width=250 --height=200 --text="" --column="" "		   Couleur texte		  📄" "		     Taille texte		  📄" "	       	   Fond d'écran		  📺"`
 	 then
 		titre=$file
 		if [ "$titre" = "" ]; then
@@ -704,10 +713,12 @@ git_config_log_terminal(){
 		echo "Annulation"
 	fi
 	if ([ -n "$titre" ]); then
-		if [ "$titre" = "		         Texte		 	 📄" ]; then
+		if [ "$titre" = "		   Couleur texte		  📄" ]; then
 			git_log_terminal_color_text
 			unset titre
-		elif [ "$titre" = "	       	 Fond d'écran		 📺" ]; then
+		elif [ "$titre" = "		     Taille texte		  📄" ]; then
+			git_log_terminal_police_size_text
+		elif [ "$titre" = "	       	   Fond d'écran		  📺" ]; then
 			git_log_terminal_color_background
 			unset titre
 		fi
@@ -715,6 +726,23 @@ git_config_log_terminal(){
 		echo "Pas de choix effectué"
 	fi
 
+}
+
+git_log_terminal(){
+	git config --global alias.tree "log --oneline --decorate --all --graph"
+	
+	git tree > ~/bin/easyGit/gitTemp
+	nbLineTemp=`wc -l < ~/bin/easyGit/gitTemp`
+	if (( $nbLineTemp > $forty )); then
+		sed -i '5s/.*/XTerm*geometry: 150x40/' ~/.Xresources
+		xrdb -merge ~/.Xresources	
+	else		
+		sed -i '5s/.*/XTerm*geometry: 170x'$nbLineTemp'/' ~/.Xresources
+		xrdb -merge ~/.Xresources
+	fi
+
+	xterm -e git tree
+	git_log
 }
 
 git_log(){
