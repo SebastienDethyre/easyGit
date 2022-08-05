@@ -7,6 +7,9 @@ factor=3
 totalLineNumber=60
 filesDisplay=1
 
+textColorLogTerm="#204a87"
+backGroundColorLogTerm="#d3d7cf"
+
 one=1
 two=2
 three=3
@@ -25,6 +28,7 @@ sixteen=16
 seventeen=17
 twenty=20
 thirty=30
+forty=40
 GA="Add"
 GAS="Add One"
 GC="Commit"
@@ -326,6 +330,8 @@ _quit(){
     exit 0
 }
 
+
+
 ############### GIT FUNCTIONS ####################
 fix_process_already_launched(){
 	rm -f .git/index.lock
@@ -365,7 +371,7 @@ git_clone_any(){
 		fi
 	else
 		echo "Annulation"
-git_clone
+		git_clone
 	fi
 	if ([ -n "$titre" ])
 		then
@@ -455,7 +461,7 @@ git_stash_pop(){
 		1)
 			echo "Git Stash Pop quitté"	;;
 		-1)
-			echo "An unexpected error has occurred." ;;
+			echo "Une erreur est survenue." ;;
 	esac
 }
 
@@ -496,7 +502,7 @@ git_status(){
 		1)
 			echo "Git Status quitté" ;;
 		-1)
-			echo "An unexpected error has occurred." ;;
+			echo "Une erreur est survenue." ;;
 	esac
 }
 
@@ -553,7 +559,7 @@ git_cherry_pick_operation(){
 				1)
 					echo "Git Cherry-Pick quitté" ;;
 				-1)
-					echo "An unexpected error has occurred." ;;
+					echo "Une erreur est survenue." ;;
 			esac
 		else
 			echo "Pas de Cherry-Pick effectué"
@@ -591,25 +597,22 @@ git_cherry_pick(){
 }
 
 git_log_terminal(){
+	sed -i '4s/.*/XTerm*foreground: '$textColorLogTerm'/' ~/.Xresources
+	sed -i '5s/.*/XTerm*background: '$backGroundColorLogTerm'/' ~/.Xresources
+	xrdb -merge ~/.Xresources
 	git config --global alias.tree "log --oneline --decorate --all --graph"
 	
 	git tree > ~/bin/easyGit/gitTemp
 	nbLineTemp=`wc -l < ~/bin/easyGit/gitTemp`
-	if (( $nbLineTemp < $ten )); then
-		sed -i '6s/.*/XTerm*geometry: 170x8/' ~/.Xresources
-		xrdb -merge ~/.Xresources
-	elif (( $nbLineTemp < $twenty )); then
-		sed -i '6s/.*/XTerm*geometry: 170x18/' ~/.Xresources
-		xrdb -merge ~/.Xresources
-	elif (( $nbLineTemp < $thirty )); then
-		sed -i '6s/.*/XTerm*geometry: 170x28/' ~/.Xresources
-		xrdb -merge ~/.Xresources
-	else
+	if (( $nbLineTemp > $forty )); then
 		sed -i '6s/.*/XTerm*geometry: 150x40/' ~/.Xresources
+		xrdb -merge ~/.Xresources	
+	else		
+		sed -i '6s/.*/XTerm*geometry: 170x'$nbLineTemp'/' ~/.Xresources
 		xrdb -merge ~/.Xresources
 	fi
+
 	xterm -e git tree
-	
 	git_log
 }
 
@@ -630,12 +633,92 @@ git_log_simple(){
 			git_log
 			echo "Git Log quitté" ;;
 		-1)
-			echo "An unexpected error has occurred." ;;
+			echo "Une erreur est survenue." ;;
 	esac
+}
+rgb2hex(){
+
+	if [ $# -eq 0 ]; then
+		echo 'Invalid color value!';
+
+	fi
+
+	if [[ $1 =~ ([[:xdigit:]]{2})([[:xdigit:]]{2})([[:xdigit:]]{2}) ]]; then
+		result=`printf "(%d, %d, %d)\n" \
+			0x"${BASH_REMATCH[1]}" 0x"${BASH_REMATCH[2]}" 0x"${BASH_REMATCH[3]}"`
+	elif [[ $1 =~ ([[:digit:]]{1,3}),([[:digit:]]{1,3}),([[:digit:]]{1,3}) ]]; then
+		result=`printf "#%02x%02x%02x\n" \
+			"${BASH_REMATCH[1]}" "${BASH_REMATCH[2]}" "${BASH_REMATCH[3]}"`
+	fi
+
+}
+
+
+
+git_log_terminal_color_text(){
+	color=`zenity --color-selection --show-palette`
+
+	case $? in
+			0)
+				echo "You selected $color.";;
+			1)
+				echo "Aucune couleur choisie.";;
+			-1)
+				echo "Une erreur est survenue.";;
+	esac
+	colorRGBRaw=`echo "$color" | head -c-2`
+	colorRGBRaw=${colorRGBRaw:4}
+	rgb2hex $colorRGBRaw
+	textColorLogTerm=$result
+	git_config_log_terminal
+}
+
+
+git_log_terminal_color_background(){
+	color=`zenity --color-selection --show-palette`
+
+	case $? in
+			0)
+				echo "You selected $color.";;
+			1)
+				echo "Aucune couleur choisie.";;
+			-1)
+				echo "Une erreur est survenue.";;
+	esac
+	colorRGBRaw=`echo "$color" | head -c-2`
+	colorRGBRaw=${colorRGBRaw:4}
+	rgb2hex $colorRGBRaw
+	backGroundColorLogTerm=$result
+	git_config_log_terminal
+}
+
+git_config_log_terminal(){
+	if file=`zenity --list --title="Config Log Couleur 📺" --width=250 --height=180 --text="" --column="" "		         Texte		 	 📄" "	       	 Fond d'écran		 📺"`
+	 then
+		titre=$file
+		if [ "$titre" = "" ]; then
+			echo "Pas de choix effectué"
+		fi
+	else
+		git_log
+		echo "Annulation"
+	fi
+	if ([ -n "$titre" ]); then
+		if [ "$titre" = "		         Texte		 	 📄" ]; then
+			git_log_terminal_color_text
+			unset titre
+		elif [ "$titre" = "	       	 Fond d'écran		 📺" ]; then
+			git_log_terminal_color_background
+			unset titre
+		fi
+	else
+		echo "Pas de choix effectué"
+	fi
+
 }
 
 git_log(){
-	if file=`zenity --list --title="Log 📓" --width=250 --height=230 --text="" --column="" "		         Détaillé		 📄" "	       	        Couleurs		 📺" "			 Reflog 			 📒" "			 Branch			 🌵"`
+	if file=`zenity --list --title="Log 📓" --width=250 --height=250 --text="" --column="" "		         Détaillé		 📄" "	       	        Couleurs		 📺" "	         Config Couleurs		 📺" "			 Reflog 			 📒" "			 Branch			 🌵"`
 	 then
 		titre=$file
 		if [ "$titre" = "" ]; then
@@ -648,12 +731,19 @@ git_log(){
 	if ([ -n "$titre" ]); then
 		if [ "$titre" = "		         Détaillé		 📄" ]; then
 			git_log_simple
+			unset titre
 		elif [ "$titre" = "	       	        Couleurs		 📺" ]; then
 			git_log_terminal
+			unset titre
+		elif [ "$titre" = "	         Config Couleurs		 📺" ]; then
+			git_config_log_terminal
+			unset titre	
 		elif [ "$titre" = "			 Reflog 			 📒" ]; then
 			git_reflog
+			unset titre
 		elif [ "$titre" = "			 Branch			 🌵" ]; then
 			git_branch
+			unset titre
 		fi
 	else
 		echo "Pas de choix effectué"
@@ -677,7 +767,7 @@ git_reflog(){
 			git_log
 			echo "Git Reflog quitté" ;;
 		-1)
-			echo "An unexpected error has occurred." ;;
+			echo "Une erreur est survenue." ;;
 	esac
 }
 
@@ -701,7 +791,7 @@ git_branch(){
 			git_log
 			echo "Git Branch quitté" ;;
 		-1)
-			echo "An unexpected error has occurred." ;;
+			echo "Une erreur est survenue." ;;
 	esac
 }
 
@@ -1308,7 +1398,7 @@ git_merge(){
 			1)
 				echo "Git Merge quitté" ;;
 			-1)
-				echo "An unexpected error has occurred." ;;
+				echo "Une erreur est survenue." ;;
 		esac
 	else
 		echo "Pas de Pull Merge effectué"
@@ -1343,7 +1433,7 @@ git_rebase(){
 			1)
 				echo "Git Rebase quitté" ;;
 			-1)
-				echo "An unexpected error has occurred." ;;
+				echo "Une erreur est survenue." ;;
 		esac
 	else
 		echo "Pas de Pull Rebase effectué"
