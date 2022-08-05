@@ -313,7 +313,6 @@ header_infos(){
 \t⎇\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$currentBranch]</i></b></span>
 
 \t<span color=\"green\">$nbFilesChangedSymbol  $nbFilesChanged</span>    <span color=\"#155162\">$nbFilesUntrackedSymbol  $nbFilesUntracked</span>
-$TMP_SCREEN
 "
 }
 
@@ -508,6 +507,8 @@ git_cherry_pick_skip(){
 	TMP_SCREEN=$(<~/bin/easyGit/gitTemp)
 	lineNumber=52
 	TMP_SCREEN=`echo "$TMP_SCREEN" | fold -b$(($lineNumber)) -s  | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
+	echo "Cherry-Pick Confirmé"
+	notification "Cherry-Pick Confirmé"
 }
 
 git_cherry_pick_abort(){
@@ -515,6 +516,8 @@ git_cherry_pick_abort(){
 	TMP_SCREEN=$(<~/bin/easyGit/gitTemp)
 	lineNumber=52
 	TMP_SCREEN=`echo "$TMP_SCREEN" | fold -b$(($lineNumber)) -s  | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
+	echo "Cherry-Pick annulé"
+	notification "Cherry-Pick annulé"
 }
 
 git_cherry_pick_operation(){
@@ -1903,7 +1906,7 @@ function_repo(){
 
 frm_infos(){
 header_infos
-zenity --list --width=400 --height=515 --text='<span font-family=\"Arial\">'"$HEADER"'</span>' \
+zenity --list --width=400 --height=500 --text='<span font-family=\"Arial\">'"$HEADER"'</span>' \
     --title="Infos 📋" \
     --ok-label="Sélectionner" \
     --cancel-label="Quitter" \
