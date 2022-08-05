@@ -44,7 +44,7 @@ GPL="Pull"
 GR="Rebase"
 GSP="Stash Pop"
 GM="Merge"
-OR="Ouvrir dépot"
+OR="Ouvrir"
 GCL="Clone"
 
 GLCP="Log Pick"
@@ -61,7 +61,7 @@ GE="Erase"
 
 MD="Dépot"
 MF="Fichiers"
-MI="Informations"
+MO="Outils"
 SC="Clear"
 RL="Résultats par ligne"
 AFF="Affichage"
@@ -175,7 +175,7 @@ LOGO_400="
 \t\t<span color=\"#F65151\">       ╚═════╝    ╚  ╝       ╚═╝   </span>
 
 \t<span color=\"darkblue\">$REPO_ADRESS</span>
-\t<span color=\"blue\">$CURRENT_DIR</span>
+\t<big>📂</big>   <span color=\"blue\">$CURRENT_DIR</span>
 "
 
 add_spaces(){
@@ -209,7 +209,7 @@ $SPACE_GIT$git5
 $SPACE_GIT$git6
 
 <span color=\"darkblue\">$REPO_ADRESS</span>
-\t<span color=\"blue\">$CURRENT_DIR</span>
+\t<big>📂</big>   <span color=\"blue\">$CURRENT_DIR</span>
 "
 	diff=46
 	commandsDialogWidth="$(($totalLineNumber - $diff))"
@@ -252,9 +252,9 @@ add_spaces
 header_repo(){
 	checkFilesChanged
 	currentBranch=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/config/currentBranch`
-	nbFilesChangedSymbol="🔧"
+	nbFilesChangedSymbol="<big>🔧</big>"
 	nbFilesChanged=`wc -l < ~/bin/easyGit/files/filesChanged`
-	nbFilesUntrackedSymbol="🧩"
+	nbFilesUntrackedSymbol="<big>🧩</big>"
 	nbFilesUntracked=`wc -l < ~/bin/easyGit/files/filesUntracked`
 	if [ $nbFilesChanged -eq 0 ]; then
 		nbFilesChangedSymbol=""
@@ -265,7 +265,7 @@ header_repo(){
 		nbFilesUntracked=""
 	fi
 	HEADER="$LOGO_400
-\t⎇\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$currentBranch]</i></b></span>
+\t<big>⎇</big>\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$currentBranch]</i></b></span>
 
 \t<span color=\"green\">$nbFilesChangedSymbol  $nbFilesChanged</span>    <span color=\"#155162\">$nbFilesUntrackedSymbol  $nbFilesUntracked</span>
 $TMP_SCREEN
@@ -275,9 +275,9 @@ $TMP_SCREEN
 header_general(){
 	checkFilesChanged
 	currentBranch=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/config/currentBranch`
-	nbFilesChangedSymbol="🔧"
+	nbFilesChangedSymbol="<big>🔧</big>"
 	nbFilesChanged=`wc -l < ~/bin/easyGit/files/filesChanged`
-	nbFilesUntrackedSymbol="🧩"
+	nbFilesUntrackedSymbol="<big>🧩</big>"
 	nbFilesUntracked=`wc -l < ~/bin/easyGit/files/filesUntracked`
 	if [ $nbFilesChanged -eq 0 ]; then
 		nbFilesChangedSymbol=""
@@ -288,18 +288,18 @@ header_general(){
 		nbFilesUntracked=""
 	fi
 	HEADER="$LOGO_400
-\t⎇\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$currentBranch]</i></b></span>
+\t<big>⎇</big>\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$currentBranch]</i></b></span>
 
 \t<span color=\"green\">$nbFilesChangedSymbol  $nbFilesChanged</span>    <span color=\"#155162\">$nbFilesUntrackedSymbol  $nbFilesUntracked</span>
 "
 }
 
-header_infos(){
+header_utils(){
 	checkFilesChanged
 	currentBranch=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/config/currentBranch`
-	nbFilesChangedSymbol="🔧"
+	nbFilesChangedSymbol="<big>🔧</big>"
 	nbFilesChanged=`wc -l < ~/bin/easyGit/files/filesChanged`
-	nbFilesUntrackedSymbol="🧩"
+	nbFilesUntrackedSymbol="<big>🧩</big>"
 	nbFilesUntracked=`wc -l < ~/bin/easyGit/files/filesUntracked`
 	if [ $nbFilesChanged -eq 0 ]; then
 		nbFilesChangedSymbol=""
@@ -310,7 +310,7 @@ header_infos(){
 		nbFilesUntracked=""
 	fi
 	HEADER="$LOGO_400
-\t⎇\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$currentBranch]</i></b></span>
+\t<big>⎇</big>\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$currentBranch]</i></b></span>
 
 \t<span color=\"green\">$nbFilesChangedSymbol  $nbFilesChanged</span>    <span color=\"#155162\">$nbFilesUntrackedSymbol  $nbFilesUntracked</span>
 "
@@ -577,7 +577,7 @@ git_cherry_pick(){
 				echo "Pas de choix effectué"
 			fi
 		else
-			function_infos
+			function_utils
 			echo "Annulation"
 		fi
 		if ([ -n "$titre" ]); then
@@ -698,7 +698,7 @@ git_log_terminal_color_background(){
 }
 
 git_config_log_terminal(){
-	if file=`zenity --list --title="Config Log Couleurs 📺" --width=250 --height=200 --text="" --column="" "		   Couleur texte		  📄" "		     Taille texte		  📄" "	       	   Fond d'écran		  📺"`
+	if file=`zenity --list --title="Config Log Couleurs 📊" --width=250 --height=200 --text="" --column="" "		   Couleur texte		  📄" "		     Taille texte		  📄" "	       	   Fond d'écran		  📺"`
 	 then
 		titre=$file
 		if [ "$titre" = "" ]; then
@@ -742,24 +742,24 @@ git_log_terminal(){
 }
 
 git_log(){
-	if file=`zenity --list --title="Log 📓" --width=250 --height=250 --text="" --column="" "		         Détaillé		 📄" "	       	        Couleurs		 📺" "	       	          Config			 📺" "			 Reflog 			 📒" "			 Branch			 🌵"`
+	if file=`zenity --list --title="Log 📓" --width=250 --height=250 --text="" --column="" "		         Détaillé		 📄" "	       	        Couleurs		 📊" "	       	          Config			 📊" "			 Reflog 			 📒" "			 Branch			 🌵"`
 	 then
 		titre=$file
 		if [ "$titre" = "" ]; then
 			echo "Pas de choix effectué"
 		fi
 	else
-		function_infos
+		function_utils
 		echo "Annulation"
 	fi
 	if ([ -n "$titre" ]); then
 		if [ "$titre" = "		         Détaillé		 📄" ]; then
 			git_log_simple
 			unset titre
-		elif [ "$titre" = "	       	        Couleurs		 📺" ]; then
+		elif [ "$titre" = "	       	        Couleurs		 📊" ]; then
 			git_log_terminal
 			unset titre
-		elif [ "$titre" = "	       	          Config			 📺" ]; then
+		elif [ "$titre" = "	       	          Config			 📊" ]; then
 			git_config_log_terminal
 			unset titre	
 		elif [ "$titre" = "			 Reflog 			 📒" ]; then
@@ -1499,14 +1499,14 @@ filesStaged=`sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/files/filesStaged
 filesCommitted=`sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/easyGit/files/filesCommitted | fold -b$(($totalLineNumber + $fifteen)) -s  | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
 filesChangedAndUntracked=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/files/filesChangedAndUntracked`
 
-BRANCH_DISPLAY="\t⎇\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$currentBranch]</i></b></span>"
+BRANCH_DISPLAY="\t<big>⎇</big>\t<span color=\"grey\">Branche :</span><span color=\"orange\"><b><i> [$currentBranch]</i></b></span>"
 COMMIT_PENDING_SIGN_DISPLAY="<span color=\"grey\">Commit </span><span color=\"red\"><i>en cours</i></span>"
-COMMIT_PENDING_LABEL_DISPLAY="\t<span color=\"gray\">📝\tContenu</span>"
-COMMIT_LABEL_DISPLAY="\t<span color=\"gray\">📝\tDernier commit du <i>$LAST_COMMIT_DATE</i></span>"
-COMMITTED_LABEL_DISPLAY="\t<span color=\"gray\">🗒\tCommités</span>"
-CHANGED_LABEL_DISPLAY="\t<span color=\"gray\">🔧\tModifiés</span>"
-UNTRACKED_LABEL_DISPLAY="\t<span color=\"gray\">🧩\tNon suivis</span>"
-STAGED_LABEL_DISPLAY="\t<span color=\"gray\">➕\tAjoutés</span>"
+COMMIT_PENDING_LABEL_DISPLAY="\t<span color=\"gray\"><big>📝</big>\tContenu</span>"
+COMMIT_LABEL_DISPLAY="\t<span color=\"gray\"><big>📝</big>\tDernier commit du <i>$LAST_COMMIT_DATE</i></span>"
+COMMITTED_LABEL_DISPLAY="\t<span color=\"gray\"><big>🗒</big>\tCommités</span>"
+CHANGED_LABEL_DISPLAY="\t<span color=\"gray\"><big>🔧</big>\tModifiés</span>"
+UNTRACKED_LABEL_DISPLAY="\t<span color=\"gray\"><big>🧩</big>\tNon suivis</span>"
+STAGED_LABEL_DISPLAY="\t<span color=\"gray\"><big>➕</big>\tAjoutés</span>"
 
 if [ "$filesDisplay" -eq 1 ]; then
 	############################## -- Commit Pending -- ##############################
@@ -1878,7 +1878,7 @@ zenity --list --width=400 --height=$dialogRepoHeight --text='<span font-family=\
     2 "    2" "				         $GS" "			    " "🔁" \
     3 "    3" "				           $GPL" "			    " "📥" \
     0 "" "" "" "" \
-    4 "    4" "				  $OR" "			    " "🌍" \
+    4 "    4" "				        $OR" "			    " "🌍" \
     5 "    5" "				         $GCL" "			     " "📚" 2>/dev/null ;
 }
 
@@ -1902,12 +1902,12 @@ function_repo(){
 	fi
 }
 
-############### INFOS DIALOG ####################
+############### UTILS DIALOG ####################
 
-frm_infos(){
-header_infos
+frm_utils(){
+header_utils
 zenity --list --width=400 --height=500 --text='<span font-family=\"Arial\">'"$HEADER"'</span>' \
-    --title="Infos 📋" \
+    --title="Outils 🧰" \
     --ok-label="Sélectionner" \
     --cancel-label="Quitter" \
     --hide-column 1 --column "" --column "" --column "" --column "" --column "" \
@@ -1918,7 +1918,7 @@ zenity --list --width=400 --height=500 --text='<span font-family=\"Arial\">'"$HE
     4 "    4" "				   $CP" "		   " "🍒" 2>/dev/null ;
 }
 
-frm_infos_parser(){
+frm_utils_parser(){
     case $1 in
         1) git_log ;;
         2) git_checkout ;;
@@ -1928,11 +1928,11 @@ frm_infos_parser(){
         esac
 }
 
-function_infos(){
-	menuchoice=$(frm_infos)
-	frm_infos_parser ${menuchoice%|*}
+function_utils(){
+	menuchoice=$(frm_utils)
+	frm_utils_parser ${menuchoice%|*}
 	if [ $quit!="1" ]; then
-		function_infos
+		function_utils
 	fi
 }
 
@@ -1948,7 +1948,7 @@ frm_git(){
     	--hide-column 1 --column "" --column "" --column "" --column "" --column "" \
     	1 "  1" "				        $MD" "			     " "🗃" \
     	2 "  2" "				      $MF" "			     " "📑" \
-    	3 "  3" "			         $MI" "			     " "📋" \
+    	3 "  3" "				        $MO" "			     " "🧰" \
     	0 "" "" "" "" \
     	4 "  4" "				         $SC" "			     " "🗑" 2>/dev/null;
 }
@@ -1957,7 +1957,7 @@ frm_git_parser(){
     case $1 in
         1) function_repo ;;
         2) function_files ;;
-		3) function_infos ;;
+		3) function_utils ;;
 		4) clear_screen ;;
         *)
            quit="1"
