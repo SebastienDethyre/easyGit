@@ -11,4 +11,4 @@ especially to avoid using both hands, you'd probably want to modify the ***/usr/
 around line 49 and before ```</object>```, add this one :
     ```<property name="has_default">True</property>```
 
-  - Also requires xTerm to display colored branches in a dedicated window : ```sudo apt-get install xterm```
+  - Also requires xTerm to display colored branches in a dedicated window : ```sudo apt-get install xterm && touch ~/.Xresources```
