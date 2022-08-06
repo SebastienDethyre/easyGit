@@ -107,8 +107,32 @@ change_width(){
 	2>/dev/null
 }
 
+edit_text_local(){
+	git stash pop &> ~/bin/easyGit/gitTemp
+	FILE=`dirname $0`/gitTemp
+	ret=`zenity --text-info \
+		--title="Edit" \
+		--width=650 \
+		--editable \
+		--height=700 \
+		--filename=$FILE`
+	echo "$ret" > ~/bin/easyGit/gitTemp
+	case $? in
+		0)
+			echo "Modifications enregistrées"
+			notification "Récupération des modifications locales"
+			;;
+		1)
+			echo "Modifications annulées"	;;
+		-1)
+			echo "Une erreur est survenue." ;;
+	esac
+
+}
+
+
 edit_text(){
-	if ret=`zenity  --file-selection --title="Editer texte  📚" --text="Fichier"`; then
+	if ret=`zenity --file-selection --title="Editer texte  📚" --filename=$CURRENT_DIR --text="Fichier"`; then
 				titre=$ret
 				if [ "$titre" = "" ]; then
 					echo "Pas de fichier choisi"
@@ -119,9 +143,65 @@ edit_text(){
 				edit_file
 			fi
 			if ([ -n "$titre" ]); then
-				code $titre || pluma $titre || nano $titre || vi $titre
-				notification "Ouverture de $titre"
-				unset titre
+				if ret2=`zenity --list --title="Ouvrir avec   📚" --width=250 --height=250 --text="" --column="" "			   Local" "		 	 VScode" "		 	  Pluma" "		 	   Nano" "		 	    Vim"`; then
+					titre2=$ret2
+					if [ "$titre2" = "" ]; then
+						echo "Aucun choix effectué"
+					fi
+				else
+					echo "Annulation"
+					edit_file
+				fi
+				if ([ -n "$titre2" ]); then
+					if [ "$titre2" = "			   Local" ]; then
+						notification "Ouverture de $titre"
+						cat $titre &> ~/bin/easyGit/gitTemp
+						FILE=`dirname $0`/gitTemp
+						ret=`zenity --text-info \
+						--title="Edit" \
+						--width=1850 \
+						--height=1050 \
+						--editable \
+						--filename=$FILE`
+						case $? in
+							0)
+								echo "$ret" > $titre 
+								notification "Enregistrement de $titre"
+								unset titre
+								;;
+							1)
+								echo "Modifications annulées"	;;
+							-1)
+								echo "Une erreur est survenue." ;;
+						esac
+						unset titre2
+					elif [ "$titre2" = "		 	 VScode" ]; then
+						unset titre2
+						notification "Ouverture de $titre"
+						code $titre 
+						unset titre
+					elif [ "$titre2" = "		 	  Pluma" ]; then
+						unset titre2
+						notification "Ouverture de $titre"
+						pluma $titre
+						unset titre
+					elif [ "$titre2" = "		 	   Nano" ]; then
+						unset titre2
+						notification "Ouverture de $titre"
+						nano $titre
+						unset titre
+					elif [ "$titre2" = "		 	    Vim" ]; then
+						unset titre2
+						notification "Ouverture de $titre"
+						vi $titre
+						unset titre
+					fi
+					edit_file
+				else
+					echo "Aucun choix effectué"
+					function_repo
+				fi
+				2>/dev/null
 			else
 				echo "Pas de fichier ouvert"
 				edit_file
@@ -129,28 +209,26 @@ edit_text(){
 }
 
 edit_image(){
-	if ret=`zenity  --file-selection --title="Ouvrir image  📚" --text="Fichier"`; then
-				titre=$ret
-				if [ "$titre" = "" ]; then
-					echo "Pas de fichier choisi"
-					edit_file
-				fi
-			else
-				echo "Annulation"
-				edit_file
-			fi
-			if ([ -n "$titre" ]); then
-				(echo "<h1></h1><img src=\"data:"
-				mimetype -b "$titre"
-				echo -n ";base64,"
-				base64 "$titre"
-				echo "\">") | zenity --text-info --width=1850 --height=1050 --html --filename=/dev/stdin
-				notification "Ouverture de $titre"
-				unset titre
-			else
-				echo "Pas de fichier ouvert"
-				edit_file
-			fi
+	if ret=`zenity --file-selection --title="Ouvrir image  📚" --filename=$CURRENT_DIR --text="Fichier"`; then
+		titre=$ret
+		if [ "$titre" = "" ]; then
+			echo "Pas de fichier choisi"
+		fi
+	else
+		echo "Annulation"
+	fi
+	if ([ -n "$titre" ]); then
+		(echo "<h1></h1><img src=\"data:"
+		mimetype -b "$titre"
+		echo -n ";base64,"
+		base64 "$titre"
+		echo "\">") | zenity --text-info --width=1900 --height=1050 --html --filename=/dev/stdin
+		notification "Ouverture de $titre"
+		unset titre
+	else
+		echo "Pas de fichier ouvert"
+	fi
+	edit_file
 }
 
 edit_file(){
@@ -173,7 +251,7 @@ edit_file(){
 			fi
 		else
 			echo "Aucun clone effectué"
-			function_repo
+			function_files
 		fi
 		2>/dev/null
 
@@ -1868,7 +1946,7 @@ else
 		nbLines=`echo -n "$HEADER_FILES" | grep -c '^'`
 		oneLineHeight=17
 		linesHeight=$(($oneLineHeight * $nbLines))
-		commandsHeight=300
+		commandsHeight=325
 		dialogFilesHeight=$(($commandsHeight + $linesHeight))
 		zenity --list --width=$filesDialogWidth --height=$dialogFilesHeight --text='<span font-family=\"Arial\">'"$HEADER_FILES"'</span>' \
 			--title="Fichiers 📑" \
@@ -1879,14 +1957,14 @@ else
 			2 "    2" "$SPACE_COMMIT$GC" "$SPACE_FILES_SYMBOL" "📝" \
 			0 "" "" "" ""\
 			3 "    3" "$SPACE_RESET$GRT" "$SPACE_FILES_SYMBOL" "➖"\
-			4 "    4" "$SPACE_DISPLAY$AFF" "$SPACE_FILES_SYMBOL" "💻" \
-			5 "    5" "$SPACE_RESET$ED" "$SPACE_FILES_SYMBOL" "📝" \
+			4 "    4" "$SPACE_RESET$ED" "$SPACE_FILES_SYMBOL" "📝" \
+			5 "    5" "$SPACE_DISPLAY$AFF" "$SPACE_FILES_SYMBOL" "💻" \
 			6 "    6" "$SPACE_CHANGE_WIDTH$CW" "$SPACE_FILES_SYMBOL" "📏" 2>/dev/null;
 	else
 		nbLines=`echo -n "$HEADER_FILES" | grep -c '^'`
 		oneLineHeight=17
 		linesHeight=$(($oneLineHeight * $nbLines))
-		commandsHeight=300
+		commandsHeight=325
 		dialogFilesHeight=$(($commandsHeight + $linesHeight))
 		zenity --list --width=$filesDialogWidth --height=$dialogFilesHeight --text='<span font-family=\"Arial\">'"$HEADER_FILES"'</span>' \
 			--title="Fichiers 📑" \
@@ -1897,8 +1975,8 @@ else
 			2 "    2" "$SPACE_COMMIT$GC" "$SPACE_FILES_SYMBOL" "📝" \
 			0 "" "" "" ""\
 			3 "    3" "$SPACE_RESET$GRT" "$SPACE_FILES_SYMBOL" "➖" \
-			4 "    4" "$SPACE_DISPLAY$AFF" "$SPACE_FILES_SYMBOL" "💻" \
-			5 "    5" "$SPACE_RESET$ED" "$SPACE_FILES_SYMBOL" "📝" \
+			4 "    4" "$SPACE_RESET$ED" "$SPACE_FILES_SYMBOL" "📝" \
+			5 "    5" "$SPACE_DISPLAY$AFF" "$SPACE_FILES_SYMBOL" "💻" \
 			6 "    6" "$SPACE_CHANGE_WIDTH$CW" "$SPACE_FILES_SYMBOL" "📏" 2>/dev/null;
 	fi
 fi
@@ -1919,8 +1997,8 @@ frm_files_parser(){
 			1) git_add ;;
 			2) git_commit ;;
 			3) git_reset ;;
-			4) switch_display ;;
-			5) edit_file ;;
+			4) edit_file ;;
+			5) switch_display ;;
 			6) change_width ;;
 			*) function_git ;;
 			esac
