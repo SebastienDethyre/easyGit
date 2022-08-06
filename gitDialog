@@ -132,7 +132,7 @@ edit_text_local(){
 
 
 edit_text(){
-	if ret=`zenity --file-selection --title="Editer texte  📚" --filename=$CURRENT_DIR --text="Fichier"`; then
+	if ret=`zenity --file-selection --title="Editer texte  📚" --filename=$CURRENT_DIR/ --text="Fichier"`; then
 				titre=$ret
 				if [ "$titre" = "" ]; then
 					echo "Pas de fichier choisi"
@@ -209,7 +209,7 @@ edit_text(){
 }
 
 edit_image(){
-	if ret=`zenity --file-selection --title="Ouvrir image  📚" --filename=$CURRENT_DIR --text="Fichier"`; then
+	if ret=`zenity --file-selection --title="Ouvrir image  📚" --filename=$CURRENT_DIR/ --text="Fichier"`; then
 		titre=$ret
 		if [ "$titre" = "" ]; then
 			echo "Pas de fichier choisi"
