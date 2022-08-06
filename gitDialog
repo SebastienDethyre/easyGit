@@ -58,6 +58,7 @@ GAA="Add All"
 GRA="Reset All"
 GRM="Remove"
 GE="Erase"
+ED="Editer"
 
 MD="Dépot"
 MF="Fichiers"
@@ -106,6 +107,77 @@ change_width(){
 	2>/dev/null
 }
 
+edit_text(){
+	if ret=`zenity  --file-selection --title="Editer texte  📚" --text="Fichier"`; then
+				titre=$ret
+				if [ "$titre" = "" ]; then
+					echo "Pas de fichier choisi"
+					edit_file
+				fi
+			else
+				echo "Annulation"
+				edit_file
+			fi
+			if ([ -n "$titre" ]); then
+				code $titre || pluma $titre || nano $titre || vi $titre
+				notification "Ouverture de $titre"
+				unset titre
+			else
+				echo "Pas de fichier ouvert"
+				edit_file
+			fi
+}
+
+edit_image(){
+	if ret=`zenity  --file-selection --title="Ouvrir image  📚" --text="Fichier"`; then
+				titre=$ret
+				if [ "$titre" = "" ]; then
+					echo "Pas de fichier choisi"
+					edit_file
+				fi
+			else
+				echo "Annulation"
+				edit_file
+			fi
+			if ([ -n "$titre" ]); then
+				(echo "<h1></h1><img src=\"data:"
+				mimetype -b "$titre"
+				echo -n ";base64,"
+				base64 "$titre"
+				echo "\">") | zenity --text-info --width=1850 --height=1050 --html --filename=/dev/stdin
+				notification "Ouverture de $titre"
+				unset titre
+			else
+				echo "Pas de fichier ouvert"
+				edit_file
+			fi
+}
+
+edit_file(){
+	if ret=`zenity --list --title="Editer   📚" --width=250 --height=180 --text="" --column="" "			   Texte" "		 	  Image"`; then
+			titre=$ret
+			if [ "$titre" = "" ]; then
+				echo "Aucun choix effectué"
+			fi
+		else
+			echo "Annulation"
+			function_repo
+		fi
+		if ([ -n "$titre" ]); then
+			if [ "$titre" = "			   Texte" ]; then
+				unset titre
+				edit_text
+			elif [ "$titre" = "		 	  Image" ]; then
+				unset titre
+				edit_image
+			fi
+		else
+			echo "Aucun clone effectué"
+			function_repo
+		fi
+		2>/dev/null
+
+}
 switch_display(){
 	if [ $filesDisplay -eq 1 ]; then
 		filesDisplay=0
@@ -1808,7 +1880,8 @@ else
 			0 "" "" "" ""\
 			3 "    3" "$SPACE_RESET$GRT" "$SPACE_FILES_SYMBOL" "➖"\
 			4 "    4" "$SPACE_DISPLAY$AFF" "$SPACE_FILES_SYMBOL" "💻" \
-			5 "    5" "$SPACE_CHANGE_WIDTH$CW" "$SPACE_FILES_SYMBOL" "📏" 2>/dev/null;
+			5 "    5" "$SPACE_RESET$ED" "$SPACE_FILES_SYMBOL" "📝" \
+			6 "    6" "$SPACE_CHANGE_WIDTH$CW" "$SPACE_FILES_SYMBOL" "📏" 2>/dev/null;
 	else
 		nbLines=`echo -n "$HEADER_FILES" | grep -c '^'`
 		oneLineHeight=17
@@ -1824,8 +1897,9 @@ else
 			2 "    2" "$SPACE_COMMIT$GC" "$SPACE_FILES_SYMBOL" "📝" \
 			0 "" "" "" ""\
 			3 "    3" "$SPACE_RESET$GRT" "$SPACE_FILES_SYMBOL" "➖" \
-			4 "    4" "$SPACE_DISPLAY$AFF" "$SPACE_FILES_SYMBOL" "📟" \
-			5 "    5" "$SPACE_CHANGE_WIDTH$CW" "$SPACE_FILES_SYMBOL" "📏" 2>/dev/null;
+			4 "    4" "$SPACE_DISPLAY$AFF" "$SPACE_FILES_SYMBOL" "💻" \
+			5 "    5" "$SPACE_RESET$ED" "$SPACE_FILES_SYMBOL" "📝" \
+			6 "    6" "$SPACE_CHANGE_WIDTH$CW" "$SPACE_FILES_SYMBOL" "📏" 2>/dev/null;
 	fi
 fi
 }
@@ -1846,7 +1920,8 @@ frm_files_parser(){
 			2) git_commit ;;
 			3) git_reset ;;
 			4) switch_display ;;
-			5) change_width ;;
+			5) edit_file ;;
+			6) change_width ;;
 			*) function_git ;;
 			esac
 	fi
