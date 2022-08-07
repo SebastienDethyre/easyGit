@@ -150,7 +150,7 @@ edit_text(){
 					fi
 				else
 					echo "Annulation"
-					edit_file
+					edit_text
 				fi
 				if ([ -n "$titre2" ]); then
 					if [ "$titre2" = "			   Local" ]; then
@@ -196,7 +196,7 @@ edit_text(){
 						vi $titre
 						unset titre
 					fi
-					edit_file
+					edit_text
 				else
 					echo "Aucun choix effectué"
 					function_repo
@@ -204,7 +204,7 @@ edit_text(){
 				2>/dev/null
 			else
 				echo "Pas de fichier ouvert"
-				edit_file
+				edit_text
 			fi
 }
 
@@ -213,9 +213,11 @@ edit_image(){
 		titre=$ret
 		if [ "$titre" = "" ]; then
 			echo "Pas de fichier choisi"
+			edit_file
 		fi
 	else
 		echo "Annulation"
+		edit_file
 	fi
 	if ([ -n "$titre" ]); then
 		(echo "<h1></h1><img src=\"data:"
@@ -225,10 +227,11 @@ edit_image(){
 		echo "\">") | zenity --text-info --width=1900 --height=1050 --html --filename=/dev/stdin
 		notification "Ouverture de $titre"
 		unset titre
+		edit_image
 	else
 		echo "Pas de fichier ouvert"
+		edit_file
 	fi
-	edit_file
 }
 
 edit_file(){
@@ -239,7 +242,7 @@ edit_file(){
 			fi
 		else
 			echo "Annulation"
-			function_repo
+			function_files
 		fi
 		if ([ -n "$titre" ]); then
 			if [ "$titre" = "			   Texte			📝" ]; then
@@ -370,7 +373,7 @@ $SPACE_GIT$git6
 	spaceAddSize="$(($totalLineNumber + $commandsLineNumber))"
 	spaceAddSSize="$(($spaceAddSize - $five))"
 	spacePushSize="$(($spaceAddSize - $one))"
-	spaceResetSize="$(($spaceAddSize - $two))"
+	spaceResetSize="$(($spaceAddSize - $one))"
 	spaceAddAllSize="$(($spaceAddSize - $four))"
 	spaceResetAllSize="$(($spaceAddSize - $five))"
 	spaceCommitResetSize="$(($spaceAddSize - $twelve))"
@@ -379,7 +382,8 @@ $SPACE_GIT$git6
 	spaceDisplay="$(($spaceAddSize - $six))"
 	spaceChangeWidthSize="$(($spaceAddSize - $four))"
 	spaceCommitPendingSize="$(($totalLineNumber - $seventeen))"
-	spaceFilesSymbols="$(($spaceAddSize - $fourteen))"
+	spaceOpenFile="$(($spaceAddSize - $two))"
+	spaceFilesSymbols="$(($spaceAddSize - $eleven))"
 
 	SPACE_ADD=`printf %$spaceAddSize\s |tr " " " "`
 	SPACE_ADD_S=`printf %$spaceAddSSize\s |tr " " " "`
@@ -391,6 +395,7 @@ $SPACE_GIT$git6
 	SPACE_COMMIT_RESET=`printf %$spaceCommitResetSize\s |tr " " " "`
 	SPACE_STATUS=`printf %$spaceStatusSize\s |tr " " " "`
 	SPACE_REMOVE=`printf %$spaceRemove\s |tr " " " "`
+	SPACE_OPEN_FILE=`printf %$spaceOpenFile\s |tr " " " "`
 	SPACE_DISPLAY=`printf %$spaceDisplay\s |tr " " " "`
 	SPACE_CHANGE_WIDTH=`printf %$spaceChangeWidthSize\s |tr " " " "`
 	SPACE_COMMIT_PENDING=`printf %$spaceCommitPendingSize\s |tr " " " "`
@@ -1957,7 +1962,7 @@ else
 			2 "    2" "$SPACE_COMMIT$GC" "$SPACE_FILES_SYMBOL" "📝" \
 			0 "" "" "" ""\
 			3 "    3" "$SPACE_RESET$GRT" "$SPACE_FILES_SYMBOL" "➖"\
-			4 "    4" "$SPACE_RESET$OF" "$SPACE_FILES_SYMBOL" "📖" \
+			4 "    4" "$SPACE_OPEN_FILE$OF" "$SPACE_FILES_SYMBOL" "📖" \
 			5 "    5" "$SPACE_DISPLAY$AFF" "$SPACE_FILES_SYMBOL" "💻" \
 			6 "    6" "$SPACE_CHANGE_WIDTH$CW" "$SPACE_FILES_SYMBOL" "📏" 2>/dev/null;
 	else
@@ -1975,7 +1980,7 @@ else
 			2 "    2" "$SPACE_COMMIT$GC" "$SPACE_FILES_SYMBOL" "📝" \
 			0 "" "" "" ""\
 			3 "    3" "$SPACE_RESET$GRT" "$SPACE_FILES_SYMBOL" "➖" \
-			4 "    4" "$SPACE_RESET$OF" "$SPACE_FILES_SYMBOL" "📖" \
+			4 "    4" "$SPACE_OPEN_FILE$OF" "$SPACE_FILES_SYMBOL" "📖" \
 			5 "    5" "$SPACE_DISPLAY$AFF" "$SPACE_FILES_SYMBOL" "💻" \
 			6 "    6" "$SPACE_CHANGE_WIDTH$CW" "$SPACE_FILES_SYMBOL" "📏" 2>/dev/null;
 	fi
@@ -2027,12 +2032,12 @@ zenity --list --width=400 --height=$dialogRepoHeight --text='<span font-family=\
     --ok-label="Sélectionner" \
     --cancel-label="Quitter" \
     --hide-column 1 --column "" --column "" --column "" --column "" --column "" \
-    1 "    1" "				         $GF" "			    " "📩" \
-    2 "    2" "				         $GS" "			    " "🔁" \
-    3 "    3" "				           $GPL" "			    " "📥" \
+    1 "    1" "				         $GF" "			          " "📩" \
+    2 "    2" "				         $GS" "			           " "🔁" \
+    3 "    3" "				           $GPL" "			          " "📥" \
     0 "" "" "" "" \
-    4 "    4" "				        $OR" "			    " "🌍" \
-    5 "    5" "				         $GCL" "			     " "📚" 2>/dev/null ;
+    4 "    4" "				        $OR" "			          " "🌍" \
+    5 "    5" "				         $GCL" "			           " "📚" 2>/dev/null ;
 }
 
 frm_repo_parser(){
@@ -2099,11 +2104,11 @@ frm_git(){
     	--ok-label="Sélectionner" \
     	--cancel-label="Quitter" \
     	--hide-column 1 --column "" --column "" --column "" --column "" --column "" \
-    	1 "  1" "				        $MD" "			     " "🗃" \
-    	2 "  2" "				      $MF" "			     " "📑" \
-    	3 "  3" "				        $MO" "			     " "🧰" \
+    	1 "  1" "				        $MD" "			          " "🗃" \
+    	2 "  2" "				      $MF" "			          " "📑" \
+    	3 "  3" "				        $MO" "			          " "🧰" \
     	0 "" "" "" "" \
-    	4 "  4" "				         $SC" "			     " "🗑" 2>/dev/null;
+    	4 "  4" "				         $SC" "			          " "🗑" 2>/dev/null;
 }
 
 frm_git_parser(){
