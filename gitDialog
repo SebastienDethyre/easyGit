@@ -127,85 +127,83 @@ edit_text_local(){
 		-1)
 			echo "Une erreur est survenue." ;;
 	esac
-
 }
-
 
 edit_text(){
 	if ret=`zenity --file-selection --title="Editer texte  📝" --filename=$CURRENT_DIR/ --text="Fichier"`; then
-				titre=$ret
-				if [ "$titre" = "" ]; then
-					echo "Pas de fichier choisi"
-					edit_file
-				fi
-			else
-				echo "Annulation"
-				edit_file
+		titre=$ret
+		if [ "$titre" = "" ]; then
+			echo "Pas de fichier choisi"
+			edit_file
+		fi
+	else
+		echo "Annulation"
+		edit_file
+	fi
+	if ([ -n "$titre" ]); then
+		if ret2=`zenity --list --title="Ouvrir avec   📝" --width=250 --height=250 --text="" --column="" "			   Local" "		 	 VScode" "		 	  Pluma" "		 	   Nano" "		 	    Vim"`; then
+			titre2=$ret2
+			if [ "$titre2" = "" ]; then
+				echo "Aucun choix effectué"
 			fi
-			if ([ -n "$titre" ]); then
-				if ret2=`zenity --list --title="Ouvrir avec   📝" --width=250 --height=250 --text="" --column="" "			   Local" "		 	 VScode" "		 	  Pluma" "		 	   Nano" "		 	    Vim"`; then
-					titre2=$ret2
-					if [ "$titre2" = "" ]; then
-						echo "Aucun choix effectué"
-					fi
-				else
-					echo "Annulation"
-					edit_text
-				fi
-				if ([ -n "$titre2" ]); then
-					if [ "$titre2" = "			   Local" ]; then
-						notification "Ouverture de $titre"
-						cat $titre &> ~/bin/easyGit/gitTemp
-						FILE=`dirname $0`/gitTemp
-						ret=`zenity --text-info \
-						--title="Edit" \
-						--width=1850 \
-						--height=1050 \
-						--editable \
-						--filename=$FILE`
-						case $? in
-							0)
-								echo "$ret" > $titre 
-								notification "Enregistrement de $titre"
-								unset titre
-								;;
-							1)
-								echo "Modifications annulées"	;;
-							-1)
-								echo "Une erreur est survenue." ;;
-						esac
-						unset titre2
-					elif [ "$titre2" = "		 	 VScode" ]; then
-						unset titre2
-						notification "Ouverture de $titre"
-						code $titre 
+		else
+			echo "Annulation"
+			edit_text
+		fi
+		if ([ -n "$titre2" ]); then
+			if [ "$titre2" = "			   Local" ]; then
+				notification "Ouverture de $titre"
+				cat $titre &> ~/bin/easyGit/gitTemp
+				FILE=`dirname $0`/gitTemp
+				ret=`zenity --text-info \
+				--title="Edit" \
+				--width=1850 \
+				--height=1050 \
+				--editable \
+				--filename=$FILE`
+				case $? in
+					0)
+						echo "$ret" > $titre 
+						notification "Enregistrement de $titre"
 						unset titre
-					elif [ "$titre2" = "		 	  Pluma" ]; then
-						unset titre2
-						notification "Ouverture de $titre"
-						pluma $titre
-						unset titre
-					elif [ "$titre2" = "		 	   Nano" ]; then
-						unset titre2
-						notification "Ouverture de $titre"
-						nano $titre
-						unset titre
-					elif [ "$titre2" = "		 	    Vim" ]; then
-						unset titre2
-						notification "Ouverture de $titre"
-						vi $titre
-						unset titre
-					fi
-					edit_text
-				else
-					echo "Aucun choix effectué"
-					function_repo
-				fi
-				2>/dev/null
-			else
-				echo "Pas de fichier ouvert"
-				edit_text
+						;;
+					1)
+						echo "Modifications annulées"	;;
+					-1)
+						echo "Une erreur est survenue." ;;
+				esac
+				unset titre2
+			elif [ "$titre2" = "		 	 VScode" ]; then
+				unset titre2
+				notification "Ouverture de $titre"
+				code $titre 
+				unset titre
+			elif [ "$titre2" = "		 	  Pluma" ]; then
+				unset titre2
+				notification "Ouverture de $titre"
+				pluma $titre
+				unset titre
+			elif [ "$titre2" = "		 	   Nano" ]; then
+				unset titre2
+				notification "Ouverture de $titre"
+				nano $titre
+				unset titre
+			elif [ "$titre2" = "		 	    Vim" ]; then
+				unset titre2
+				notification "Ouverture de $titre"
+				vi $titre
+				unset titre
 			fi
+			edit_text
+		else
+			echo "Aucun choix effectué"
+			function_repo
+		fi
+		2>/dev/null
+	else
+		echo "Pas de fichier ouvert"
+		edit_text
+	fi
 }
 
 edit_image(){
@@ -236,27 +234,27 @@ edit_image(){
 
 edit_file(){
 	if ret=`zenity --list --title="Ouvrir  📖" --width=250 --height=180 --text="" --column="" "			   Texte			📝" "		 	  Image			🖼"`; then
-			titre=$ret
-			if [ "$titre" = "" ]; then
-				echo "Aucun choix effectué"
-			fi
-		else
-			echo "Annulation"
-			function_files
+		titre=$ret
+		if [ "$titre" = "" ]; then
+			echo "Aucun choix effectué"
 		fi
-		if ([ -n "$titre" ]); then
-			if [ "$titre" = "			   Texte			📝" ]; then
-				unset titre
-				edit_text
-			elif [ "$titre" = "		 	  Image			🖼" ]; then
-				unset titre
-				edit_image
-			fi
-		else
-			echo "Aucun clone effectué"
-			function_files
+	else
+		echo "Annulation"
+		function_files
+	fi
+	if ([ -n "$titre" ]); then
+		if [ "$titre" = "			   Texte			📝" ]; then
+			unset titre
+			edit_text
+		elif [ "$titre" = "		 	  Image			🖼" ]; then
+			unset titre
+			edit_image
 		fi
-		2>/dev/null
+	else
+		echo "Aucun clone effectué"
+		function_files
+	fi
+	2>/dev/null
 
 }
 switch_display(){
@@ -481,12 +479,10 @@ _quit(){
     exit 0
 }
 
-
-
 ############### GIT FUNCTIONS ####################
 fix_process_already_launched(){
 	rm -f .git/index.lock
-	echo "Fix process already launched applied"
+	echo "Fixation de l'erreur : 'process already launched applied'"
 }
 
 git_clone_this(){
@@ -508,8 +504,7 @@ git_clone_this(){
 		echo "Git clone de $REPO_ADRESS dans $titre"
 		notification "Git clone de $REPO_ADRESS dans $titre"
 	else
-		echo "Pas de clone effectué"
-	
+		echo "Pas de clone effectué"	
 	fi
 }
 
@@ -603,7 +598,6 @@ git_stash_pop(){
 		--width=650 \
 		--height=700 \
 		--filename=$FILE
-
 	case $? in
 		0)
 			echo "Récupération des modifications locales"
@@ -646,7 +640,6 @@ git_status(){
 		--width=650 \
 		--height=700 \
 		--filename=$FILE
-
 	case $? in
 		0)
 			echo "Git Status" ;;
@@ -678,7 +671,6 @@ git_cherry_pick_abort(){
 git_cherry_pick_operation(){
 	currentBranch=`sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/config/currentBranch`
 	readarray -t textHashArray < ~/bin/easyGit/config/ashesTexts
-
 	if [ -e ~/bin/easyGit/config/currentCommits/$HASH_COMMIT/isCommitPending ]; then
 		echo "Commit en cours"
 		notification "Commit en cours 🔏"
@@ -702,7 +694,6 @@ git_cherry_pick_operation(){
 				--width=650 \
 				--height=550 \
 				--filename=$FILE
-
 			case $? in
 				0)
 					echo "Cherry-Pick sur la branche $currentBranch du commit : $titre"
@@ -759,7 +750,6 @@ git_log_simple(){
 		--width=950 \
 		--height=1050 \
 		--filename=$FILE
-
 	case $? in
 		0)
 			git_log
@@ -771,13 +761,12 @@ git_log_simple(){
 			echo "Une erreur est survenue." ;;
 	esac
 }
-rgb2hex(){
 
+rgb2hex(){
 	if [ $# -eq 0 ]; then
 		echo 'Invalid color value!';
 
 	fi
-
 	if [[ $1 =~ ([[:xdigit:]]{2})([[:xdigit:]]{2})([[:xdigit:]]{2}) ]]; then
 		result=`printf "(%d, %d, %d)\n" \
 			0x"${BASH_REMATCH[1]}" 0x"${BASH_REMATCH[2]}" 0x"${BASH_REMATCH[3]}"`
@@ -785,7 +774,6 @@ rgb2hex(){
 		result=`printf "#%02x%02x%02x\n" \
 			"${BASH_REMATCH[1]}" "${BASH_REMATCH[2]}" "${BASH_REMATCH[3]}"`
 	fi
-
 }
 
 git_log_terminal_police_size_text(){
@@ -793,7 +781,6 @@ git_log_terminal_police_size_text(){
 	size=`zenity --scale --title="Taille du texte  📏"--text="\t\t        Hauteur en pixels" --value=$textSizeLogTerm --min-value=5 --max-value=30 --step 1`
 	case $? in
 			0)
-
 				echo "Vous avez choisi $size pixels."
 				sed -i '8s/.*/'$size'/' ~/bin/easyGit/config/generalConfig
 				sed -i '2s/.*/xterm*faceSize: '$size'/' ~/.Xresources
@@ -811,7 +798,6 @@ git_log_terminal_police_size_text(){
 
 git_log_terminal_color_text(){
 	color=`zenity --color-selection --show-palette`
-
 	case $? in
 			0)
 				echo "You selected $color.";;
@@ -830,10 +816,8 @@ git_log_terminal_color_text(){
 	git_config_log_terminal
 }
 
-
 git_log_terminal_color_background(){
 	color=`zenity --color-selection --show-palette`
-
 	case $? in
 			0)
 				echo "You selected $color.";;
@@ -876,12 +860,10 @@ git_config_log_terminal(){
 	else
 		echo "Pas de choix effectué"
 	fi
-
 }
 
 git_log_terminal(){
 	git config --global alias.tree "log --oneline --decorate --all --graph"
-	
 	git tree > ~/bin/easyGit/gitTemp
 	nbLineTemp=`wc -l < ~/bin/easyGit/gitTemp`
 	if (( $nbLineTemp > $forty )); then
@@ -891,7 +873,6 @@ git_log_terminal(){
 		sed -i '5s/.*/XTerm*geometry: 170x'$nbLineTemp'/' ~/.Xresources
 		xrdb -merge ~/.Xresources
 	fi
-
 	xterm -e git tree
 	git_log
 }
@@ -937,7 +918,6 @@ git_reflog(){
 		--width=950 \
 		--height=1050 \
 		--filename=$FILE
-
 	case $? in
 		0)
 			git_log
@@ -950,10 +930,6 @@ git_reflog(){
 	esac
 }
 
-
-
-
-
 git_branch(){
 	git branch > ~/bin/easyGit/gitTemp
 	FILE=`dirname $0`/gitTemp
@@ -962,7 +938,6 @@ git_branch(){
 	   --width=400 \
 	   --height=350 \
        --filename=$FILE
-
 	case $? in
 		0)	git_log
 			echo "Git Branch" ;;
@@ -1535,7 +1510,6 @@ git_push(){
 			unset titre
 			rm ~/bin/easyGit/config/currentCommits/$HASH_COMMIT/isCommitPending
 			rmdir ~/bin/easyGit/config/currentCommits/$HASH_COMMIT
-
 			if [ "$?" = -1 ]; then
 				zenity --error \
 				--text="Mise à jour annulée."
@@ -1567,7 +1541,6 @@ git_merge(){
 			--width=450 \
 			--height=300 \
 			--filename=$FILE
-
 		case $? in
 			0)
 				echo "Git Pull en statégie Merge de la branche $titre"
@@ -1602,7 +1575,6 @@ git_rebase(){
 			--width=450 \
 			--height=300 \
 			--filename=$FILE
-
 		case $? in
 			0)
 				echo "Git Pull en statégie Rebase de la branche $titre"
@@ -1640,7 +1612,6 @@ if file=`zenity --list --title="Stash ❌" --width=250 --height=180 --text="" --
 		echo "Pas de choix effectué"
 	fi
 	2>/dev/null
-
 }
 
 ############### FILES DIALOG ####################
@@ -1902,7 +1873,7 @@ $STAGED_LABEL_DISPLAY
 		fi
 	fi
 else
-HEADER_FILES="
+	HEADER_FILES="
 $GIT
 $TMP_SCREEN
 "
@@ -1991,8 +1962,6 @@ frm_files_parser(){
 	if [ -e ~/bin/easyGit/config/currentCommits/$HASH_COMMIT/isCommitPending ]; then
 		case $1 in
 			1) git_push ;;
-		#		quit=1"
-		#       _quit
 			2) git_commit_reset ;;
 			3) switch_display ;;
 			*) function_git ;;
