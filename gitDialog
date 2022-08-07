@@ -49,6 +49,7 @@ GCL="Clone"
 
 GLCP="Log Pick"
 CP="Cherry-Pick"
+FX="Fix PAL"
 GST="Status"
 GL="Log"
 GLL="Reflog"
@@ -481,8 +482,22 @@ _quit(){
 
 ############### GIT FUNCTIONS ####################
 fix_process_already_launched(){
-	rm -f .git/index.lock
-	echo "Fixation de l'erreur : 'process already launched applied'"
+	zenity --question \
+		--title "Fixation de l'erreur : process already launched applied  ⛑" \
+		--width=470 \
+		--height=40 \
+		--text "La fixation de l'erreur <b>process already launched applied</b> entraîne l'effacement du fichier <i>.git/index.lock</i>. 
+\nUne copie pour révision <i>index.lock.back</i> sera conservée dans le répertoire courant.
+\nSouhaitez- vous continuer ?"
+	if [ $? = 0 ]; then
+		cp .git/index.lock index.lock.back
+		rm -f .git/index.lock
+		echo "Fixation de l'erreur : 'process already launched applied' effectuée"
+		notification "Fixation de l'erreur effectué"
+	else
+		echo "Fixation de l'erreur : 'process already launched applied' annulée"
+		notification "Fixation de l'erreur annulée"
+	fi	
 }
 
 git_clone_this(){
@@ -1993,7 +2008,7 @@ function_files(){
 frm_repo(){
 header_repo
 nbLines=`echo -n "$HEADER" | grep -c '^'`
-commandsHeight=280
+commandsHeight=295
 oneLineHeight=17
 linesHeight=$(($oneLineHeight * $nbLines))
 dialogRepoHeight=$(($commandsHeight + $linesHeight))
@@ -2034,7 +2049,7 @@ function_repo(){
 
 frm_utils(){
 header_utils
-zenity --list --width=400 --height=500 --text='<span font-family=\"Arial\">'"$HEADER"'</span>' \
+zenity --list --width=400 --height=530 --text='<span font-family=\"Arial\">'"$HEADER"'</span>' \
     --title="Outils 🧰" \
     --ok-label="Sélectionner" \
     --cancel-label="Quitter" \
@@ -2043,7 +2058,9 @@ zenity --list --width=400 --height=500 --text='<span font-family=\"Arial\">'"$HE
     2 "    2" "				     $GK" "			" "⎇" \
     3 "    3" "			                 $GST" "			      " "🔎" \
     0 "" "" "" "" \
-    4 "    4" "				   $CP" "		   " "🍒" 2>/dev/null ;
+    4 "    4" "				   $CP" "		   " "🍒" \
+    5 "    5" "				       $FX" "		   " "⛑" \
+	2>/dev/null ;
 }
 
 frm_utils_parser(){
@@ -2052,6 +2069,7 @@ frm_utils_parser(){
         2) git_checkout ;;
         3) git_status ;;
 		4) git_cherry_pick ;;
+		5) fix_process_already_launched;;
         *) function_git ;;
         esac
 }
@@ -2069,7 +2087,7 @@ function_utils(){
 frm_git(){
 	TMP_SCREEN=""
 	header_general
-	zenity --list --width=400 --height=500 --text='<span font-family=\"Arial\">'"$HEADER"'</span>' \
+	zenity --list --width=405 --height=505 --text='<span font-family=\"Arial\">'"$HEADER"'</span>' \
     	--title="Git" \
     	--ok-label="Sélectionner" \
     	--cancel-label="Quitter" \
