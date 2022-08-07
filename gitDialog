@@ -1010,7 +1010,8 @@ git_add_some(){
 			echo "Annulation"
 	   	fi
 		if ([ -n "$titre" ]); then
-			git add $titre && echo "fichier" $titre "ajouté"
+			git add $titre
+			echo "Fichier" $titre "ajouté"
 			checkFilesChanged
 			notification "Fichier ajouté au commit :
 \t$titre"
@@ -1044,7 +1045,7 @@ git_add_single(){
 		fi
 		if ([ -n "$titre" ]); then
 			git add $titre
-			echo "fichier" $titre "ajouté"
+			echo "Fichier" $titre "ajouté"
 			checkFilesChanged
 			notification "Fichier ajouté au commit :
 \t$titre"
@@ -1494,7 +1495,7 @@ git_push(){
 		if ret=`zenity --list --title="Push  📤" --text="Git push origin ..." --column="Branche actuelle" $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/config/currentBranch)`; then
 			titre=$ret
 			if [ "$titre" = "" ]; then
-				echo "Il faut une destination"
+				echo "La destination est nécessaire"
 			fi
 		else
 			echo "Annulation"
