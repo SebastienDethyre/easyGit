@@ -58,7 +58,7 @@ GAA="Add All"
 GRA="Reset All"
 GRM="Remove"
 GE="Erase"
-ED="Editer"
+OF="Ouvrir"
 
 MD="Dépot"
 MF="Fichiers"
@@ -132,7 +132,7 @@ edit_text_local(){
 
 
 edit_text(){
-	if ret=`zenity --file-selection --title="Editer texte  📚" --filename=$CURRENT_DIR/ --text="Fichier"`; then
+	if ret=`zenity --file-selection --title="Editer texte  📝" --filename=$CURRENT_DIR/ --text="Fichier"`; then
 				titre=$ret
 				if [ "$titre" = "" ]; then
 					echo "Pas de fichier choisi"
@@ -143,7 +143,7 @@ edit_text(){
 				edit_file
 			fi
 			if ([ -n "$titre" ]); then
-				if ret2=`zenity --list --title="Ouvrir avec   📚" --width=250 --height=250 --text="" --column="" "			   Local" "		 	 VScode" "		 	  Pluma" "		 	   Nano" "		 	    Vim"`; then
+				if ret2=`zenity --list --title="Ouvrir avec   📝" --width=250 --height=250 --text="" --column="" "			   Local" "		 	 VScode" "		 	  Pluma" "		 	   Nano" "		 	    Vim"`; then
 					titre2=$ret2
 					if [ "$titre2" = "" ]; then
 						echo "Aucun choix effectué"
@@ -232,7 +232,7 @@ edit_image(){
 }
 
 edit_file(){
-	if ret=`zenity --list --title="Editer   📚" --width=250 --height=180 --text="" --column="" "			   Texte" "		 	  Image"`; then
+	if ret=`zenity --list --title="Ouvrir  📖" --width=250 --height=180 --text="" --column="" "			   Texte			📝" "		 	  Image			🖼"`; then
 			titre=$ret
 			if [ "$titre" = "" ]; then
 				echo "Aucun choix effectué"
@@ -242,10 +242,10 @@ edit_file(){
 			function_repo
 		fi
 		if ([ -n "$titre" ]); then
-			if [ "$titre" = "			   Texte" ]; then
+			if [ "$titre" = "			   Texte			📝" ]; then
 				unset titre
 				edit_text
-			elif [ "$titre" = "		 	  Image" ]; then
+			elif [ "$titre" = "		 	  Image			🖼" ]; then
 				unset titre
 				edit_image
 			fi
@@ -1957,7 +1957,7 @@ else
 			2 "    2" "$SPACE_COMMIT$GC" "$SPACE_FILES_SYMBOL" "📝" \
 			0 "" "" "" ""\
 			3 "    3" "$SPACE_RESET$GRT" "$SPACE_FILES_SYMBOL" "➖"\
-			4 "    4" "$SPACE_RESET$ED" "$SPACE_FILES_SYMBOL" "📝" \
+			4 "    4" "$SPACE_RESET$OF" "$SPACE_FILES_SYMBOL" "📖" \
 			5 "    5" "$SPACE_DISPLAY$AFF" "$SPACE_FILES_SYMBOL" "💻" \
 			6 "    6" "$SPACE_CHANGE_WIDTH$CW" "$SPACE_FILES_SYMBOL" "📏" 2>/dev/null;
 	else
@@ -1975,7 +1975,7 @@ else
 			2 "    2" "$SPACE_COMMIT$GC" "$SPACE_FILES_SYMBOL" "📝" \
 			0 "" "" "" ""\
 			3 "    3" "$SPACE_RESET$GRT" "$SPACE_FILES_SYMBOL" "➖" \
-			4 "    4" "$SPACE_RESET$ED" "$SPACE_FILES_SYMBOL" "📝" \
+			4 "    4" "$SPACE_RESET$OF" "$SPACE_FILES_SYMBOL" "📖" \
 			5 "    5" "$SPACE_DISPLAY$AFF" "$SPACE_FILES_SYMBOL" "💻" \
 			6 "    6" "$SPACE_CHANGE_WIDTH$CW" "$SPACE_FILES_SYMBOL" "📏" 2>/dev/null;
 	fi
