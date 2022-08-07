@@ -235,7 +235,7 @@ edit_image(){
 }
 
 edit_file(){
-	if ret=`zenity --list --title="Ouvrir  📖" --width=250 --height=180 --text="" --column="" "			   Texte			📝" "		 	  Image			🖼"`; then
+	if ret=`zenity --list --title="Ouvrir  📖" --width=250 --height=180 --text="" --column="" "			   Texte			 📝" "		 	  Image			 🖼"`; then
 		titre=$ret
 		if [ "$titre" = "" ]; then
 			echo "Aucun choix effectué"
@@ -245,10 +245,10 @@ edit_file(){
 		function_files
 	fi
 	if ([ -n "$titre" ]); then
-		if [ "$titre" = "			   Texte			📝" ]; then
+		if [ "$titre" = "			   Texte			 📝" ]; then
 			unset titre
 			edit_text
-		elif [ "$titre" = "		 	  Image			🖼" ]; then
+		elif [ "$titre" = "		 	  Image			 🖼" ]; then
 			unset titre
 			edit_image
 		fi
@@ -1909,7 +1909,7 @@ if [ -e ~/bin/easyGit/config/currentCommits/$HASH_COMMIT/isCommitPending ]; then
 		bLines=`echo -n "$HEADER_FILES" | grep -c '^'`
 		oneLineHeight=17
 		linesHeight=$(($oneLineHeight * $nbLines))
-		commandsHeight=240
+		commandsHeight=250
 		dialogFilesHeight=$(($commandsHeight + $linesHeight))
 		zenity --list --width=$filesDialogWidth --height=$dialogFilesHeight --text='<span font-family=\"Arial\">'"$HEADER_FILES"'</span>' \
 			--title="Fichiers 📑" \
@@ -2090,16 +2090,16 @@ function_utils(){
 frm_git(){
 	TMP_SCREEN=""
 	header_general
-	zenity --list --width=405 --height=505 --text='<span font-family=\"Arial\">'"$HEADER"'</span>' \
+	zenity --list --width=400 --height=505 --text='<span font-family=\"Arial\">'"$HEADER"'</span>' \
     	--title="Git" \
     	--ok-label="Sélectionner" \
     	--cancel-label="Quitter" \
     	--hide-column 1 --column "" --column "" --column "" --column "" --column "" \
-    	1 "  1" "				        $MD" "			            " "🗃" \
-    	2 "  2" "				      $MF" "			            " "📑" \
-    	3 "  3" "				        $MO" "			            " "🧰" \
+    	1 "  1" "				        $MD" "			           " "🗃" \
+    	2 "  2" "				      $MF" "			           " "📑" \
+    	3 "  3" "				        $MO" "			           " "🧰" \
     	0 "" "" "" "" \
-    	4 "  4" "				         $SC" "			            " "🗑" 2>/dev/null;
+    	4 "  4" "				         $SC" "			           " "🗑" 2>/dev/null;
 }
 
 frm_git_parser(){
