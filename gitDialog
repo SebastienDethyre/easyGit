@@ -27,6 +27,7 @@ fourteen=14
 fifteen=15
 sixteen=16
 seventeen=17
+eighteen=18
 twenty=20
 thirty=30
 forty=40
@@ -381,8 +382,9 @@ $SPACE_GIT$git6
 	spaceDisplay="$(($spaceAddSize - $six))"
 	spaceChangeWidthSize="$(($spaceAddSize - $four))"
 	spaceCommitPendingSize="$(($totalLineNumber - $seventeen))"
+	spaceCommitPendingSymbol="$(($totalLineNumber - $eighteen))"
 	spaceOpenFile="$(($spaceAddSize - $two))"
-	spaceFilesSymbols="$(($spaceAddSize - $eleven))"
+	spaceFilesSymbols="$(($spaceAddSize - $twelve))"
 
 	SPACE_ADD=`printf %$spaceAddSize\s |tr " " " "`
 	SPACE_ADD_S=`printf %$spaceAddSSize\s |tr " " " "`
@@ -398,6 +400,7 @@ $SPACE_GIT$git6
 	SPACE_DISPLAY=`printf %$spaceDisplay\s |tr " " " "`
 	SPACE_CHANGE_WIDTH=`printf %$spaceChangeWidthSize\s |tr " " " "`
 	SPACE_COMMIT_PENDING=`printf %$spaceCommitPendingSize\s |tr " " " "`
+	SPACE_COMMIT_PENDING_SYMBOL=`printf %$spaceCommitPendingSymbol\s |tr " " " "`
 	SPACE_FILES_SYMBOL=`printf %$spaceFilesSymbols\s |tr " " " "`
 }
 
@@ -1913,10 +1916,10 @@ if [ -e ~/bin/easyGit/config/currentCommits/$HASH_COMMIT/isCommitPending ]; then
 			--ok-label="Sélectionner" \
 			--cancel-label="Quitter" \
 			--hide-column 1 --column "" --column "" --column "" --column ""  --column "" \
-			1 "    1" "$SPACE_PUSH$GP" "$SPACE_FILES_SYMBOL" "📤" \
+			1 "    1" "$SPACE_PUSH$GP" "$SPACE_COMMIT_PENDING_SYMBOL" "📤" \
 			0 "" "" "" ""\
-			2 "    2" "$SPACE_COMMIT_RESET$GCR" "$SPACE_FILES_SYMBOL" "❌" \
-			3 "    3" "$SPACE_DISPLAY$AFF" "$SPACE_FILES_SYMBOL" "💻" 2>/dev/null;
+			2 "    2" "$SPACE_COMMIT_RESET$GCR" "$SPACE_COMMIT_PENDING_SYMBOL" "❌" \
+			3 "    3" "$SPACE_DISPLAY$AFF" "$SPACE_COMMIT_PENDING_SYMBOL" "💻" 2>/dev/null;
 	else
 		bLines=`echo -n "$HEADER_FILES" | grep -c '^'`
 		oneLineHeight=17
@@ -1928,10 +1931,10 @@ if [ -e ~/bin/easyGit/config/currentCommits/$HASH_COMMIT/isCommitPending ]; then
 			--ok-label="Sélectionner" \
 			--cancel-label="Quitter" \
 			--hide-column 1 --column "" --column "" --column "" --column ""  --column "" \
-			1 "    1" "$SPACE_PUSH$GP" "$SPACE_FILES_SYMBOL" "📤" \
+			1 "    1" "$SPACE_PUSH$GP" "$SPACE_COMMIT_PENDING_SYMBOL" "📤" \
 			0 "" "" "" ""\
-			2 "    2" "$SPACE_COMMIT_RESET$GCR" "$SPACE_FILES_SYMBOL" "❌" \
-			3 "    3" "$SPACE_DISPLAY$AFF" "$SPACE_FILES_SYMBOL" "📟" 2>/dev/null;
+			2 "    2" "$SPACE_COMMIT_RESET$GCR" "$SPACE_COMMIT_PENDING_SYMBOL" "❌" \
+			3 "    3" "$SPACE_DISPLAY$AFF" "$SPACE_COMMIT_PENDING_SYMBOL" "📟" 2>/dev/null;
 	fi
 else
 	if [ $filesDisplay -eq 1 ]; then
@@ -2017,12 +2020,12 @@ zenity --list --width=400 --height=$dialogRepoHeight --text='<span font-family=\
     --ok-label="Sélectionner" \
     --cancel-label="Quitter" \
     --hide-column 1 --column "" --column "" --column "" --column "" --column "" \
-    1 "    1" "				         $GF" "			          " "📩" \
-    2 "    2" "				         $GS" "			           " "🔁" \
-    3 "    3" "				           $GPL" "			          " "📥" \
+    1 "    1" "				         $GF" "			           " "📩" \
+    2 "    2" "				         $GS" "			            " "🔁" \
+    3 "    3" "				           $GPL" "			           " "📥" \
     0 "" "" "" "" \
-    4 "    4" "				        $OR" "			          " "🌍" \
-    5 "    5" "				         $GCL" "			           " "📚" 2>/dev/null ;
+    4 "    4" "				        $OR" "			           " "🌍" \
+    5 "    5" "				         $GCL" "			            " "📚" 2>/dev/null ;
 }
 
 frm_repo_parser(){
@@ -2092,11 +2095,11 @@ frm_git(){
     	--ok-label="Sélectionner" \
     	--cancel-label="Quitter" \
     	--hide-column 1 --column "" --column "" --column "" --column "" --column "" \
-    	1 "  1" "				        $MD" "			          " "🗃" \
-    	2 "  2" "				      $MF" "			          " "📑" \
-    	3 "  3" "				        $MO" "			          " "🧰" \
+    	1 "  1" "				        $MD" "			            " "🗃" \
+    	2 "  2" "				      $MF" "			            " "📑" \
+    	3 "  3" "				        $MO" "			            " "🧰" \
     	0 "" "" "" "" \
-    	4 "  4" "				         $SC" "			          " "🗑" 2>/dev/null;
+    	4 "  4" "				         $SC" "			            " "🗑" 2>/dev/null;
 }
 
 frm_git_parser(){
