@@ -2047,7 +2047,7 @@ function_repo(){
 
 frm_utils(){
 header_utils
-zenity --list --width=400 --height=560 --text='<span font-family=\"Arial\">'"$HEADER"'</span>' \
+zenity --list --width=400 --height=555 --text='<span font-family=\"Arial\">'"$HEADER"'</span>' \
     --title="Outils 🧰" \
     --ok-label="✅" \
     --cancel-label="❌" \
@@ -2056,8 +2056,8 @@ zenity --list --width=400 --height=560 --text='<span font-family=\"Arial\">'"$HE
     2 "    2" "				     $GK" "			" "⎇" \
     3 "    3" "			                 $GST" "			      " "🔎" \
     0 "" "" "" "" \
-    5 "    5" "				   $CP" "		   " "🍒" \
     4 "    4" "			              $TC" "			      " "💻" \
+    5 "    5" "				   $CP" "		   " "🍒" \
     6 "    6" "				       $FX" "		   " "⛑" \
 	2>/dev/null ;
 }
