@@ -69,6 +69,7 @@ SC="Clear"
 RL="Résultats par ligne"
 AFF="Affichage"
 CW="Largeur"
+TC="Terminal"
 
 ################# GENERAL FUNCTIONS ####################
 
@@ -78,18 +79,12 @@ notification(){
     --text="$1"
 }
 
-element_size(){
-	temp=$1
-	elemSize="${#temp}"
+intern_terminal(){ 
+	xterm 
 }
 
-sticker(){
-"\t<span color=\"$1\">$2</span>
-<span color=\"$3\"><b>$(sed ':z;N;$! bz;s/\n/ /g;s/ /,  /g' ~/bin/gitDialog/$4 | xargs -n $nbFilesByLine echo -e '\t')</b></span>\n"
-}
-
-clear_screen(){
-	clear
+clear_screen(){	
+	clear 
 }
 
 change_width(){
@@ -1959,7 +1954,7 @@ else
 		nbLines=`echo -n "$HEADER_FILES" | grep -c '^'`
 		oneLineHeight=17
 		linesHeight=$(($oneLineHeight * $nbLines))
-		commandsHeight=325
+		commandsHeight=315
 		dialogFilesHeight=$(($commandsHeight + $linesHeight))
 		zenity --list --width=$filesDialogWidth --height=$dialogFilesHeight --text='<span font-family=\"Arial\">'"$HEADER_FILES"'</span>' \
 			--title="Fichiers 📑" \
@@ -2052,7 +2047,7 @@ function_repo(){
 
 frm_utils(){
 header_utils
-zenity --list --width=400 --height=530 --text='<span font-family=\"Arial\">'"$HEADER"'</span>' \
+zenity --list --width=400 --height=560 --text='<span font-family=\"Arial\">'"$HEADER"'</span>' \
     --title="Outils 🧰" \
     --ok-label="✅" \
     --cancel-label="❌" \
@@ -2061,8 +2056,9 @@ zenity --list --width=400 --height=530 --text='<span font-family=\"Arial\">'"$HE
     2 "    2" "				     $GK" "			" "⎇" \
     3 "    3" "			                 $GST" "			      " "🔎" \
     0 "" "" "" "" \
-    4 "    4" "				   $CP" "		   " "🍒" \
-    5 "    5" "				       $FX" "		   " "⛑" \
+    5 "    5" "				   $CP" "		   " "🍒" \
+    4 "    4" "			              $TC" "			      " "💻" \
+    6 "    6" "				       $FX" "		   " "⛑" \
 	2>/dev/null ;
 }
 
@@ -2071,8 +2067,9 @@ frm_utils_parser(){
         1) git_log ;;
         2) git_checkout ;;
         3) git_status ;;
-		4) git_cherry_pick ;;
-		5) fix_process_already_launched;;
+        4) intern_terminal ;;
+		5) git_cherry_pick ;;
+		6) fix_process_already_launched;;
         *) function_git ;;
         esac
 }
