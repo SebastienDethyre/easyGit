@@ -108,28 +108,6 @@ change_width(){
 	2>/dev/null
 }
 
-edit_text_local(){
-	git stash pop &> ~/bin/easyGit/gitTemp
-	FILE=`dirname $0`/gitTemp
-	ret=`zenity --text-info \
-		--title="Edit" \
-		--width=650 \
-		--editable \
-		--height=700 \
-		--filename=$FILE`
-	echo "$ret" > ~/bin/easyGit/gitTemp
-	case $? in
-		0)
-			echo "Modifications enregistrées"
-			notification "Récupération des modifications locales"
-			;;
-		1)
-			echo "Modifications annulées"	;;
-		-1)
-			echo "Une erreur est survenue." ;;
-	esac
-}
-
 edit_text(){
 	if ret=`zenity --file-selection --title="Editer texte  📝" --filename=$CURRENT_DIR/ --text="Fichier"`; then
 		titre=$ret
@@ -567,7 +545,7 @@ git_clone_any(){
 }
 
 git_clone(){
-	if ret=`zenity --list --ok-label="✅" --cancel-label="❌" --title="Clone   📚" --width=250 --height=180 --text="" --column="" "		Cloner ce dépot" "	  Cloner un autre dépot"`; then
+	if ret=`zenity --list --ok-label="✅" --cancel-label="❌" --title="Clone   📚" --width=250 --height=205 --text="" --column="" "		Cloner ce dépot" "" "	  Cloner un autre dépot"`; then
 		titre=$ret
 		if [ "$titre" = "" ]; then
 			echo "Aucun choix effectué"
@@ -628,7 +606,7 @@ git_stash_pop(){
 }
 
 git_stash(){
-if file=`zenity --list --ok-label="✅" --cancel-label="❌" --title="Stash 🔁" --width=250 --height=180 --text="" --column="" "			Stash			 🔁" "		     Stash Pop		 🔂"`; then
+if file=`zenity --list --ok-label="✅" --cancel-label="❌" --title="Stash 🔁" --width=250 --height=205 --text="" --column="" "			Stash			 🔁" "" "		     Stash Pop		 🔂"`; then
 		titre=$file
 		if [ "$titre" = "" ]; then
 			echo "Pas de choix effectué"
@@ -733,7 +711,7 @@ git_cherry_pick_operation(){
 }
 
 git_cherry_pick(){
-	if file=`zenity --list --ok-label="✅" --cancel-label="❌" --title="Cherry Pick  🍒" --height=205 --width=190 --text="" --column="" "	         Picking	         🍒" "	      Confirmer       ✅" "	         Annuler	❌"`
+	if file=`zenity --list --ok-label="✅" --cancel-label="❌" --title="Cherry Pick  🍒" --width=190 --height=230 --text="" --column="" "	         Picking	         🍒" "" "	      Confirmer       ✅" "	         Annuler	❌"`
 		then
 			titre=$file
 			if [ "$titre" = "" ]; then
@@ -854,7 +832,7 @@ terminal_color_background(){
 }
 
 config_terminal(){
-	if file=`zenity --list --ok-label="✅" --cancel-label="❌" --title="Config Log Couleurs 📊" --width=250 --height=200 --text="" --column="" "		   Couleur texte		  📄" "		     Taille texte		  📄" "	       	   Fond d'écran		  📺"`
+	if file=`zenity --list --ok-label="✅" --cancel-label="❌" --title="Config Terminal 🛠" --width=250 --height=225 --text="" --column="" "		   Couleur texte		  📄" "		     Taille texte		  📄" "" "	       	   Fond d'écran		  📺"`
 	 then
 		titre=$file
 		if [ "$titre" = "" ]; then
@@ -887,7 +865,7 @@ intern_terminal(){
 }
 
 terminal(){
-	if ret=`zenity --list --ok-label="✅" --cancel-label="❌" --title="Terminal  💻" --width=250 --height=180 --text="" --column="" "		        Terminal		 💻" "	       	           Config			 🛠"`; then
+	if ret=`zenity --list --ok-label="✅" --cancel-label="❌" --title="Terminal  💻" --width=250 --height=205 --text="" --column="" "		        Terminal		 💻" "" "	       	           Config			 🛠"`; then
 		titre=$ret
 		if [ "$titre" = "" ]; then
 			echo "Aucun choix effectué"
@@ -928,7 +906,7 @@ git_log_terminal(){
 }
 
 git_log(){
-	if file=`zenity --list --ok-label="✅" --cancel-label="❌" --title="Log 📓" --width=250 --height=230 --text="" --column="" "		         Détaillé		 📄" "	       	        Couleurs		 📊" "			 Reflog 			 📒" "			 Branch			 🌵"`
+	if file=`zenity --list --ok-label="✅" --cancel-label="❌" --title="Log 📓" --width=250 --height=255 --text="" --column="" "		         Détaillé		 📄" "	       	        Couleurs		 📊" "" "			 Reflog 			 📒" "			 Branch			 🌵"`
 	 then
 		titre=$file
 		if [ "$titre" = "" ]; then
@@ -1106,7 +1084,7 @@ git_add_single(){
 }
 
 git_add(){
-	if ret=`zenity --list --ok-label="✅" --cancel-label="❌" --title="Add   ＋" --width=250 --height=200 --text="" --column="" "			Add			 *" "			Add			⁂" "			Add			 ∞"`; then
+	if ret=`zenity --list --ok-label="✅" --cancel-label="❌" --title="Add   ＋" --width=250 --height=225 --text="" --column="" "			Add			 *" "			Add			⁂" "" "			Add			 ∞"`; then
 		titre=$ret
 		if [ "$titre" = "" ]; then
 			echo "Aucun choix effectué"
@@ -1244,7 +1222,7 @@ if [ -e ~/bin/easyGit/config/currentCommits/$HASH_COMMIT/isCommitPending ]; then
 }
 
 git_reset(){
-	if ret=`zenity --list --ok-label="✅" --cancel-label="❌" --title="Reset  −" --width=250 --height=275 --text="" --column="" "			Reset			   *" "			Reset			  ⁂" "			Reset			   ∞" "	        Commit Reset		 ❌" "		       Remove			 ❌" "		   Hard Reset		 ❌"`; then
+	if ret=`zenity --list --ok-label="✅" --cancel-label="❌" --title="Reset  −" --width=250 --height=300 --text="" --column="" "			Reset			   *" "			Reset			  ⁂" "			Reset			   ∞" "" "	        Commit Reset		 ❌" "		       Remove			 ❌" "		   Hard Reset		 ❌"`; then
 		titre=$ret
 		if [ "$titre" = "" ]; then
 			echo "Aucun choix effectué"
@@ -1421,7 +1399,7 @@ git_remove_forced(){
 }
 
 git_remove(){
-	if file=`zenity --list --ok-label="✅" --cancel-label="❌" --title="Type de Remove ❌" --height=200 --text="Git rm ..." --column="Type de Git Remove" "Simple" "Simple One" "Cached" "Forced"`; then
+	if file=`zenity --list --ok-label="✅" --cancel-label="❌" --title="Type de Remove ❌" --height=250 --text="Git rm ..." --column="" "		Simple		 *" "		Simple		⁂" "" "		Cached" "		Forced"`; then
 		titre=$file
 		if [ "$titre" = "" ]; then
 			echo "Pas de choix effectué"
@@ -1431,16 +1409,16 @@ git_remove(){
 			git_reset
 		fi
 		if ([ -n "$titre" ]); then
-			if [ "$titre" = "Simple" ]; then
-				unset titre
-				git_remove_simple
-			elif [ "$titre" = "Simple One" ]; then
+			if [ "$titre" = "		Simple		 *" ]; then
 				unset titre
 				git_remove_simple_single
-			elif [ "$titre" = "Cached" ]; then
+			elif [ "$titre" = "		Simple		⁂" ]; then
+				unset titre
+				git_remove_simple
+			elif [ "$titre" = "		Cached" ]; then
 				unset titre
 				git_remove_cached
-			elif [ "$titre" = "Forced" ]; then
+			elif [ "$titre" = "		Forced" ]; then
 				unset titre
 				git_remove_forced
 			fi
@@ -1475,28 +1453,6 @@ git_commit_reset(){
 			git_reset
 		fi
 	fi
-}
-
-git_erase(){
-	if file=`zenity --list --ok-label="✅" --cancel-label="❌" --title="Erase ❌" --height=200 --text="Git rm ..." --column="Type de Git Remove" "Remove" "Commit Reset"`; then
-		titre=$file
-		if [ "$titre" = "" ]; then
-			echo "Pas de choix effectué"
-		fi
-	else
-		function_files
-		echo "Annulation"
-	fi
-	if ([ -n "$titre" ]); then
-		if [ "$titre" = "Remove" ]; then
-			git_remove
-		elif [ "$titre" = "Commit Reset" ]; then
-			git_commit_reset
-		fi
-	else
-		echo "Pas de choix effectué"
-	fi
-	2>/dev/null
 }
 
 git_commit(){
@@ -1641,7 +1597,7 @@ git_rebase(){
 }
 
 git_pull(){
-if file=`zenity --list --ok-label="✅" --cancel-label="❌" --title="Stash ❌" --width=250 --height=180 --text="" --column="" "		         Rebase		          📥" "		       	 Merge		          📥"`; then
+if file=`zenity --list --ok-label="✅" --cancel-label="❌" --title="Pull 📥" --width=250 --height=205 --text="" --column="" "		         Rebase		          📥" "" "		       	 Merge		          📥"`; then
 		titre=$file
 		if [ "$titre" = "" ]; then
 			echo "Pas de choix effectué"
@@ -2124,7 +2080,7 @@ frm_git(){
 	zenity --list --width=400 --height=505 --text='<span font-family=\"Arial\">'"$HEADER"'</span>' \
     	--title="Git" \
     	--ok-label="✅" \
-    	--cancel-label="❌" \
+    	--cancel-label="↶" \
     	--hide-column 1 --column "" --column "" --column "" --column "" --column "" \
     	1 "  1" "				        $MD" "			           " "🗃" \
     	2 "  2" "				      $MF" "			           " "📑" \
