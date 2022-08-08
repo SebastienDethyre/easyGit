@@ -79,8 +79,12 @@ notification(){
     --text="$1"
 }
 
-intern_terminal(){ 
-	xterm 
+switch_display(){
+	if [ $filesDisplay -eq 1 ]; then
+		filesDisplay=0
+	else
+		filesDisplay=1
+	fi
 }
 
 clear_screen(){	
@@ -789,9 +793,9 @@ rgb2hex(){
 	fi
 }
 
-git_log_terminal_police_size_text(){
+terminal_police_size_text(){
 	textSizeLogTerm=`sed '8q;d' ~/bin/easyGit/config/generalConfig`
-	size=`zenity --scale --title="Taille du texte  📏"--text="\t\t        Hauteur en pixels" --value=$textSizeLogTerm --min-value=5 --max-value=30 --step 1`
+	size=`zenity --scale --title="Taille du texte  📏" --text="		        Hauteur en pixels" --value=$textSizeLogTerm --min-value=5 --max-value=30 --step 1`
 	case $? in
 			0)
 				echo "Vous avez choisi $size pixels."
@@ -805,11 +809,11 @@ git_log_terminal_police_size_text(){
 				echo "Une erreur inattendue est survenue.";;
 	esac
 	2>/dev/null
-	git_config_log_terminal
+	config_terminal
 }
 
 
-git_log_terminal_color_text(){
+terminal_color_text(){
 	color=`zenity --color-selection --show-palette`
 	case $? in
 			0)
@@ -826,10 +830,10 @@ git_log_terminal_color_text(){
 	sed -i '4s/.*/'$textColorLogTerm'/' ~/bin/easyGit/config/generalConfig
 	sed -i '3s/.*/XTerm*foreground: '$textColorLogTerm'/' ~/.Xresources
 	xrdb -merge ~/.Xresources
-	git_config_log_terminal
+	config_terminal
 }
 
-git_log_terminal_color_background(){
+terminal_color_background(){
 	color=`zenity --color-selection --show-palette`
 	case $? in
 			0)
@@ -846,33 +850,66 @@ git_log_terminal_color_background(){
 	sed -i '6s/.*/'$backGroundColorLogTerm'/' ~/bin/easyGit/config/generalConfig
 	sed -i '4s/.*/XTerm*background: '$backGroundColorLogTerm'/' ~/.Xresources
 	xrdb -merge ~/.Xresources
-	git_config_log_terminal
+	config_terminal
 }
 
-git_config_log_terminal(){
+config_terminal(){
 	if file=`zenity --list --ok-label="✅" --cancel-label="❌" --title="Config Log Couleurs 📊" --width=250 --height=200 --text="" --column="" "		   Couleur texte		  📄" "		     Taille texte		  📄" "	       	   Fond d'écran		  📺"`
 	 then
 		titre=$file
 		if [ "$titre" = "" ]; then
 			echo "Pas de choix effectué"
+			terminal
 		fi
 	else
-		git_log
+		terminal
 		echo "Annulation"
 	fi
 	if ([ -n "$titre" ]); then
 		if [ "$titre" = "		   Couleur texte		  📄" ]; then
-			git_log_terminal_color_text
+			terminal_color_text
 			unset titre
 		elif [ "$titre" = "		     Taille texte		  📄" ]; then
-			git_log_terminal_police_size_text
+			terminal_police_size_text
 		elif [ "$titre" = "	       	   Fond d'écran		  📺" ]; then
-			git_log_terminal_color_background
+			terminal_color_background
 			unset titre
 		fi
 	else
 		echo "Pas de choix effectué"
+		terminal
 	fi
+}
+
+intern_terminal(){ 
+	xterm 
+	terminal
+}
+
+terminal(){
+	if ret=`zenity --list --ok-label="✅" --cancel-label="❌" --title="Terminal  💻" --width=250 --height=180 --text="" --column="" "		        Terminal		 💻" "	       	           Config			 🛠"`; then
+		titre=$ret
+		if [ "$titre" = "" ]; then
+			echo "Aucun choix effectué"
+		fi
+	else
+		echo "Annulation"
+		function_utils
+	fi
+	if ([ -n "$titre" ]); then
+		if [ "$titre" = "		        Terminal		 💻" ]; then
+			unset titre
+			intern_terminal
+		elif [ "$titre" = "	       	           Config			 🛠" ]; then
+			config_terminal
+			unset titre	
+		fi
+	else
+		echo "Aucun clone effectué"
+		function_utils
+	fi
+	2>/dev/null
+
 }
 
 git_log_terminal(){
@@ -891,7 +928,7 @@ git_log_terminal(){
 }
 
 git_log(){
-	if file=`zenity --list --ok-label="✅" --cancel-label="❌" --title="Log 📓" --width=250 --height=250 --text="" --column="" "		         Détaillé		 📄" "	       	        Couleurs		 📊" "	       	          Config			 📊" "			 Reflog 			 📒" "			 Branch			 🌵"`
+	if file=`zenity --list --ok-label="✅" --cancel-label="❌" --title="Log 📓" --width=250 --height=230 --text="" --column="" "		         Détaillé		 📄" "	       	        Couleurs		 📊" "			 Reflog 			 📒" "			 Branch			 🌵"`
 	 then
 		titre=$file
 		if [ "$titre" = "" ]; then
@@ -908,9 +945,6 @@ git_log(){
 		elif [ "$titre" = "	       	        Couleurs		 📊" ]; then
 			git_log_terminal
 			unset titre
-		elif [ "$titre" = "	       	          Config			 📊" ]; then
-			git_config_log_terminal
-			unset titre	
 		elif [ "$titre" = "			 Reflog 			 📒" ]; then
 			git_reflog
 			unset titre
@@ -2067,7 +2101,7 @@ frm_utils_parser(){
         1) git_log ;;
         2) git_checkout ;;
         3) git_status ;;
-        4) intern_terminal ;;
+        4) terminal ;;
 		5) git_cherry_pick ;;
 		6) fix_process_already_launched;;
         *) function_git ;;
