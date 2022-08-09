@@ -275,7 +275,29 @@ checkFilesChanged(){
 }
 
 open_repo(){
-	xdg-open $REPO_ADRESS
+	DIR_SHORT=${CURRENT_DIR:12}
+	REPO_SHORT=${REPO_ADRESS:19}
+	DIR_SHORT=${CURRENT_DIR:0}
+	REPO_SHORT=${REPO_ADRESS:0}
+	if file=`zenity --list --ok-label="✅" --cancel-label="❌" --title="Ouvrir 📂" --width=650 --height=205 --text="" --column="" "🌍		Distant : 		$REPO_SHORT" "" "📂		Local      : 		$DIR_SHORT"`; then
+		titre=$file
+		if [ "$titre" = "" ]; then
+			echo "Pas de choix effectué"
+		fi
+	else
+		function_repo
+		echo "Annulation"
+	fi
+	if ([ -n "$titre" ]); then
+		if [ "$titre" = "🌍		Distant : 		$REPO_SHORT" ]; then
+				xdg-open $REPO_ADRESS
+		elif [ "$titre" = "📂		Local      : 		$DIR_SHORT" ]; then
+				xdg-open $CURRENT_DIR
+		fi
+	else
+		echo "Pas de choix effectué"
+	fi
+	2>/dev/null
 }
 
 #############################################################################################################################################################################
@@ -305,7 +327,7 @@ LOGO_400="
 \t\t<span color=\"#F65151\">       ╚═════╝    ╚  ╝       ╚═╝   </span>
 
 \t<span color=\"darkblue\">$REPO_ADRESS</span>
-\t<big>📂</big>   <span color=\"blue\">$CURRENT_DIR</span>
+\t<big>📁</big>   <span color=\"blue\">$CURRENT_DIR</span>
 "
 
 add_spaces(){
@@ -339,7 +361,7 @@ $SPACE_GIT$git5
 $SPACE_GIT$git6
 
 <span color=\"darkblue\">$REPO_ADRESS</span>
-\t<big>📂</big>   <span color=\"blue\">$CURRENT_DIR</span>
+\t<big>📁</big>   <span color=\"blue\">$CURRENT_DIR</span>
 "
 	diff=46
 	commandsDialogWidth="$(($totalLineNumber - $diff))"
@@ -1374,7 +1396,7 @@ git_remove_forced(){
 	elif [ "$filesChangedAndUntracked" = "" ]; then
 		echo "Aucun fichier à retirer du dépot"
 		notification "Aucun fichier à retirer du dépot"
-		git_remove
+		git_remove 
 	else
 		if file=`zenity --list --ok-label="✅" --cancel-label="❌" --title="Remove Forced ❌" --text="Git rm ..." --column="Fichiers changés et non-suivis" $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/files/filesChangedAndUntracked)`; then
 			titre=$file
@@ -2009,7 +2031,7 @@ zenity --list --width=400 --height=$dialogRepoHeight --text='<span font-family=\
     2 "    2" "				         $GS" "			            " "🔁" \
     3 "    3" "				           $GPL" "			           " "📥" \
     0 "" "" "" "" \
-    4 "    4" "				        $OR" "			           " "🌍" \
+    4 "    4" "				        $OR" "			           " "📂" \
     5 "    5" "				         $GCL" "			            " "📚" 2>/dev/null ;
 }
 
