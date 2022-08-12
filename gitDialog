@@ -1030,8 +1030,6 @@ git_add_all(){
 		checkFilesChanged
 		echo "Fichiers ajoutés au commit :
 $(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/files/filesStaged)"
-		notification "Fichiers ajoutés au commit :
-$(sed ':z;N;$! bz;s/\n/ /g' ~/bin/easyGit/files/filesStaged)"
 	fi
 }
 
@@ -1057,8 +1055,6 @@ git_add_some(){
 			git add $titre
 			echo "Fichier" $titre "ajouté"
 			checkFilesChanged
-			notification "Fichier ajouté au commit :
-\t$titre"
 			unset titre
 			git_add_some
 		else
@@ -1091,8 +1087,6 @@ git_add_single(){
 			git add $titre
 			echo "Fichier" $titre "ajouté"
 			checkFilesChanged
-			notification "Fichier ajouté au commit :
-\t$titre"
 			unset titre
 		else
 			echo "Pas de fichier ajouté"
@@ -1502,8 +1496,6 @@ git_commit(){
 				HASH_COMMIT=`git rev-parse HEAD`
 				mkdir ~/bin/easyGit/config/currentCommits/$HASH_COMMIT
 				touch ~/bin/easyGit/config/currentCommits/$HASH_COMMIT/isCommitPending
-				notification "Commit défini :
-\t$titre"
 				unset titre
 			else
 				echo "Pas de commit effectué"
