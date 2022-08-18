@@ -90,7 +90,7 @@ switch_display(){
 clear_screen(){	
 	clear 
 }
-
+clear_screen param1 param2
 change_width(){
 	width=`zenity --scale --title="Largeur  📏" --text="		        Largeur en pixels" --value=$filesDialogWidth --min-value=450 --max-value=1850 --step 50`
 	case $? in
@@ -1003,7 +1003,8 @@ git_checkout(){
 		echo "Annulation"
 	fi
 	if ([ -n "$titre" ]); then
-		git checkout $titre
+		git checkout $titre || notification "Modifications non remisées :
+Vous restez sur la branche <b>$currentBranch</b>" && return 0
 		currentBranch=`cat .git/HEAD | cut -c 17-`
 		cat .git/HEAD | cut -c 17- > ~/bin/easyGit/config/currentBranch
 		unset titre
@@ -1990,7 +1991,7 @@ frm_files_parser(){
 			5) switch_display ;;
 			6) change_width ;;
 			*) function_git ;;
-			esac
+		esac
 	fi
 }
 
