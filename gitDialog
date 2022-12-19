@@ -1,5 +1,7 @@
 #!/bin/bash
 
+#set -e
+
 CURRENT_DIR=`pwd`
 factor=3
 totalLineNumber=60
@@ -237,13 +239,6 @@ edit_file(){
 	2>/dev/null
 
 }
-switch_display(){
-	if [ $filesDisplay -eq 1 ]; then
-		filesDisplay=0
-	else
-		filesDisplay=1
-	fi
-}
 
 checkFilesChanged(){
 	if([ -d .git ] ); then
@@ -255,7 +250,7 @@ checkFilesChanged(){
 		HASH_COMMIT=`git rev-parse HEAD`
 		git diff-tree --no-commit-id --name-only -r $HASH_COMMIT > ~/bin/easyGit/files/filesCommitted
 		TEXT_COMMIT_RAW=`git log --format=%B -n 1`
-		TEXT_COMMIT=`echo "$TEXT_COMMIT_RAW" | fold -b$(($totalLineNumber - $two)) -s  | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
+		TEXT_COMMIT=`echo "$TEXT_COMMIT_RAW" | fold -b$(($totalLineNumber - 2)) -s  | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
 		LAST_COMMIT_DATE_RAW=`git log -1 --format=%cd`
 		LAST_COMMIT_DATE=${LAST_COMMIT_DATE_RAW::-6}
 		REPO_ADRESS=`git config --get remote.origin.url`
@@ -336,7 +331,7 @@ add_spaces(){
 	REPO_ADRESS=`git config --get remote.origin.url | fold -b$(($totalLineNumber - $one)) | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
 
 	spaceRawLineSize="$(($totalLineNumber - $simpleLineNumber))"
-	spaceLineSize="$(($spaceRawLineSize - $three))"
+	spaceLineSize="$(($spaceRawLineSize - 3))"
 	SPACE_LINE=`printf %$spaceLineSize\s |tr " " " "`
 
 	git1="<span color=\"#A10101\"> ███████╗  ██╗████████╗    </span>"
@@ -348,7 +343,7 @@ add_spaces(){
 
 	decorum=31
 	trueGitLength="$(( ${#git1} - $decorum ))"
-	spaceGitSize="$(($totalLineNumber - $trueGitLength - $three ))"
+	spaceGitSize="$(($totalLineNumber - $trueGitLength - 3 ))"
 	SPACE_GIT=`printf %$spaceGitSize\s |tr " " " "`
 	GIT="$SPACE_GIT$git1
 $SPACE_GIT$git2
@@ -364,22 +359,22 @@ $SPACE_GIT$git6
 	commandsDialogWidth="$(($totalLineNumber - $diff))"
 	commandsLineNumberFloat=`echo $commandsDialogWidth / $factor | bc -l`
 	commandsLineNumber=${commandsLineNumberFloat%.*}
-	commandsLineNumber=$(($commandsLineNumber - $four))
+	commandsLineNumber=$(($commandsLineNumber - 4))
 
 	spaceAddSize="$(($totalLineNumber + $commandsLineNumber))"
-	spaceAddSSize="$(($spaceAddSize - $five))"
+	spaceAddSSize="$(($spaceAddSize - 5))"
 	spacePushSize="$(($spaceAddSize - $one))"
 	spaceResetSize="$(($spaceAddSize - $one))"
-	spaceAddAllSize="$(($spaceAddSize - $four))"
-	spaceResetAllSize="$(($spaceAddSize - $five))"
+	spaceAddAllSize="$(($spaceAddSize - 4))"
+	spaceResetAllSize="$(($spaceAddSize - 5))"
 	spaceCommitResetSize="$(($spaceAddSize - $twelve))"
-	spaceStatusSize="$(($spaceAddSize - $three))"
-	spaceRemove="$(($spaceAddSize - $four))"
-	spaceDisplay="$(($spaceAddSize - $six))"
-	spaceChangeWidthSize="$(($spaceAddSize - $four))"
+	spaceStatusSize="$(($spaceAddSize - 3))"
+	spaceRemove="$(($spaceAddSize - 4))"
+	spaceDisplay="$(($spaceAddSize - 6))"
+	spaceChangeWidthSize="$(($spaceAddSize - 4))"
 	spaceCommitPendingSize="$(($totalLineNumber - $seventeen))"
 	spaceCommitPendingSymbol="$(($totalLineNumber - $eighteen))"
-	spaceOpenFile="$(($spaceAddSize - $two))"
+	spaceOpenFile="$(($spaceAddSize - 2))"
 	spaceFilesSymbols="$(($spaceAddSize - $twelve))"
 
 	SPACE_ADD=`printf %$spaceAddSize\s |tr " " " "`
@@ -467,12 +462,6 @@ header_utils(){
 
 \t<span color=\"green\">$nbFilesChangedSymbol  $nbFilesChanged</span>    <span color=\"#155162\">$nbFilesUntrackedSymbol  $nbFilesUntracked</span>
 "
-}
-
-notification(){
-	zenity --notification\
-	--window-icon="info" \
-	--text="$1"
 }
 
 _quit(){
@@ -1490,7 +1479,7 @@ git_commit(){
 			if ([ -n "$titre" ]); then
 				git commit -m "$titre" &> ~/bin/easyGit/gitTemp
 				TMP_SCREEN=$(<~/bin/easyGit/gitTemp)
-				lineNumber=$(($totalLineNumber - $three))
+				lineNumber=$(($totalLineNumber - 3))
 				TMP_SCREEN=`echo "$TMP_SCREEN" | fold -b$(($lineNumber)) -s  | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
 				echo "Commit effectué :" $titre
 				TEXT_COMMIT=$titre
@@ -1518,7 +1507,7 @@ git_push(){
 		if ([ -n "$titre" ]); then
 			git push origin $titre &> ~/bin/easyGit/gitTemp
 			TMP_SCREEN=$(<~/bin/easyGit/gitTemp)
-			lineNumber=$(($totalLineNumber - $three))
+			lineNumber=$(($totalLineNumber - 3))
 			TMP_SCREEN=`echo "$TMP_SCREEN" | fold -b$(($lineNumber)) -s | ( TAB=$'\t' ; sed "s/^/$TAB/" )`
 			echo "Push sur la branche" $titre "effectué"
 			notification "Push sur la branche :
